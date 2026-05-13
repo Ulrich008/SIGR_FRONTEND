@@ -1,0 +1,27 @@
+<div class="flex h-screen" style="background: #fef2f2; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+
+  <!-- Sidebar -->
+  <app-sidebar
+    [menuItems]="menuItems"
+    [activeMenu]="activeMenu"
+    (menuItemClicked)="onMenuItemClicked($event)">
+  </app-sidebar>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <app-header
+      [searchPlaceholder]="searchPlaceholder"
+      [organizationName]="organizationName"
+      [userInitials]="userInitials">
+    </app-header>
+
+    <!-- Page Content -->
+    <div class="flex-1 overflow-y-auto">
+      <ng-content></ng-content>
+    </div>
+
+  </main>
+
+</div>

@@ -1,0 +1,144 @@
+<div class="min-h-screen w-full flex flex-col md:flex-row">
+  
+  <!-- Panneau gauche : image de fond (50% de largeur) -->
+  <div class="relative md:w-1/2 min-h-[20vh] md:min-h-screen flex flex-col items-center justify-center overflow-hidden"
+       style="background-image: url('/assets/images/statut.jpg'); background-size: cover; background-position: center;">
+    
+    <!-- Overlay léger pour améliorer la lisibilité du texte sans trop assombrir -->
+    <div class="absolute inset-0 bg-black/20"></div>
+
+    <!-- Dégradé bas léger -->
+    <div class="absolute bottom-0 left-0 right-0 h-16"
+         style="background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);">
+    </div>
+
+    <!-- Texte au centre - minimal -->
+    <div class="relative z-10 flex flex-col items-center justify-center text-center px-4">
+      <p class="text-white/80 text-[8px] md:text-[10px] tracking-[2px] uppercase font-semibold">RÉPUBLIQUE DU BÉNIN</p>
+    </div>
+  </div>
+
+  <!-- Panneau droit : formulaire (50% de largeur) -->
+  <div class="relative md:w-1/2 flex flex-col justify-center py-6 md:py-8 bg-white min-h-[80vh] md:min-h-screen">
+    
+    <!-- Contenu principal centré verticalement -->
+    <div class="px-4 md:px-8 lg:px-12">
+      <!-- Logo + titre -->
+      <div class="flex flex-col items-center gap-2 mb-4">
+        <!-- Logo très grand -->
+        <img src="/assets/images/mef.png" 
+             alt="Logo du Ministère de l'Économie et des Finances" 
+             class="w-40 h-40 md:w-52 md:h-52 lg:w-60 lg:h-60 object-contain">
+        
+        <div class="text-center">
+          <h1 class="text-3xl md:text-4xl font-semibold" style="font-family: 'Georgia', serif; color: #003d20;">SIGR</h1>
+          <p class="text-[10px] md:text-xs text-gray-500 tracking-wide">Système d'Information de Gestion des Risques</p>
+        </div>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="max-w-sm mx-auto w-full">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-3">
+
+          <!-- Matricule -->
+          <div>
+            <label for="matricule"
+                   class="block text-xs font-semibold mb-1 tracking-wide"
+                   style="color: #003d20;">
+              Matricule
+            </label>
+            <input
+              type="text"
+              id="matricule"
+              formControlName="matricule"
+              placeholder="Entrez votre matricule"
+              class="w-full px-3.5 py-2 text-sm rounded-lg border border-gray-300 bg-white
+                     focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100
+                     transition-colors placeholder-gray-400"
+              [class.border-red-400]="loginForm.get('matricule')?.invalid && loginForm.get('matricule')?.touched"
+              [class.bg-red-50]="loginForm.get('matricule')?.invalid && loginForm.get('matricule')?.touched"
+            >
+            <p class="text-red-500 text-xs mt-1"
+               *ngIf="loginForm.get('matricule')?.invalid && loginForm.get('matricule')?.touched">
+              {{ getErrorMessage('matricule') }}
+            </p>
+          </div>
+
+          <!-- Mot de passe -->
+          <div>
+            <label for="password"
+                   class="block text-xs font-semibold mb-1 tracking-wide"
+                   style="color: #003d20;">
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              placeholder="Entrez votre mot de passe"
+              class="w-full px-3.5 py-2 text-sm rounded-lg border border-gray-300 bg-white
+                     focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100
+                     transition-colors placeholder-gray-400"
+              [class.border-red-400]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+              [class.bg-red-50]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            >
+            <p class="text-red-500 text-xs mt-1"
+               *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              {{ getErrorMessage('password') }}
+            </p>
+          </div>
+
+          <!-- Liens supplémentaires -->
+          <div class="flex justify-between items-center text-xs">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+              <span class="text-gray-600">Se souvenir de moi</span>
+            </label>
+            <a href="#" class="text-green-700 hover:text-green-800 hover:underline">Mot de passe oublié ?</a>
+          </div>
+
+          <!-- Erreur générale -->
+          <div class="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm"
+               *ngIf="error">
+            {{ error }}
+          </div>
+
+          <!-- Bouton de connexion -->
+          <button
+            type="submit"
+            class="w-full py-2 rounded-lg text-white text-sm font-semibold tracking-wide
+                   transition-all duration-200 hover:opacity-90 active:scale-[0.99]
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+            style="background-color: #008751;"
+            [disabled]="loading"
+          >
+            <span *ngIf="loading" class="flex items-center justify-center gap-2">
+              <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                   fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10"
+                        stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              Connexion en cours...
+            </span>
+            <span *ngIf="!loading">Se connecter</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bande drapeau -->
+    <div class="mt-auto px-4 md:px-8 lg:px-12 pt-4">
+      <div class="flex h-0.5 rounded-full overflow-hidden mb-2">
+        <div class="flex-1" style="background-color: #008751;"></div>
+        <div class="flex-1" style="background-color: #fcd116;"></div>
+        <div class="flex-1" style="background-color: #e8112d;"></div>
+      </div>
+      <p class="text-center text-gray-400 text-[8px] md:text-[10px]" style="letter-spacing: 0.5px;">
+        © République du Bénin · Ministère des Finances
+      </p>
+    </div>
+  </div>
+</div>
