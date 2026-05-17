@@ -1,0 +1,212 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Risques"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des risques</p>
+          <h1 class="text-2xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Modifier le risque' : 'Nouveau risque' }}
+          </h1>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <!-- Formulaire -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Code -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+                <input
+                  formControlName="code"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-4 py-3 text-sm focus:outline-none transition"
+                  placeholder="Généré automatiquement"
+                />
+              </div>
+
+              <!-- Libellé -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé (max 200 caractères)</label>
+                <input
+                  formControlName="libelle"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Fraude financière"
+                />
+                <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('libelle') }}
+                </p>
+              </div>
+
+              <!-- Type de risque -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Type de risque</label>
+                <select
+                  formControlName="typeRisque"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un type</option>
+                  <option *ngFor="let option of typeRisqueOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('typeRisque')?.invalid && form.get('typeRisque')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('typeRisque') }}
+                </p>
+              </div>
+
+              <!-- Statut -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+                <select
+                  formControlName="statut"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un statut</option>
+                  <option *ngFor="let option of statutOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('statut')?.invalid && form.get('statut')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('statut') }}
+                </p>
+              </div>
+
+              <!-- Date d'identification -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date d'identification</label>
+                <input
+                  formControlName="dateIdentification"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
+                <p *ngIf="form.get('dateIdentification')?.invalid && form.get('dateIdentification')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('dateIdentification') }}
+                </p>
+              </div>
+
+              <!-- Processus -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Processus</label>
+                <select
+                  formControlName="codeProcessus"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un processus</option>
+                  <option *ngIf="loadingProcessus" value="" disabled>Chargement...</option>
+                  <option *ngFor="let proc of processus" [value]="proc.code">
+                    {{ proc.code }} - {{ proc.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeProcessus') }}
+                </p>
+              </div>
+
+              <!-- Cartographie -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Cartographie (optionnel)</label>
+                <select
+                  formControlName="codeCartographie"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner une cartographie</option>
+                  <option *ngIf="loadingCartographies" value="" disabled>Chargement...</option>
+                  <option *ngFor="let carto of cartographies" [value]="carto.code">
+                    {{ carto.code }} - {{ carto.titre }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Cause probable -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Cause probable (max 1000 caractères)</label>
+                <textarea
+                  formControlName="causeProbable"
+                  rows="3"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Description de la cause probable..."
+                ></textarea>
+                <p *ngIf="form.get('causeProbable')?.invalid && form.get('causeProbable')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('causeProbable') }}
+                </p>
+              </div>
+
+              <!-- Conséquence probable -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Conséquence probable (max 1000 caractères)</label>
+                <textarea
+                  formControlName="consequenceProbable"
+                  rows="3"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Description de la conséquence probable..."
+                ></textarea>
+                <p *ngIf="form.get('consequenceProbable')?.invalid && form.get('consequenceProbable')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('consequenceProbable') }}
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            >
+              {{ isEditMode ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

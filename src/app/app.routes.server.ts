@@ -2,27 +2,48 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: 'auth/**',
-    renderMode: RenderMode.Server
+    path: '**',
+    renderMode: RenderMode.Client
   },
+  // ❌ NE PAS SSR LES ROUTES PROTÉGÉES JWT
   {
     path: 'ministeres/**',
-    renderMode: RenderMode.Server
+    renderMode: RenderMode.Client
   },
   {
     path: 'ministere/**',
-    renderMode: RenderMode.Server
+    renderMode: RenderMode.Client
   },
   {
     path: 'ministère/**',
-    renderMode: RenderMode.Server
+    renderMode: RenderMode.Client
   },
   {
-    path: 'dashboard',
-    renderMode: RenderMode.Prerender
+    path: 'unite-administrative/**',
+    renderMode: RenderMode.Client
   },
   {
-    path: '**',
-    renderMode: RenderMode.Prerender
-  }
+    path: 'processus/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'cartographie-risques/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'risques/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'evaluations/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'agents/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'agents/affectations/**',
+    renderMode: RenderMode.Client
+  },
 ];

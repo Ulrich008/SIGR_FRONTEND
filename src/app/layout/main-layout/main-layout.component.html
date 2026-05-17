@@ -1,4 +1,4 @@
-<div class="flex h-screen" style="background: #fef2f2; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+<div class="flex min-h-screen" style="background: white; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
 
   <!-- Sidebar -->
   <app-sidebar
@@ -8,12 +8,11 @@
   </app-sidebar>
 
   <!-- Main Content Area -->
-  <main class="flex-1 flex flex-col overflow-hidden">
+  <main class="flex-1 flex flex-col overflow-hidden min-w-0">
 
     <!-- Header -->
     <app-header
       [searchPlaceholder]="searchPlaceholder"
-      [organizationName]="organizationName"
       [userInitials]="userInitials">
     </app-header>
 

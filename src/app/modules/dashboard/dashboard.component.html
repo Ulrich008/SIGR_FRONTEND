@@ -6,83 +6,85 @@
   userInitials="AD">
 
   <!-- Page Content -->
-  <div class="p-6">
+  <div class="p-4 sm:p-6">
 
     <!-- Breadcrumb + title -->
-    <div class="mb-5">
+    <div class="mb-4 sm:mb-5">
       <p class="text-xs text-gray-400 mb-1">Dashboards › Vue d'ensemble</p>
-      <h1 class="text-2xl font-bold text-gray-800">Tableau de bord</h1>
-      <p class="text-xs text-gray-400 mt-0.5">Ministère de l'Économie et des Finances - Gestion des risques</p>
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Tableau de bord</h1>
+      <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">Ministère de l'Économie et des Finances - Gestion des risques</p>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
+    <!-- KPI Cards - Responsive Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+      
       <!-- Total Risques -->
-      <div class="bg-white rounded-2xl p-5 shadow-sm" style="background: linear-gradient(135deg, #eef7f1 0%, #f5faf7 100%)">
-        <div class="flex justify-between items-start mb-3">
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm" style="background: linear-gradient(135deg, #eef7f1 0%, #f5faf7 100%)">
+        <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Total Risques</p>
-          <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+          <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
             <path stroke-width="2" stroke-linecap="round" d="M3 17l4-8 4 4 4-6 4 3"/>
           </svg>
         </div>
-        <p class="text-4xl font-bold text-gray-800">48</p>
-        <p class="text-xs text-green-600 mt-2">+12% vs le mois dernier</p>
+        <p class="text-3xl sm:text-4xl font-bold text-gray-800">48</p>
+        <p class="text-xs text-green-600 mt-1 sm:mt-2">+12% vs le mois dernier</p>
       </div>
 
       <!-- Risques Critiques -->
-      <div class="bg-white rounded-2xl p-5 shadow-sm" style="background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%)">
-        <div class="flex justify-between items-start mb-3">
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm" style="background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%)">
+        <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Risques Critiques</p>
-          <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+          <svg class="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
             <circle cx="12" cy="12" r="9" stroke-width="2"/>
             <path stroke-width="2" stroke-linecap="round" d="M12 8v4M12 16h.01"/>
           </svg>
         </div>
-        <p class="text-4xl font-bold text-red-500">12</p>
-        <p class="text-xs text-red-400 mt-2">Attention requise</p>
+        <p class="text-3xl sm:text-4xl font-bold text-red-500">12</p>
+        <p class="text-xs text-red-400 mt-1 sm:mt-2">Attention requise</p>
       </div>
 
       <!-- Processus Métiers -->
-      <div class="bg-white rounded-2xl p-5 shadow-sm" style="background: linear-gradient(135deg, #eef7f1 0%, #f5faf7 100%)">
-        <div class="flex justify-between items-start mb-3">
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm" style="background: linear-gradient(135deg, #eef7f1 0%, #f5faf7 100%)">
+        <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Processus Métiers</p>
         </div>
-        <p class="text-4xl font-bold text-green-700">3</p>
-        <p class="text-xs text-green-500 mt-2">Tous actifs</p>
+        <p class="text-3xl sm:text-4xl font-bold text-green-700">3</p>
+        <p class="text-xs text-green-500 mt-1 sm:mt-2">Tous actifs</p>
       </div>
 
       <!-- Indicateurs KPI -->
-      <div class="bg-white rounded-2xl p-5 shadow-sm" style="background: linear-gradient(135deg, #fffbee 0%, #fdfaf0 100%)">
-        <div class="flex justify-between items-start mb-3">
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm" style="background: linear-gradient(135deg, #fffbee 0%, #fdfaf0 100%)">
+        <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Indicateurs KPI</p>
         </div>
-        <p class="text-4xl font-bold text-yellow-500">2</p>
-        <p class="text-xs text-red-400 mt-2">-8% Performance</p>
+        <p class="text-3xl sm:text-4xl font-bold text-yellow-500">2</p>
+        <p class="text-xs text-red-400 mt-1 sm:mt-2">-8% Performance</p>
       </div>
     </div>
 
-    <!-- Bottom row -->
-    <div class="grid grid-cols-3 gap-4">
-
-      <!-- Bar chart - 2/3 -->
-      <div class="col-span-2 bg-white rounded-2xl shadow-sm p-5">
-        <div class="flex justify-between items-start mb-4">
+    <!-- Bottom row - Responsive Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      
+      <!-- Bar chart - Takes full width on mobile, 2/3 on desktop -->
+      <div class="lg:col-span-2 bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
           <div>
             <h3 class="font-semibold text-gray-800 text-sm">Risques identifiés par processus</h3>
             <p class="text-xs text-gray-400 mt-0.5">Nombre de risques par processus métier</p>
           </div>
-          <button class="text-xs bg-green-700 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-green-800 transition-colors">
+          <button class="text-xs bg-green-700 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-green-800 transition-colors w-full sm:w-auto">
             Tous les processus
           </button>
         </div>
 
-        <div style="width: 100%; height: 220px;">
-          <canvas id="riskChart" style="width: 100%; height: 100%;"></canvas>
+        <!-- Chart container with responsive height -->
+        <div class="w-full" style="height: auto; min-height: 220px;">
+          <canvas id="riskChart" style="width: 100%; height: 100%; max-height: 300px;"></canvas>
         </div>
       </div>
 
-      <!-- Activités Récentes - 1/3 -->
-      <div class="bg-white rounded-2xl shadow-sm p-5">
+      <!-- Activités Récentes - Responsive -->
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-5">
         <h3 class="font-semibold text-gray-800 text-sm mb-4">Activités Récentes</h3>
         <div class="space-y-3">
           <div *ngFor="let act of activities; let i = index" class="flex items-start gap-3">
@@ -93,8 +95,8 @@
               {{ act.initials }}
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-800 leading-tight">{{ act.label }}</p>
-              <p class="text-xs text-gray-400 mt-0.5">{{ act.user }} · {{ act.time }}</p>
+              <p class="text-sm font-medium text-gray-800 leading-tight break-words">{{ act.label }}</p>
+              <p class="text-xs text-gray-400 mt-0.5 break-words">{{ act.user }} · {{ act.time }}</p>
             </div>
           </div>
         </div>

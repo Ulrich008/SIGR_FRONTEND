@@ -1,6 +1,13 @@
-export interface TypeUnite {
-  id: number;
-  nom: string;
+export interface TypeUniteRequest {
+  code: string;
+  libelle: string;
   description?: string;
-  actif: boolean;
+}
+
+export interface TypeUniteResponse {
+  id: string;
+  code: string;
+  libelle: string;
+  description?: string;
+  creePar: string;
 }

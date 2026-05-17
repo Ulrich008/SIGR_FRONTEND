@@ -68,5 +68,5 @@ export default `<!doctype html>
 <link rel="stylesheet" href="styles.css"></head>
 <body ngcm="">
   <app-root></app-root>
-<link rel="modulepreload" href="chunk-X4W6N5WF.js"><script src="main.js" type="module"></script></body>
+<link rel="modulepreload" href="chunk-PYVSYTHE.js"><script src="main.js" type="module"></script></body>
 </html>`;

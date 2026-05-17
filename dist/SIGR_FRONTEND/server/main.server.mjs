@@ -76,7 +76,7 @@ import {
   ɵɵdefineNgModule,
   ɵɵelement,
   ɵɵinject
-} from "./chunk-ETNA3QJM.mjs";
+} from "./chunk-MJB2LVY2.mjs";
 import {
   __objRest,
   __spreadProps,
@@ -29065,15 +29065,15 @@ var App = class _App {
 var routes = [
   __spreadValues({
     path: "auth",
-    loadChildren: () => import("./chunk-SEPSLE75.mjs").then((m) => m.AuthModule)
+    loadChildren: () => import("./chunk-U6G5UGSY.mjs").then((m) => m.AuthModule)
   }, true ? { \u0275entryName: "src/app/modules/auth/auth.module.ts" } : {}),
   __spreadValues({
     path: "dashboard",
-    loadComponent: () => import("./chunk-IL7TYSUU.mjs").then((c) => c.DashboardComponent)
+    loadComponent: () => import("./chunk-SUQOTDCE.mjs").then((c) => c.DashboardComponent)
   }, true ? { \u0275entryName: "src/app/modules/dashboard/dashboard.component.ts" } : {}),
   __spreadValues({
     path: "ministeres",
-    loadChildren: () => import("./chunk-ST2GVSSK.mjs").then((m) => m.MinisteresModule)
+    loadChildren: () => import("./chunk-ABWCSRMT.mjs").then((m) => m.MinisteresModule)
   }, true ? { \u0275entryName: "src/app/modules/ministeres/ministeres.module.ts" } : {}),
   {
     path: "ministere",

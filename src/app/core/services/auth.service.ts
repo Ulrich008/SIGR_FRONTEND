@@ -13,9 +13,11 @@ export class AuthService {
   private readonly API_URL = `${environment.apiUrl}/api/auth`;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'current_user';
+
   private isBrowser: boolean;
 
-  private currentUserSubject = new BehaviorSubject<LoginResponse | null>(this.getCurrentUser());
+  // ✅ état initial vide (IMPORTANT SSR FIX)
+  private currentUserSubject = new BehaviorSubject<LoginResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
@@ -23,25 +25,26 @@ export class AuthService {
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+
+    // ✅ recharge session APRÈS hydration uniquement côté browser
+    if (this.isBrowser) {
+      const user = this.getCurrentUser();
+      this.currentUserSubject.next(user);
+    }
   }
 
-  /**
-   * Connexion d'un agent
-   */
+  // ================= LOGIN =================
   login(request: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API_URL}/login`, request)
-      .pipe(
-        tap(response => {
-          this.setSession(response);
-          this.currentUserSubject.next(response);
-        }),
-        catchError(this.handleError)
-      );
+    return this.http.post<LoginResponse>(`${this.API_URL}/login`, request).pipe(
+      tap(response => {
+        this.setSession(response);
+        this.currentUserSubject.next(response);
+      }),
+      catchError(this.handleError)
+    );
   }
 
-  /**
-   * Déconnexion
-   */
+  // ================= LOGOUT =================
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem(this.TOKEN_KEY);
@@ -50,14 +53,11 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
-  /**
-   * Vérifier si l'utilisateur est connecté
-   */
+  // ================= AUTH CHECK =================
   isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) return false;
 
-    // Vérifier si le token n'est pas expiré (simple vérification côté client)
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const expiry = payload.exp * 1000;
@@ -67,92 +67,60 @@ export class AuthService {
     }
   }
 
-  /**
-   * Obtenir le token JWT
-   */
+  // ================= TOKEN =================
   getToken(): string | null {
-    if (!this.isBrowser) {
-      return null;
-    }
+    if (!this.isBrowser) return null;
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  /**
-   * Obtenir l'utilisateur actuel
-   */
+  // ================= USER =================
   getCurrentUser(): LoginResponse | null {
-    if (!this.isBrowser) {
+    if (!this.isBrowser) return null;
+
+    const userStr = localStorage.getItem(this.USER_KEY);
+    if (!userStr) return null;
+
+    try {
+      return JSON.parse(userStr);
+    } catch {
       return null;
     }
-    const userStr = localStorage.getItem(this.USER_KEY);
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch {
-        return null;
-      }
-    }
-    return null;
   }
 
-  /**
-   * Vérifier si l'utilisateur a un rôle spécifique
-   */
+  // ================= ROLE =================
   hasRole(role: string): boolean {
     const user = this.getCurrentUser();
-    return user ? user.role === role : false;
+    return !!user && user.role === role;
   }
 
-  /**
-   * Obtenir les headers d'autorisation
-   */
+  // ================= HEADERS =================
   getAuthHeaders(): { [header: string]: string } {
     const token = this.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  /**
-   * Sauvegarder la session
-   */
+  // ================= SESSION =================
   private setSession(response: LoginResponse): void {
-    if (this.isBrowser) {
-      localStorage.setItem(this.TOKEN_KEY, response.token);
-      localStorage.setItem(this.USER_KEY, JSON.stringify(response));
-    }
+    if (!this.isBrowser) return;
+
+    localStorage.setItem(this.TOKEN_KEY, response.token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(response));
   }
 
-  /**
-   * Gestion des erreurs HTTP
-   */
+  // ================= ERROR =================
   private handleError = (error: HttpErrorResponse): Observable<never> => {
     let errorMessage = 'Une erreur inconnue est survenue';
 
-    if (error.error instanceof ErrorEvent) {
-      // Erreur côté client
-      errorMessage = error.error.message;
+    if (error.status === 401) {
+      errorMessage = 'Matricule ou mot de passe incorrect';
+    } else if (error.status === 400) {
+      errorMessage = 'Données invalides';
+    } else if (error.status === 0) {
+      errorMessage = 'Serveur inaccessible';
     } else {
-      // Erreur côté serveur
-      if (error.status === 401) {
-        errorMessage = 'Matricule ou mot de passe incorrect';
-      } else if (error.status === 400) {
-        // Essayer d'extraire le message du serveur
-        if (error.error && typeof error.error === 'object') {
-          if (error.error.message) {
-            errorMessage = error.error.message;
-          } else if (error.error.error) {
-            errorMessage = error.error.error;
-          }
-        } else if (typeof error.error === 'string') {
-          errorMessage = error.error;
-        } else {
-          errorMessage = 'Données invalides';
-        }
-      } else {
-        errorMessage = `Erreur ${error.status}: ${error.message}`;
-      }
+      errorMessage = `Erreur ${error.status}`;
     }
 
-    console.error('Erreur d\'authentification:', errorMessage);
     return throwError(() => ({
       message: errorMessage,
       status: error.status,

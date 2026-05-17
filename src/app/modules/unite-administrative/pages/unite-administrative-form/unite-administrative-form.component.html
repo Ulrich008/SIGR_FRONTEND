@@ -1,0 +1,147 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  [activeMenu]="isEditMode ? 'Unités administratives' : 'Unités administratives'"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Administration</p>
+          <h1 class="text-2xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Modifier l\'unité administrative' : 'Nouvelle unité administrative' }}
+          </h1>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div class="rounded-3xl bg-white p-6 shadow-sm">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Informations générales -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <!-- Code -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Code (max 50 caractères)</label>
+                <input
+                  formControlName="code"
+                  type="text"
+                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
+                    (isEditMode
+                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'border-slate-200 bg-slate-50 focus:border-green-400')"
+                  placeholder="DGB"
+                />
+                <p *ngIf="form.get('code')?.invalid && form.get('code')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('code') }}</p>
+              </div>
+
+              <!-- Libellé -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé (max 200 caractères)</label>
+                <input
+                  formControlName="libelle"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Direction Générale du Budget"
+                />
+                <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('libelle') }}</p>
+              </div>
+
+              <!-- Type d'unité -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Type d'unité</label>
+                <select
+                  formControlName="idTypeUnite"
+                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
+                    (isEditMode
+                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'border-slate-200 bg-slate-50 focus:border-green-400')"
+                >
+                  <option value="">Sélectionner un type</option>
+                  <option *ngIf="loadingTypeUnites" value="" disabled>Chargement...</option>
+                  <option *ngFor="let typeUnite of typeUnites" [value]="typeUnite.code">
+                    {{ typeUnite.libelle }} ({{ typeUnite.code }})
+                  </option>
+                </select>
+                <p *ngIf="form.get('idTypeUnite')?.invalid && form.get('idTypeUnite')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('idTypeUnite') }}</p>
+              </div>
+
+              <!-- Code ministère -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Ministère</label>
+                <select
+                  formControlName="codeMinistere"
+                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
+                    (isEditMode
+                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'border-slate-200 bg-slate-50 focus:border-green-400')"
+                >
+                  <option value="">Sélectionner un ministère</option>
+                  <option *ngIf="loadingMinisteres" value="" disabled>Chargement...</option>
+                  <option *ngFor="let ministere of ministeres" [value]="ministere.code">
+                    {{ ministere.nom }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('codeMinistere')?.invalid && form.get('codeMinistere')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('codeMinistere') }}</p>
+              </div>
+
+              <!-- Unité parent -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Code Unité parent (optionnel)</label>
+                <input
+                  formControlName="idUniteParent"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="ID de l'unité parent"
+                />
+              </div>
+
+              <!-- Niveau hiérarchique -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Niveau hiérarchique (1-10)</label>
+                <input
+                  formControlName="niveauHierarchique"
+                  type="number"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="2"
+                />
+                <p *ngIf="form.get('niveauHierarchique')?.invalid && form.get('niveauHierarchique')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('niveauHierarchique') }}</p>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            >
+              {{ loading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</app-main-layout>

@@ -22,21 +22,21 @@ import {
   ɵɵdefineInjectable,
   ɵɵelement,
   ɵɵinject
-} from "./chunk-X4W6N5WF.js";
+} from "./chunk-PYVSYTHE.js";
 
 // src/app/app.routes.ts
 var routes = [
   __spreadValues({
     path: "auth",
-    loadChildren: () => import("./chunk-TTGRVMLR.js").then((m) => m.AuthModule)
+    loadChildren: () => import("./chunk-MSDF3RLY.js").then((m) => m.AuthModule)
   }, false ? { \u0275entryName: "src/app/modules/auth/auth.module.ts" } : {}),
   __spreadValues({
     path: "dashboard",
-    loadComponent: () => import("./chunk-Z7GESKBY.js").then((c) => c.DashboardComponent)
+    loadComponent: () => import("./chunk-T5HCIWB4.js").then((c) => c.DashboardComponent)
   }, false ? { \u0275entryName: "src/app/modules/dashboard/dashboard.component.ts" } : {}),
   __spreadValues({
     path: "ministeres",
-    loadChildren: () => import("./chunk-BBV5NXDQ.js").then((m) => m.MinisteresModule)
+    loadChildren: () => import("./chunk-HHQ4PZSX.js").then((m) => m.MinisteresModule)
   }, false ? { \u0275entryName: "src/app/modules/ministeres/ministeres.module.ts" } : {}),
   {
     path: "ministere",

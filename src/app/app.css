@@ -1,0 +1,24 @@
+/* Dans le composant parent ou global styles */
+:host {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 5rem; /* 80px - largeur du sidebar réduit */
+  transition: margin-left 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    margin-left: 16rem; /* 256px - largeur normale */
+  }
+}
+
+/* Pour le mode hover sur desktop */
+@media (min-width: 1024px) {
+  .sidebar:hover ~ .main-content {
+    margin-left: 16rem;
+  }
+}

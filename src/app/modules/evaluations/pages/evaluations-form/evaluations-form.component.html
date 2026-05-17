@@ -1,0 +1,233 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Évaluations"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des évaluations</p>
+          <h1 class="text-2xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Modifier l\'évaluation' : 'Nouvelle évaluation' }}
+          </h1>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <!-- Légende Échelle d'Évaluation -->
+      <div *ngIf="!loading" class="rounded-3xl bg-slate-50 p-4 shadow-sm">
+        <h3 class="text-sm font-semibold text-slate-900 mb-3">Échelle d'Évaluation (1 à 5)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
+          <div>
+            <p class="font-semibold text-slate-700 mb-1">Impact / Probabilité</p>
+            <ul class="space-y-0.5">
+              <li><span class="font-medium">1:</span> Très faible / Négligeable</li>
+              <li><span class="font-medium">2:</span> Faible / Mineur</li>
+              <li><span class="font-medium">3:</span> Moyen / Modéré</li>
+              <li><span class="font-medium">4:</span> Élevé / Majeur</li>
+              <li><span class="font-medium">5:</span> Très élevé / Critique</li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-700 mb-1">Niveau de Contrôle</p>
+            <ul class="space-y-0.5">
+              <li><span class="font-medium">1:</span> Très faible</li>
+              <li><span class="font-medium">2:</span> Faible</li>
+              <li><span class="font-medium">3:</span> Moyen</li>
+              <li><span class="font-medium">4:</span> Élevé</li>
+              <li><span class="font-medium">5:</span> Très élevé</li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-700 mb-1">Score Initial (Impact × Probabilité)</p>
+            <ul class="space-y-0.5">
+              <li><span class="font-medium">1-4:</span> Faible</li>
+              <li><span class="font-medium">5-9:</span> Moyen</li>
+              <li><span class="font-medium">10-14:</span> Élevé</li>
+              <li><span class="font-medium">15-25:</span> Critique</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Code -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+                <input
+                  formControlName="code"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-4 py-3 text-sm focus:outline-none transition"
+                  placeholder="Généré automatiquement"
+                />
+              </div>
+
+              <!-- Date d'évaluation -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date d'évaluation</label>
+                <input
+                  formControlName="dateEvaluation"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
+                <p *ngIf="form.get('dateEvaluation')?.invalid && form.get('dateEvaluation')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('dateEvaluation') }}
+                </p>
+              </div>
+
+              <!-- Risque -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque</label>
+                <select
+                  formControlName="codeRisque"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un risque</option>
+                  <option *ngIf="loadingRisques" value="" disabled>Chargement...</option>
+                  <option *ngFor="let risque of risques" [value]="risque.code">
+                    {{ risque.code }} - {{ risque.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeRisque') }}
+                </p>
+              </div>
+
+              <!-- Agent -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Évaluateur (optionnel)</label>
+                <select
+                  formControlName="matriculeAgent"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un agent</option>
+                  <option *ngIf="loadingAgents" value="" disabled>Chargement...</option>
+                  <option *ngFor="let agent of agents" [value]="agent.matricule">
+                    {{ agent.matricule }} - {{ agent.nom }} {{ agent.prenoms }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Impact -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Impact (1-5)</label>
+                <input
+                  formControlName="impact"
+                  type="number"
+                  min="1"
+                  max="5"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="1 à 5"
+                />
+                <p *ngIf="form.get('impact')?.invalid && form.get('impact')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('impact') }}
+                </p>
+              </div>
+
+              <!-- Probabilité -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Probabilité (1-5)</label>
+                <input
+                  formControlName="probabilite"
+                  type="number"
+                  min="1"
+                  max="5"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="1 à 5"
+                />
+                <p *ngIf="form.get('probabilite')?.invalid && form.get('probabilite')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('probabilite') }}
+                </p>
+              </div>
+
+              <!-- Niveau de contrôle -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Niveau de contrôle (1-5)</label>
+                <input
+                  formControlName="niveauControle"
+                  type="number"
+                  min="1"
+                  max="5"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="1 à 5"
+                />
+                <p *ngIf="form.get('niveauControle')?.invalid && form.get('niveauControle')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('niveauControle') }}
+                </p>
+              </div>
+
+              <!-- Bonnes pratiques -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques (max 1000 caractères)</label>
+                <textarea
+                  formControlName="bonnesPratiques"
+                  rows="4"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Description des bonnes pratiques..."
+                ></textarea>
+                <p *ngIf="form.get('bonnesPratiques')?.invalid && form.get('bonnesPratiques')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('bonnesPratiques') }}
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            >
+              {{ isEditMode ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

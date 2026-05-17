@@ -1,0 +1,175 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Cartographie des risques"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des risques</p>
+          <h1 class="text-2xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Modifier la cartographie' : 'Nouvelle cartographie' }}
+          </h1>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <!-- Formulaire -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Code -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+                <input
+                  formControlName="code"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-4 py-3 text-sm focus:outline-none transition"
+                  placeholder="Généré automatiquement"
+                />
+              </div>
+
+              <!-- Titre -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Titre (max 200 caractères)</label>
+                <input
+                  formControlName="titre"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Cartographie des risques 2026"
+                />
+                <p *ngIf="form.get('titre')?.invalid && form.get('titre')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('titre') }}
+                </p>
+              </div>
+
+              <!-- Période -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Période</label>
+                <input
+                  formControlName="periode"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
+                <p *ngIf="form.get('periode')?.invalid && form.get('periode')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('periode') }}
+                </p>
+              </div>
+
+              <!-- Statut -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+                <select
+                  formControlName="statut"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un statut</option>
+                  <option *ngFor="let option of statutOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('statut')?.invalid && form.get('statut')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('statut') }}
+                </p>
+              </div>
+
+              <!-- Seuil Faible -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil faible</label>
+                <input
+                  formControlName="seuilFaible"
+                  type="number"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="30"
+                />
+                <p *ngIf="form.get('seuilFaible')?.invalid && form.get('seuilFaible')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('seuilFaible') }}
+                </p>
+              </div>
+
+              <!-- Seuil Moyen -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil moyen</label>
+                <input
+                  formControlName="seuilMoyen"
+                  type="number"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="60"
+                />
+                <p *ngIf="form.get('seuilMoyen')?.invalid && form.get('seuilMoyen')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('seuilMoyen') }}
+                </p>
+              </div>
+
+              <!-- Seuil Élevé -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil élevé</label>
+                <input
+                  formControlName="seuilEleve"
+                  type="number"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="90"
+                />
+                <p *ngIf="form.get('seuilEleve')?.invalid && form.get('seuilEleve')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('seuilEleve') }}
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            >
+              {{ isEditMode ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

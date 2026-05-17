@@ -1,0 +1,106 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Risques"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des risques</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Détails du risque</h1>
+        </div>
+        <button
+          (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <div *ngIf="!loading && risque" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
+        <!-- En-tête -->
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
+                {{ risque.code }}
+              </span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getStatutBadgeClass(risque.statut)">
+                {{ getStatutLabel(risque.statut) }}
+              </span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getTypeBadgeClass(risque.typeRisque)">
+                {{ getTypeLabel(risque.typeRisque) }}
+              </span>
+            </div>
+            <h2 class="text-xl font-semibold text-slate-900">{{ risque.libelle }}</h2>
+          </div>
+          <button
+            (click)="editRisque()"
+            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            Modifier
+          </button>
+        </div>
+
+        <!-- Processus -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Processus associé</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700 font-medium">{{ risque.codeProcessus }}</p>
+            <p class="text-sm text-slate-500">{{ risque.nomProcessus }}</p>
+          </div>
+        </div>
+
+        <!-- Date d'identification -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Date d'identification</h3>
+          <p class="text-slate-700">{{ risque.dateIdentification }}</p>
+        </div>
+
+        <!-- Cause probable -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Cause probable</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700">{{ risque.causeProbable || 'Non renseignée' }}</p>
+          </div>
+        </div>
+
+        <!-- Conséquence probable -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Conséquence probable</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700">{{ risque.consequenceProbable || 'Non renseignée' }}</p>
+          </div>
+        </div>
+
+        <!-- Risques résiduels -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Risques résiduels liés</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p *ngIf="!risque.risquesResiduelsIds || risque.risquesResiduelsIds.length === 0" class="text-slate-500">
+              Aucun risque résiduel lié
+            </p>
+            <div *ngIf="risque.risquesResiduelsIds && risque.risquesResiduelsIds.length > 0" class="space-y-1">
+              <p *ngFor="let id of risque.risquesResiduelsIds" class="text-slate-700 text-sm">
+                {{ id }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>

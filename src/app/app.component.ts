@@ -6,7 +6,6 @@ import { RouterModule } from '@angular/router';
   selector: 'app-root',
   imports: [RouterModule],
   templateUrl: './app.component.html',
-  styleUrls: [],
 })
 export class AppComponent {
   title = 'SIGR Frontend';

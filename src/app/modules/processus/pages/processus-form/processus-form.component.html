@@ -1,0 +1,173 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  [activeMenu]="'Processus'"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Organisation</p>
+          <h1 class="text-2xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Modifier le processus' : 'Nouveau processus' }}
+          </h1>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <!-- Formulaire -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <!-- Code -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+                <input
+                  formControlName="code"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-4 py-3 text-sm focus:outline-none transition"
+                  placeholder="Généré automatiquement"
+                />
+              </div>
+
+              <!-- Libellé -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé (max 200 caractères)</label>
+                <input
+                  formControlName="libelle"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Gestion budgétaire"
+                />
+                <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('libelle') }}
+                </p>
+              </div>
+
+              <!-- Type de processus -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Type de processus</label>
+                <select
+                  formControlName="typeProcessus"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un type</option>
+                  <option *ngFor="let option of typeProcessusOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('typeProcessus')?.invalid && form.get('typeProcessus')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('typeProcessus') }}
+                </p>
+              </div>
+
+              <!-- Unité administrative -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative</label>
+                <select
+                  formControlName="idUnite"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner une unité</option>
+                  <option *ngFor="let unite of unites" [value]="unite.code">
+                    {{ unite.libelle }} ({{ unite.code }})
+                  </option>
+                </select>
+                <p *ngIf="form.get('idUnite')?.invalid && form.get('idUnite')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('idUnite') }}
+                </p>
+              </div>
+
+              <!-- Finalité -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Finalité (optionnel, max 1000 caractères)</label>
+                <textarea
+                  formControlName="finalite"
+                  rows="3"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"
+                  placeholder="Description de la finalité du processus..."
+                ></textarea>
+                <p *ngIf="form.get('finalite')?.invalid && form.get('finalite')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('finalite') }}
+                </p>
+              </div>
+
+              <!-- Propriétaire — uniquement les MANAGER -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Propriétaire (optionnel)
+                  <span class="ml-1 text-xs font-normal text-slate-400">— Managers uniquement</span>
+                </label>
+                <select
+                  formControlName="idProprietaire"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Aucun propriétaire</option>
+                  <option *ngIf="loadingAgents" value="" disabled>Chargement...</option>
+                  <!-- On itère sur managers (filtrés role === 'MANAGER') -->
+                  <option *ngFor="let manager of managers" [value]="manager.matricule">
+                    {{ manager.nom }} {{ manager.prenoms }} ({{ manager.matricule }})
+                  </option>
+                </select>
+                <p *ngIf="managers.length === 0 && !loadingAgents"
+                   class="mt-1 text-xs text-amber-600">
+                  Aucun manager disponible.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            >
+              {{ isEditMode ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

@@ -28,7 +28,7 @@
           </div>
 
           <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Nom</label>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Libelle</label>
             <input formControlName="nom" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"/>
             <p *ngIf="form.get('nom')?.invalid && form.get('nom')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('nom') }}</p>
           </div>

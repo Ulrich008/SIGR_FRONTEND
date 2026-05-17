@@ -1,38 +1,107 @@
-<!-- SIDEBAR - Agrandie -->
-<aside class="w-72 bg-white flex flex-col shadow-sm flex-shrink-0">
-  <!-- Logo + SIGR - Centré -->
+<!-- Sidebar unique -->
+<aside
+  class="bg-white flex flex-col shadow-sm border-r-2 border-gray-200 z-30 transition-all duration-300 flex-shrink-0"
+  [ngClass]="getSidebarClasses()"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()">
+
+  <!-- Logo -->
   <div class="px-6 pt-8 pb-6 border-b border-gray-100 flex flex-col items-center">
-    <p class="text-2xl font-bold text-center" style="color: #1a4731;">SIGR</p>
-    <p class="text-xs text-gray-400 mt-1 text-center">Gestion des Risques</p>
+    <p class="text-2xl font-bold text-center transition-all duration-300 whitespace-nowrap"
+       style="color: #1a4731;">
+      SIGR
+    </p>
+    <p class="text-xs text-gray-400 mt-1 text-center" *ngIf="showLabels">
+      Gestion des Risques
+    </p>
   </div>
 
-  <!-- Nav - Espacement amélioré -->
-  <nav class="flex-1 px-4 py-6">
-    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3">Menu principal</p>
+  <!-- Menu -->
+  <nav class="flex-1 px-4 py-6 overflow-y-auto">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-3"
+       *ngIf="showLabels">
+      Menu principal
+    </p>
     <ul class="space-y-1.5">
       <li *ngFor="let item of menuItems">
-        <button
-          (click)="onMenuItemClick(item)"
-          [class.bg-green-700]="activeMenu === item.label"
-          [class.text-white]="activeMenu === item.label"
-          [class.font-medium]="activeMenu === item.label"
-          class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-left text-gray-600 hover:bg-green-50 hover:text-green-800"
-        >
+
+        <!-- MENU AVEC ENFANTS (SOUS-MENU) -->
+        <div *ngIf="item.children">
+          <button
+            (click)="onMenuItemClick(item)"
+            class="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-gray-600 hover:bg-green-50 hover:text-green-800 cursor-pointer">
+            <div class="flex items-center gap-3">
+              <i [class]="item.icon" class="w-5 h-5 flex-shrink-0"></i>
+              <span *ngIf="showLabels">{{ item.label }}</span>
+            </div>
+            <i *ngIf="showLabels" 
+               [class]="item.expanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
+               class="w-4 h-4 text-gray-400 transition-transform"></i>
+          </button>
+          
+          <!-- SOUS-MENU -->
+          <ul *ngIf="item.expanded && showLabels" class="ml-8 mt-1 space-y-1">
+            <li *ngFor="let child of item.children">
+              <a *ngIf="child.path"
+                 [routerLink]="child.path"
+                 routerLinkActive="bg-green-700 text-white font-medium"
+                 [routerLinkActiveOptions]="{ exact: false }"
+                 (click)="onMenuItemClick(child)"
+                 class="block w-full px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-green-800 cursor-pointer">
+                {{ child.label }}
+              </a>
+              <div *ngIf="!child.path"
+                   class="block w-full px-4 py-2 rounded-lg text-sm text-gray-400 cursor-not-allowed">
+                {{ child.label }}
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- MENU AVEC ROUTE -->
+        <a *ngIf="!item.children && item.path"
+           [routerLink]="item.path"
+           routerLinkActive="bg-green-700 text-white font-medium"
+           [routerLinkActiveOptions]="{ exact: false }"
+           (click)="onMenuItemClick(item)"
+           class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-gray-600 hover:bg-green-50 hover:text-green-800 cursor-pointer group relative">
           <i [class]="item.icon" class="w-5 h-5 flex-shrink-0"></i>
-          {{ item.label }}
-        </button>
+          <span *ngIf="showLabels">{{ item.label }}</span>
+        </a>
+
+        <!-- MENU DÉSACTIVÉ -->
+        <div *ngIf="!item.children && !item.path"
+             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-gray-400 cursor-not-allowed">
+          <i [class]="item.icon" class="w-5 h-5 flex-shrink-0"></i>
+          <span *ngIf="showLabels">{{ item.label }}</span>
+        </div>
+
       </li>
     </ul>
   </nav>
 
-  <!-- Admin footer - Amélioré -->
-  <div class="m-4 rounded-xl p-4 flex items-center gap-3" style="background: #1a5c38">
+  <!-- Footer -->
+  <div class="m-4 rounded-xl p-4 flex items-center gap-3 transition-all duration-300"
+       style="background: #1a5c38">
     <div class="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
       AD
     </div>
-    <div>
-      <p class="text-white text-sm font-semibold leading-tight">Admin MEF</p>
-      <p class="text-green-300 text-xs leading-tight mt-0.5">Administrateur</p>
+    <div *ngIf="showLabels">
+      <p class="text-white text-sm font-semibold">Admin MEF</p>
+      <p class="text-green-300 text-xs">Administrateur</p>
     </div>
   </div>
+
 </aside>
+
+<!-- Bouton toggle mobile -->
+<button *ngIf="!isLgScreen"
+        (click)="toggleMobileMenu()"
+        class="fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-md border border-gray-200">
+  <i class="w-5 h-5" [class]="isMobileMenuOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
+</button>
+
+<!-- Overlay mobile -->
+<div *ngIf="isMobileMenuOpen && !isLgScreen"
+     class="fixed inset-0 bg-black bg-opacity-50 z-20"
+     (click)="closeMobileMenu()"></div>

@@ -1,0 +1,105 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Évaluations"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des évaluations</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Détails de l'évaluation</h1>
+        </div>
+        <button
+          (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <div *ngIf="!loading && evaluation" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
+        <!-- En-tête -->
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
+                {{ evaluation.code }}
+              </span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getScoreBadgeClass(evaluation.scoreInitial)">
+                Score: {{ evaluation.scoreInitial }} - {{ getScoreLabel(evaluation.scoreInitial) }}
+              </span>
+            </div>
+            <h2 class="text-xl font-semibold text-slate-900">{{ evaluation.libelleRisque }}</h2>
+          </div>
+          <button
+            (click)="editEvaluation()"
+            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            Modifier
+          </button>
+        </div>
+
+        <!-- Date d'évaluation -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Date d'évaluation</h3>
+          <p class="text-slate-700">{{ evaluation.dateEvaluation }}</p>
+        </div>
+
+        <!-- Évaluateur -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Évaluateur</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700 font-medium">{{ evaluation.nomAgent }}</p>
+          </div>
+        </div>
+
+        <!-- Impact et Probabilité -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Impact</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-3xl font-bold text-slate-900">{{ evaluation.impact }}/5</p>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Probabilité</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-3xl font-bold text-slate-900">{{ evaluation.probabilite }}/5</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Niveau de contrôle -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Niveau de contrôle</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <span [class]="'inline-block rounded-full px-4 py-2 text-sm font-medium ' + getNiveauControleBadgeClass(evaluation.niveauControle)">
+              {{ evaluation.niveauControle }} - {{ getNiveauControleLabel(evaluation.niveauControle) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Bonnes pratiques -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Bonnes pratiques</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700">{{ evaluation.bonnesPratiques || 'Non renseignées' }}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>
