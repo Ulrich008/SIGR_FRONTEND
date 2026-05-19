@@ -1,0 +1,150 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Plan de Mitigation"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des risques</p>
+          <h1 class="text-2xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Modifier le plan' : 'Nouveau plan de mitigation' }}
+          </h1>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <!-- Formulaire -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Code -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+                <input
+                  formControlName="code"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-4 py-3 text-sm focus:outline-none transition"
+                  placeholder="Généré automatiquement"
+                />
+              </div>
+
+              <!-- Statut -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+                <select
+                  formControlName="statut"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un statut</option>
+                  <option *ngFor="let statut of statutOptions" [value]="statut">
+                    {{ statut }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('statut')?.invalid && form.get('statut')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('statut') }}
+                </p>
+              </div>
+
+              <!-- Date de création -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de création</label>
+                <input
+                  formControlName="dateCreation"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
+                <p *ngIf="form.get('dateCreation')?.invalid && form.get('dateCreation')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('dateCreation') }}
+                </p>
+              </div>
+
+              <!-- Risque -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé</label>
+                <select
+                  formControlName="codeRisque"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner un risque</option>
+                  <option *ngIf="loadingRisques" value="" disabled>Chargement...</option>
+                  <option *ngFor="let risque of risques" [value]="risque.code">
+                    {{ risque.code }} - {{ risque.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeRisque') }}
+                </p>
+              </div>
+
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-700">Description</label>
+              <textarea
+                formControlName="description"
+                rows="4"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"
+                placeholder="Description du plan de mitigation..."
+              ></textarea>
+              <p *ngIf="form.get('description')?.invalid && form.get('description')?.touched"
+                 class="mt-1 text-xs text-red-600">
+                {{ getFieldError('description') }}
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            >
+              {{ isEditMode ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

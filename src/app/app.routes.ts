@@ -38,6 +38,26 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/evaluations/evaluations.module').then(m => m.EvaluationsModule)
   },
   {
+    path: 'risques-residuels',
+    loadChildren: () => import('./modules/risques-residuels/risques-residuels.module').then(m => m.RisquesResiduelsModule)
+  },
+  {
+    path: 'matrices',
+    loadChildren: () => import('./modules/matrices/matrices.module').then(m => m.MatricesModule)
+  },
+  {
+    path: 'indicateurs',
+    loadChildren: () => import('./modules/indicateurs/indicateurs.module').then(m => m.IndicateursModule)
+  },
+  {
+    path: 'plans-mitigation',
+    loadChildren: () => import('./modules/plans-mitigation/plans-mitigation.module').then(m => m.PlansMitigationModule)
+  },
+  {
+    path: 'actions',
+    loadChildren: () => import('./modules/actions/actions.module').then(m => m.ActionsModule)
+  },
+  {
     path: 'agents',
     loadChildren: () => import('./modules/agents/agents.module').then(m => m.AgentsModule)
   },

@@ -60,8 +60,8 @@ export class AgentFormComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.form = this.fb.group({
-      // ✅ Matricule saisi manuellement, obligatoire
-      matricule: ['', [Validators.required, Validators.maxLength(50), this.noSpacesValidator()]],
+      // ✅ Matricule toujours désactivé, généré automatiquement par le backend
+      matricule: [{ value: '', disabled: true }],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required, this.passwordMatchValidator()]],
       npi: ['', [Validators.maxLength(20), this.noSpacesValidator()]],
@@ -151,9 +151,6 @@ export class AgentFormComponent implements OnInit, OnDestroy {
           codeUnite: agent.codeUnite ?? ''
         });
 
-        // ✅ En mode édition, le matricule est verrouillé (non modifiable)
-        this.form.get('matricule')?.disable();
-
         // ✅ En mode édition, le mot de passe est optionnel
         this.form.get('password')?.clearValidators();
         this.form.get('password')?.updateValueAndValidity();
@@ -184,12 +181,12 @@ export class AgentFormComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    // getRawValue() récupère aussi les champs disabled (matricule en mode édition)
     const rawValue = this.form.getRawValue();
     const formValue = { ...rawValue };
 
-    // Supprimer confirmPassword de la requête
+    // Supprimer confirmPassword et matricule de la requête (généré par le backend)
     delete formValue.confirmPassword;
+    delete formValue.matricule;
 
     // En mode édition, supprimer le mot de passe s'il est vide
     if (this.isEditMode && !formValue.password) {

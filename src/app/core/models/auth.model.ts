@@ -10,4 +10,5 @@ export interface LoginResponse {
   nom: string;
   prenoms: string;
   role: string;
+  codeUnite?: string;
 }

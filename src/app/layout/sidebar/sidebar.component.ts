@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 export interface MenuItem {
   icon: string;
@@ -8,6 +9,7 @@ export interface MenuItem {
   path?: string;
   children?: MenuItem[];
   expanded?: boolean;
+  roles?: string[];
 }
 
 @Component({
@@ -28,6 +30,8 @@ export class SidebarComponent {
   isHovered = false;
   isLgScreen = false;
 
+  constructor(private authService: AuthService) {}
+
   ngOnInit() {
     this.checkScreenSize();
   }
@@ -45,7 +49,14 @@ export class SidebarComponent {
     return this.isMobileMenuOpen;
   }
 
+  isMenuItemEnabled(item: MenuItem): boolean {
+    if (!item.roles || item.roles.length === 0) return true;
+    return this.authService.hasAnyRole(item.roles);
+  }
+
   onMenuItemClick(item: MenuItem): void {
+    if (!this.isMenuItemEnabled(item)) return;
+    
     if (item.children) {
       item.expanded = !item.expanded;
     } else {

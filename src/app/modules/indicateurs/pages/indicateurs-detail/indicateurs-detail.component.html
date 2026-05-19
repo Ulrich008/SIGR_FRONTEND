@@ -1,0 +1,139 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Indicateurs"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des indicateurs de performance</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Détails de l'indicateur</h1>
+        </div>
+        <button
+          (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <div *ngIf="!loading && indicateur" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
+        <!-- En-tête -->
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
+                {{ indicateur.code }}
+              </span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getStatutBadgeClass(indicateur.statut)">
+                {{ indicateur.statut }}
+              </span>
+            </div>
+            <h2 class="text-xl font-semibold text-slate-900">{{ indicateur.libelle }}</h2>
+          </div>
+          <button
+            (click)="editIndicateur()"
+            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            Modifier
+          </button>
+        </div>
+
+        <!-- Graphe de performance -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold text-slate-900">Performance</h3>
+          <div class="relative h-12 rounded-xl bg-slate-100 overflow-hidden">
+            <div 
+              [style.width.%]="getPerformancePercentage(indicateur.valeurObtenue || 0, indicateur.valeurCible || 100)"
+              [class]="'h-full transition-all duration-500 ' + getPerformanceColor(indicateur.valeurObtenue || 0, indicateur.valeurCible || 100)">
+            </div>
+            <div class="absolute inset-0 flex items-center justify-between px-4">
+              <span class="text-sm font-semibold text-white drop-shadow">
+                {{ indicateur.valeurObtenue || 0 }} / {{ indicateur.valeurCible || 100 }} {{ indicateur.uniteMesure }}
+              </span>
+              <span class="text-sm font-semibold text-white drop-shadow">
+                {{ getPerformancePercentage(indicateur.valeurObtenue || 0, indicateur.valeurCible || 100).toFixed(1) }}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informations générales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Fréquence</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 font-medium">{{ indicateur.frequence }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Unité de mesure</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 font-medium">{{ indicateur.uniteMesure }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Processus</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 font-medium">{{ indicateur.codeProcessus }} - {{ indicateur.nomProcessus }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Date de mesure</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 font-medium">{{ formatDate(indicateur.dateMesure) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Valeurs -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Valeur cible</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-2xl font-bold text-slate-900">{{ indicateur.valeurCible || 'N/A' }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Valeur obtenue</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-2xl font-bold text-slate-900">{{ indicateur.valeurObtenue || 'N/A' }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Écart cible</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-2xl font-bold text-slate-900">{{ indicateur.ecartCible?.toFixed(2) || 'N/A' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seuil d'alerte -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Seuil d'alerte</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700 font-medium">{{ indicateur.seuilAlerte || 'Non défini' }}</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>

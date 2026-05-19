@@ -1,0 +1,92 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Plan de Mitigation"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des risques</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Détails du plan de mitigation</h1>
+        </div>
+        <button
+          (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <div *ngIf="!loading && plan" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
+        <!-- En-tête -->
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
+                {{ plan.code }}
+              </span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getStatutBadgeClass(plan.statut)">
+                <i [class]="'fas ' + getStatutIcon(plan.statut)"></i> {{ plan.statut }}
+              </span>
+            </div>
+            <h2 class="text-xl font-semibold text-slate-900">Plan de mitigation</h2>
+          </div>
+          <button
+            (click)="editPlan()"
+            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            Modifier
+          </button>
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Description</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700">{{ plan.description || 'Aucune description' }}</p>
+          </div>
+        </div>
+
+        <!-- Informations -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Risque associé</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 font-medium">{{ plan.codeRisque }} - {{ plan.libelleRisque }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Date de création</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 font-medium">{{ formatDate(plan.dateCreation) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Statut</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <span [class]="'inline-block rounded-full px-4 py-2 text-sm font-medium ' + getStatutBadgeClass(plan.statut)">
+              <i [class]="'fas ' + getStatutIcon(plan.statut)"></i> {{ plan.statut }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>

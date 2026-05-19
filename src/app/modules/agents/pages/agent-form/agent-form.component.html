@@ -139,21 +139,19 @@
             </h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
+              <!-- Matricule — toujours grisé, généré automatiquement -->
               <div>
                 <label class="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-semibold text-slate-700">
-                  Matricule <span class="text-red-500">*</span>
+                  Matricule
+                  <span class="text-xs font-normal text-gray-400 ml-1">(généré automatiquement)</span>
                 </label>
                 <input
                   formControlName="matricule"
                   type="text"
-                  placeholder="AGT001"
-                  [class]="isEditMode
-                    ? 'w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none'
-                    : 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors'"
+                  placeholder="Généré automatiquement"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none"
                 />
-                <p *ngIf="matriculeControl?.invalid && matriculeControl?.touched" class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('matricule') }}
-                </p>
               </div>
 
               <!-- Mot de passe -->

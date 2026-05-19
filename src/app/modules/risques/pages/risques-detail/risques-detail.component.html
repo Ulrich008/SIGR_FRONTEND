@@ -92,8 +92,8 @@
               Aucun risque résiduel lié
             </p>
             <div *ngIf="risque.risquesResiduelsIds && risque.risquesResiduelsIds.length > 0" class="space-y-1">
-              <p *ngFor="let id of risque.risquesResiduelsIds" class="text-slate-700 text-sm">
-                {{ id }}
+              <p *ngFor="let code of risque.risquesResiduelsIds" class="text-slate-700 text-sm">
+                {{ code }}
               </p>
             </div>
           </div>

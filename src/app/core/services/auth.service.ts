@@ -6,6 +6,9 @@ import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse } from '../models/auth.model';
 
+// ✅ ErrorHandlerService retiré — dépendance circulaire supprimée
+// AuthService -> ErrorHandlerService -> AuthService causait NG0200
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,17 +19,16 @@ export class AuthService {
 
   private isBrowser: boolean;
 
-  // ✅ état initial vide (IMPORTANT SSR FIX)
   private currentUserSubject = new BehaviorSubject<LoginResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) platformId: Object
+    // ✅ ErrorHandlerService supprimé du constructeur
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
-    // ✅ recharge session APRÈS hydration uniquement côté browser
     if (this.isBrowser) {
       const user = this.getCurrentUser();
       this.currentUserSubject.next(user);
@@ -40,7 +42,7 @@ export class AuthService {
         this.setSession(response);
         this.currentUserSubject.next(response);
       }),
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -93,6 +95,12 @@ export class AuthService {
     return !!user && user.role === role;
   }
 
+  hasAnyRole(roles: string[]): boolean {
+    const user = this.getCurrentUser();
+    if (!user || !roles || roles.length === 0) return true;
+    return roles.includes(user.role);
+  }
+
   // ================= HEADERS =================
   getAuthHeaders(): { [header: string]: string } {
     const token = this.getToken();
@@ -108,23 +116,40 @@ export class AuthService {
   }
 
   // ================= ERROR =================
-  private handleError = (error: HttpErrorResponse): Observable<never> => {
-    let errorMessage = 'Une erreur inconnue est survenue';
+  // ✅ Gestion inline sans ErrorHandlerService — brise le cycle circulaire
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let message: string;
 
-    if (error.status === 401) {
-      errorMessage = 'Matricule ou mot de passe incorrect';
-    } else if (error.status === 400) {
-      errorMessage = 'Données invalides';
-    } else if (error.status === 0) {
-      errorMessage = 'Serveur inaccessible';
-    } else {
-      errorMessage = `Erreur ${error.status}`;
+    switch (error.status) {
+      case 0:
+        message = 'Erreur réseau. Vérifiez votre connexion.';
+        break;
+      case 400:
+        message = error.error?.message ?? 'Requête invalide.';
+        break;
+      case 401:
+        message = 'Identifiants incorrects.';
+        break;
+      case 403:
+        message = 'Accès refusé.';
+        break;
+      case 404:
+        message = 'Service introuvable.';
+        break;
+      case 422:
+        message = error.error?.message ?? 'Données invalides.';
+        break;
+      case 500:
+        message = 'Erreur serveur. Veuillez réessayer plus tard.';
+        break;
+      default:
+        message = error.error?.message ?? 'Une erreur inattendue est survenue.';
     }
 
     return throwError(() => ({
-      message: errorMessage,
+      message,
       status: error.status,
       error: error.error
     }));
-  };
+  }
 }

@@ -39,6 +39,26 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
+    path: 'risques-residuels/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'matrices/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'indicateurs/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'plans-mitigation/**',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'actions/**',
+    renderMode: RenderMode.Client
+  },
+  {
     path: 'agents/**',
     renderMode: RenderMode.Client
   },

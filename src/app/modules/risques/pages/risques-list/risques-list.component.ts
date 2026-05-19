@@ -157,4 +157,16 @@ export class RisquesListComponent implements OnInit {
   countByType(type: TypeRisque): number {
     return this.risques.filter(r => r.typeRisque === type).length;
   }
+
+  canCreate(): boolean {
+    return this.authService.hasAnyRole(['ADMIN', 'MANAGER']);
+  }
+
+  canEdit(): boolean {
+    return this.authService.hasAnyRole(['ADMIN', 'MANAGER']);
+  }
+
+  canDelete(): boolean {
+    return this.authService.hasRole('ADMIN');
+  }
 }

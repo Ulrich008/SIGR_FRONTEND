@@ -29,7 +29,8 @@
         <div *ngIf="item.children">
           <button
             (click)="onMenuItemClick(item)"
-            class="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-gray-600 hover:bg-green-50 hover:text-green-800 cursor-pointer">
+            [ngClass]="isMenuItemEnabled(item) ? 'text-gray-600 hover:bg-green-50 hover:text-green-800 cursor-pointer' : 'text-gray-300 cursor-not-allowed'"
+            class="w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl text-sm transition-all">
             <div class="flex items-center gap-3">
               <i [class]="item.icon" class="w-5 h-5 flex-shrink-0"></i>
               <span *ngIf="showLabels">{{ item.label }}</span>
@@ -42,7 +43,7 @@
           <!-- SOUS-MENU -->
           <ul *ngIf="item.expanded && showLabels" class="ml-8 mt-1 space-y-1">
             <li *ngFor="let child of item.children">
-              <a *ngIf="child.path"
+              <a *ngIf="child.path && isMenuItemEnabled(child)"
                  [routerLink]="child.path"
                  routerLinkActive="bg-green-700 text-white font-medium"
                  [routerLinkActiveOptions]="{ exact: false }"
@@ -50,8 +51,8 @@
                  class="block w-full px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-green-800 cursor-pointer">
                 {{ child.label }}
               </a>
-              <div *ngIf="!child.path"
-                   class="block w-full px-4 py-2 rounded-lg text-sm text-gray-400 cursor-not-allowed">
+              <div *ngIf="!child.path || !isMenuItemEnabled(child)"
+                   class="block w-full px-4 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed">
                 {{ child.label }}
               </div>
             </li>
@@ -59,7 +60,7 @@
         </div>
 
         <!-- MENU AVEC ROUTE -->
-        <a *ngIf="!item.children && item.path"
+        <a *ngIf="!item.children && item.path && isMenuItemEnabled(item)"
            [routerLink]="item.path"
            routerLinkActive="bg-green-700 text-white font-medium"
            [routerLinkActiveOptions]="{ exact: false }"
@@ -70,8 +71,8 @@
         </a>
 
         <!-- MENU DÉSACTIVÉ -->
-        <div *ngIf="!item.children && !item.path"
-             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-gray-400 cursor-not-allowed">
+        <div *ngIf="!item.children && (!item.path || !isMenuItemEnabled(item))"
+             class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-gray-300 cursor-not-allowed">
           <i [class]="item.icon" class="w-5 h-5 flex-shrink-0"></i>
           <span *ngIf="showLabels">{{ item.label }}</span>
         </div>
