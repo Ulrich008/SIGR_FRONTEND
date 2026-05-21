@@ -42,15 +42,20 @@
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Code -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+
+              <!-- ✅ Libellé -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé</label>
                 <input
-                  formControlName="code"
+                  formControlName="libelle"
                   type="text"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-4 py-3 text-sm focus:outline-none transition"
-                  placeholder="Généré automatiquement"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Libellé du plan de mitigation..."
                 />
+                <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('libelle') }}
+                </p>
               </div>
 
               <!-- Statut -->
@@ -86,7 +91,7 @@
               </div>
 
               <!-- Risque -->
-              <div>
+              <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé</label>
                 <select
                   formControlName="codeRisque"

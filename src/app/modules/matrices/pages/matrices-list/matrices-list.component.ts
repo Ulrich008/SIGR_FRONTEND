@@ -56,7 +56,7 @@ export class MatricesListComponent implements OnInit {
   }
 
   getEvaluationsForCell(impact: number, probabilite: number): EvaluationResponse[] {
-    return this.evaluations.filter(e => e.impact === impact && e.probabilite === probabilite);
+    return this.evaluations.filter(e => e.impactInherent === impact && e.probabiliteInherente === probabilite);
   }
 
   getCellColor(impact: number, probabilite: number): string {
@@ -87,14 +87,15 @@ export class MatricesListComponent implements OnInit {
 
   countByScore(min: number, max: number): number {
     return this.evaluations.filter(e => {
-      const score = e.impact * e.probabilite;
+      const score = e.impactInherent * e.probabiliteInherente;
       return score >= min && score <= max;
     }).length;
   }
+
   onCellClick(impact: number, prob: number): void {
-  const evals = this.getEvaluationsForCell(impact, prob);
-  if (evals.length > 0) {
-    this.viewEvaluation(evals[0].code);
+    const evals = this.getEvaluationsForCell(impact, prob);
+    if (evals.length > 0) {
+      this.viewEvaluation(evals[0].code);
+    }
   }
-}
 }

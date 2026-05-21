@@ -1,10 +1,20 @@
+
 export interface EvaluationRequest {
-  code?: string;
-  impact: number;
-  probabilite: number;
-  dateEvaluation: string; // ISO date string
+  impactInherent: number;
+  probabiliteInherente: number;
+  protection: number;
+  prevention: number;
+
+  controleExistants?: string;
+  controleInexistants?: string;
+  dejaSurvenu?: boolean;
+
+  dateDebut?: string;
+  dateFin?: string;
+
+  recommandation?: string;
   bonnesPratiques?: string;
-  niveauControle: number;
+
   codeRisque: string;
   matriculeAgent?: string;
 }
@@ -12,14 +22,33 @@ export interface EvaluationRequest {
 export interface EvaluationResponse {
   id: string;
   code: string;
-  impact: number;
-  probabilite: number;
-  dateEvaluation: string; // ISO date string
+
+  impactInherent: number;
+  probabiliteInherente: number;
+  scoreInherent: number;
+
+  protection: number;
+  prevention: number;
+
+  controleExistants?: string;
+  controleInexistants?: string;
+  dejaSurvenu?: boolean;
+
+  impactResiduel: number;
+  probabiliteResiduelle: number;
+  scoreResiduel: number;
+
+  rangPriorite: number;
+
+  dateDebut?: string;
+  dateFin?: string;
+
+  recommandation?: string;
   bonnesPratiques?: string;
-  niveauControle: number;
-  scoreInitial: number;
-  idRisque: string;
+
+  codeRisque: string;
   libelleRisque: string;
-  idAgent: string;
-  nomAgent: string;
+
+  matriculeAgent?: string;
+  nomAgent?: string;
 }

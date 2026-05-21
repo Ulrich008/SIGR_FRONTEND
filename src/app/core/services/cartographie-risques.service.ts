@@ -31,4 +31,10 @@ export class CartographieRisquesService {
   delete(code: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${code}`);
   }
+
+ exportExcel(): Observable<Blob> {
+  return this.http.get(`${this.apiUrl}/export/excel`, {
+    responseType: 'blob'
+  });
+}
 }

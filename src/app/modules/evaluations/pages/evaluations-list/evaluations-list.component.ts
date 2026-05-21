@@ -79,6 +79,7 @@ export class EvaluationsListComponent implements OnInit {
       reverseButtons: true
     }).then(result => {
       if (result.isConfirmed) {
+        // Utiliser le paramètre 'code' au lieu de 'id'
         this.evaluationService.delete(code).subscribe({
           next: () => {
             Swal.fire({
@@ -102,47 +103,76 @@ export class EvaluationsListComponent implements OnInit {
     });
   }
 
+  // --- Score inhérent (impact × probabilité) ---
+
   getScoreBadgeClass(score: number): string {
     if (score >= 15) return 'bg-red-100 text-red-700';
     if (score >= 10) return 'bg-orange-100 text-orange-700';
-    if (score >= 5) return 'bg-yellow-100 text-yellow-700';
+    if (score >= 5)  return 'bg-yellow-100 text-yellow-700';
     return 'bg-green-100 text-green-700';
   }
 
   getScoreLabel(score: number): string {
     if (score >= 15) return 'Critique';
     if (score >= 10) return 'Élevé';
-    if (score >= 5) return 'Moyen';
+    if (score >= 5)  return 'Moyen';
     return 'Faible';
   }
 
-  getNiveauControleBadgeClass(niveau: number): string {
-    switch (niveau) {
-      case 1: return 'bg-green-100 text-green-700';
-      case 2: return 'bg-yellow-100 text-yellow-700';
-      case 3: return 'bg-orange-100 text-orange-700';
-      case 4: return 'bg-red-100 text-red-700';
-      case 5: return 'bg-purple-100 text-purple-700';
-      default: return 'bg-gray-100 text-gray-700';
+  // --- Score résiduel (après contrôles) ---
+
+  getScoreResiduelBadgeClass(score: number): string {
+    if (score >= 15) return 'bg-red-100 text-red-700';
+    if (score >= 10) return 'bg-orange-100 text-orange-700';
+    if (score >= 5)  return 'bg-yellow-100 text-yellow-700';
+    return 'bg-green-100 text-green-700';
+  }
+
+  getScoreResiduelLabel(score: number): string {
+    if (score >= 15) return 'Critique';
+    if (score >= 10) return 'Élevé';
+    if (score >= 5)  return 'Moyen';
+    return 'Faible';
+  }
+
+  // --- Compteurs pour les statistiques ---
+
+  countByScoreInherent(min: number, max: number): number {
+    return this.evaluations.filter(e => e.scoreInherent >= min && e.scoreInherent <= max).length;
+  }
+
+  countByScoreResiduel(min: number, max: number): number {
+    return this.evaluations.filter(e => e.scoreResiduel >= min && e.scoreResiduel <= max).length;
+  }
+
+  // --- Méthodes utilitaires pour accéder aux propriétés de l'évaluation ---
+
+  getRiskLabel(evaluation: EvaluationResponse): string {
+    return `${evaluation.code} - ${evaluation.libelleRisque}`;
+  }
+
+  getAgentLabel(evaluation: EvaluationResponse): string {
+    if (evaluation.nomAgent && evaluation.matriculeAgent) {
+      return `${evaluation.matriculeAgent} - ${evaluation.nomAgent}`;
     }
+    return evaluation.nomAgent || evaluation.matriculeAgent || 'Non assigné';
   }
 
-  getNiveauControleLabel(niveau: number): string {
-    switch (niveau) {
-      case 1: return 'Très faible';
-      case 2: return 'Faible';
-      case 3: return 'Moyen';
-      case 4: return 'Élevé';
-      case 5: return 'Très élevé';
-      default: return niveau.toString();
-    }
+  formatDate(date?: string): string {
+    if (!date) return 'Non définie';
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? 'Date invalide' : d.toLocaleDateString('fr-FR');
   }
 
-  countByScore(min: number, max: number): number {
-    return this.evaluations.filter(e => e.scoreInitial >= min && e.scoreInitial <= max).length;
+  getControlesExistants(evaluation: EvaluationResponse): string {
+    return evaluation.controleExistants || 'Aucun';
   }
 
-  countByNiveauControle(niveau: number): number {
-    return this.evaluations.filter(e => e.niveauControle === niveau).length;
+  getControlesInexistants(evaluation: EvaluationResponse): string {
+    return evaluation.controleInexistants || 'Aucun';
+  }
+
+  getDejaSurvenuLabel(evaluation: EvaluationResponse): string {
+    return evaluation.dejaSurvenu ? 'Oui' : 'Non';
   }
 }

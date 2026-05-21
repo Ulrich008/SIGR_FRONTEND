@@ -102,6 +102,33 @@ export class CartographieRisquesListComponent implements OnInit {
     });
   }
 
+  exportExcel(): void {
+  Swal.fire({
+    title: 'Génération en cours...',
+    text: 'Veuillez patienter.',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  this.cartographieService.exportExcel().subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cartographie-risques.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+      Swal.close();
+    },
+    error: (err) => {
+      Swal.fire({
+        title: 'Erreur',
+        text: err?.message || 'Impossible de générer le fichier Excel',
+        icon: 'error'
+      });
+    }
+  });
+}
   getStatutBadgeClass(statut: StatutCartographie): string {
     switch (statut) {
       case StatutCartographie.BROUILLON: return 'bg-gray-100 text-gray-700';
@@ -122,7 +149,6 @@ export class CartographieRisquesListComponent implements OnInit {
     }
   }
 
-  // ✅ Accepte string pour être compatible avec les littéraux du template
   countByStatut(statut: string): number {
     return this.cartographies.filter(c => c.statut === statut).length;
   }

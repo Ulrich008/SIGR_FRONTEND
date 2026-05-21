@@ -8,25 +8,48 @@
   <div class="p-4 md:p-6">
     <div class="max-w-6xl mx-auto space-y-6">
 
+      <!-- En-tête -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <p class="text-sm text-gray-500">Gestion des risques</p>
           <h1 class="text-2xl font-semibold text-slate-900">Cartographie des risques</h1>
         </div>
-        <button
-          (click)="createCartographie()"
-          class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Nouvelle cartographie
-        </button>
+        <div class="flex items-center gap-2">
+
+          <!-- Bouton Générer un fichier Excel   -->
+          <button
+              (click)="exportExcel()"
+              class="inline-flex items-center justify-center gap-2 rounded-lg border border-green-200 bg-white px-4 py-2 text-sm font-semibold text-green-700 shadow-sm transition hover:bg-green-50"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <polyline points="8 13 10.5 16 8 19"/>
+                <polyline points="16 13 13.5 16 16 19"/>
+              </svg>
+              Exporter Excel
+            </button>
+
+          <!-- Bouton Nouvelle cartographie -->
+          <button
+            (click)="createCartographie()"
+            class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nouvelle cartographie
+          </button>
+
+        </div>
       </div>
 
       <!-- Cartes statistiques -->
       <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
         <!-- Total -->
         <div class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 flex items-center gap-4">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100">
@@ -81,6 +104,7 @@
             <p class="text-2xl font-bold text-slate-900">{{ countByStatut('VALIDEE') }}</p>
           </div>
         </div>
+
       </div>
 
       <!-- Erreur -->
@@ -159,7 +183,7 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr *ngIf="cartographies.length === 0">
-              <td colspan="7" class="px-4 py-8 text-center text-slate-500">Aucune cartographie trouvée.</td>
+              <td colspan="6" class="px-4 py-8 text-center text-slate-500">Aucune cartographie trouvée.</td>
             </tr>
             <tr *ngFor="let carto of cartographies" class="hover:bg-slate-50 transition">
               <td class="px-4 py-4">
@@ -175,7 +199,7 @@
                 </span>
               </td>
               <td class="px-4 py-4 text-slate-700 font-medium">{{ carto.nombreRisques }}</td>
-              <td class="px-4 py-4 space-x-2">
+              <td class="px-4 py-4 text-right space-x-2">
                 <button (click)="viewCartographie(carto.code)" title="Voir les détails"
                   class="inline-flex items-center gap-1.5 rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

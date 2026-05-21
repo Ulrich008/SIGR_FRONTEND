@@ -7,6 +7,8 @@
 
   <div class="p-6">
     <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête page -->
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <p class="text-sm text-gray-500">Gestion des risques</p>
@@ -20,16 +22,20 @@
         </button>
       </div>
 
+      <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
       </div>
 
+      <!-- Loader -->
       <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
 
+      <!-- Contenu -->
       <div *ngIf="!loading && plan" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
-        <!-- En-tête -->
+
+        <!-- En-tête carte : code + statut + libellé -->
         <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
             <div class="flex items-center gap-3 mb-2">
@@ -40,7 +46,8 @@
                 <i [class]="'fas ' + getStatutIcon(plan.statut)"></i> {{ plan.statut }}
               </span>
             </div>
-            <h2 class="text-xl font-semibold text-slate-900">Plan de mitigation</h2>
+            <!-- ✅ Libellé affiché comme titre principal -->
+            <h2 class="text-xl font-semibold text-slate-900">{{ plan.libelle }}</h2>
           </div>
           <button
             (click)="editPlan()"
@@ -48,6 +55,14 @@
           >
             Modifier
           </button>
+        </div>
+
+        <!-- ✅ Libellé (section dédiée) -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Libellé</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700 font-medium">{{ plan.libelle }}</p>
+          </div>
         </div>
 
         <!-- Description -->
@@ -60,6 +75,7 @@
 
         <!-- Informations -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
           <div class="space-y-2">
             <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Risque associé</h3>
             <div class="rounded-xl bg-slate-50 p-4">
@@ -73,6 +89,7 @@
               <p class="text-slate-700 font-medium">{{ formatDate(plan.dateCreation) }}</p>
             </div>
           </div>
+
         </div>
 
         <!-- Statut -->

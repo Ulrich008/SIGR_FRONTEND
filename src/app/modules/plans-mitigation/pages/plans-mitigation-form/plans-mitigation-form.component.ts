@@ -26,7 +26,7 @@ export class PlansMitigationFormComponent implements OnInit {
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
-  
+
   risques: RisqueResponse[] = [];
   loadingRisques = false;
   statutOptions = Object.values(StatutPlanMitigation);
@@ -44,6 +44,8 @@ export class PlansMitigationFormComponent implements OnInit {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
       code: [{ value: '', disabled: true }],
+      // ✅ Champ libellé ajouté
+      libelle: ['', [Validators.required, Validators.maxLength(255)]],
       description: ['', [Validators.maxLength(1000)]],
       dateCreation: ['', [Validators.required]],
       statut: ['', [Validators.required]],
@@ -61,7 +63,7 @@ export class PlansMitigationFormComponent implements OnInit {
     if (codeParam) {
       this.isEditMode = true;
       this.code = codeParam;
-      
+
       forkJoin({
         risques: this.risqueService.getAll(),
         plan: this.planMitigationService.getByCode(codeParam)
@@ -102,6 +104,8 @@ export class PlansMitigationFormComponent implements OnInit {
   patchForm(plan: PlanMitigationResponse): void {
     this.form.patchValue({
       code: plan.code,
+      // ✅ Libellé patché
+      libelle: plan.libelle,
       description: plan.description,
       dateCreation: this.formatDateForInput(plan.dateCreation),
       statut: plan.statut,
@@ -121,6 +125,8 @@ export class PlansMitigationFormComponent implements OnInit {
     const raw = this.form.getRawValue();
 
     const request: PlanMitigationRequest = {
+      // ✅ Libellé inclus dans la requête
+      libelle: raw.libelle,
       description: raw.description,
       dateCreation: raw.dateCreation,
       statut: raw.statut,

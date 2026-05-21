@@ -6,95 +6,271 @@
   userInitials="AD">
 
   <div class="p-6">
-    <div class="max-w-4xl mx-auto space-y-6">
+    <div class="max-w-5xl mx-auto space-y-6">
+
+      <!-- En-tête -->
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <p class="text-sm text-gray-500">Gestion des évaluations</p>
           <h1 class="text-2xl font-semibold text-slate-900">Détails de l'évaluation</h1>
         </div>
-        <button
-          (click)="goBack()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
+        <button (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
           Retour
         </button>
       </div>
 
+      <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
       </div>
 
+      <!-- Loader -->
       <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
 
       <div *ngIf="!loading && evaluation" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
-        <!-- En-tête -->
+
+        <!-- En-tête évaluation -->
         <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <div class="flex items-center gap-3 mb-2">
+            <div class="flex flex-wrap items-center gap-3 mb-2">
               <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
                 {{ evaluation.code }}
               </span>
-              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getScoreBadgeClass(evaluation.scoreInitial)">
-                Score: {{ evaluation.scoreInitial }} - {{ getScoreLabel(evaluation.scoreInitial) }}
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getScoreBadgeClass(evaluation.scoreInherent)">
+                Inhérent: {{ evaluation.scoreInherent }} — {{ getScoreLabel(evaluation.scoreInherent) }}
+              </span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getScoreBadgeClass(evaluation.scoreResiduel)">
+                Résiduel: {{ evaluation.scoreResiduel }} — {{ getScoreLabel(evaluation.scoreResiduel) }}
               </span>
             </div>
-            <h2 class="text-xl font-semibold text-slate-900">{{ evaluation.libelleRisque }}</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ getRiskLabel() }}</h2>
           </div>
-          <button
-            (click)="editEvaluation()"
-            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
-          >
+          <button (click)="editEvaluation()"
+            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
             Modifier
           </button>
         </div>
 
-        <!-- Date d'évaluation -->
-        <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Date d'évaluation</h3>
-          <p class="text-slate-700">{{ evaluation.dateEvaluation }}</p>
-        </div>
-
-        <!-- Évaluateur -->
-        <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Évaluateur</h3>
-          <div class="rounded-xl bg-slate-50 p-4">
-            <p class="text-slate-700 font-medium">{{ evaluation.nomAgent }}</p>
-          </div>
-        </div>
-
-        <!-- Impact et Probabilité -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Impact</h3>
+        <!-- Période -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Période d'évaluation</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="rounded-xl bg-slate-50 p-4">
-              <p class="text-3xl font-bold text-slate-900">{{ evaluation.impact }}/5</p>
+              <p class="text-xs text-slate-500 mb-1">Date de début</p>
+              <p class="text-slate-700 font-medium">{{ formatDate(evaluation.dateDebut) }}</p>
             </div>
-          </div>
-          <div class="space-y-2">
-            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Probabilité</h3>
             <div class="rounded-xl bg-slate-50 p-4">
-              <p class="text-3xl font-bold text-slate-900">{{ evaluation.probabilite }}/5</p>
+              <p class="text-xs text-slate-500 mb-1">Date de fin</p>
+              <p class="text-slate-700 font-medium">{{ formatDate(evaluation.dateFin) }}</p>
             </div>
           </div>
         </div>
 
-        <!-- Niveau de contrôle -->
+        <!-- Évaluateur & Rang de priorité -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Évaluateur</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 font-medium">{{ getAgentLabel() }}</p>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Rang de priorité</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <div class="flex items-center gap-3">
+                <p class="text-3xl font-bold text-slate-900">{{ evaluation.rangPriorite }}/5</p>
+                <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-purple-600 rounded-full" 
+                       [style.width]="(evaluation.rangPriorite / 5) * 100 + '%'"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risque inhérent -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-slate-700">Risque inhérent</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Impact inhérent</p>
+              <div class="rounded-xl bg-slate-50 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-3xl font-bold text-slate-900">{{ evaluation.impactInherent }}/5</p>
+                  <span [class]="'inline-block rounded-full px-2 py-1 text-xs font-medium ' + getNiveauColor(evaluation.impactInherent)">
+                    {{ getNiveauLabel(evaluation.impactInherent) }}
+                  </span>
+                </div>
+                <div class="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-green-500 to-red-500 rounded-full" 
+                       [style.width]="(evaluation.impactInherent / 5) * 100 + '%'"></div>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Probabilité inhérente</p>
+              <div class="rounded-xl bg-slate-50 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-3xl font-bold text-slate-900">{{ evaluation.probabiliteInherente }}/5</p>
+                  <span [class]="'inline-block rounded-full px-2 py-1 text-xs font-medium ' + getNiveauColor(evaluation.probabiliteInherente)">
+                    {{ getNiveauLabel(evaluation.probabiliteInherente) }}
+                  </span>
+                </div>
+                <div class="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-green-500 to-red-500 rounded-full" 
+                       [style.width]="(evaluation.probabiliteInherente / 5) * 100 + '%'"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contrôles -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-700">Contrôles existants</h3>
+            <div class="text-right">
+              <p class="text-xs text-slate-500">Taux de maîtrise</p>
+              <p class="text-lg font-bold" [class]="getMaitriseColor(calculateMaitrisePourcentage())">
+                {{ calculateMaitrisePourcentage() }}%
+              </p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Protection</p>
+              <div class="rounded-xl bg-slate-50 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-3xl font-bold text-slate-900">{{ evaluation.protection }}/5</p>
+                  <span [class]="'inline-block rounded-full px-2 py-1 text-xs font-medium ' + getNiveauColor(evaluation.protection)">
+                    {{ getNiveauLabel(evaluation.protection) }}
+                  </span>
+                </div>
+                <div class="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-red-500 to-green-500 rounded-full" 
+                       [style.width]="(evaluation.protection / 5) * 100 + '%'"></div>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Prévention</p>
+              <div class="rounded-xl bg-slate-50 p-4">
+                <div class="flex items-center justify-between">
+                  <p class="text-3xl font-bold text-slate-900">{{ evaluation.prevention }}/5</p>
+                  <span [class]="'inline-block rounded-full px-2 py-1 text-xs font-medium ' + getNiveauColor(evaluation.prevention)">
+                    {{ getNiveauLabel(evaluation.prevention) }}
+                  </span>
+                </div>
+                <div class="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-red-500 to-green-500 rounded-full" 
+                       [style.width]="(evaluation.prevention / 5) * 100 + '%'"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contrôles supplémentaires -->
+        <div class="space-y-4">
+          <div class="space-y-2">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Contrôles existants</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 whitespace-pre-wrap">{{ getControlesExistants() }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Contrôles inexistants / À mettre en place</h3>
+            <div class="rounded-xl bg-slate-50 p-4">
+              <p class="text-slate-700 whitespace-pre-wrap">{{ getControlesInexistants() }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Déjà survenu</h3>
+            <div class="rounded-xl p-4" [class.bg-red-50]="evaluation.dejaSurvenu" [class.bg-slate-50]="!evaluation.dejaSurvenu">
+              <div class="flex items-center gap-2">
+                <span [class]="evaluation.dejaSurvenu ? 'text-red-700' : 'text-slate-700'">
+                  {{ getDejaSurvenuLabel() }}
+                </span>
+                <span *ngIf="evaluation.dejaSurvenu" class="text-xs text-red-600">
+                  ⚠️ Ce risque a déjà été observé par le passé
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scores comparatifs -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-slate-700">Analyse des scores</h3>
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-slate-500 mb-1">Score inhérent</p>
+                <p class="text-2xl font-bold" [class]="getScoreBadgeClass(evaluation.scoreInherent)">
+                  {{ evaluation.scoreInherent }} / 25
+                </p>
+                <p class="text-xs text-slate-500 mt-1">Risque {{ getScoreLabel(evaluation.scoreInherent) }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 mb-1">Score résiduel</p>
+                <p class="text-2xl font-bold" [class]="getScoreBadgeClass(evaluation.scoreResiduel)">
+                  {{ evaluation.scoreResiduel }} / 25
+                </p>
+                <p class="text-xs text-slate-500 mt-1">Risque {{ getScoreLabel(evaluation.scoreResiduel) }}</p>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-blue-200">
+              <div class="flex justify-between items-center">
+                <p class="text-xs text-slate-600">Réduction du risque</p>
+                <p class="text-sm font-bold text-green-600">
+                  -{{ evaluation.scoreInherent - evaluation.scoreResiduel }} points
+                  ({{ Math.round(((evaluation.scoreInherent - evaluation.scoreResiduel) / evaluation.scoreInherent) * 100) }}%)
+                </p>
+              </div>
+              <div class="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-green-500 rounded-full" 
+                     [style.width]="((evaluation.scoreInherent - evaluation.scoreResiduel) / evaluation.scoreInherent) * 100 + '%'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amélioration potentielle -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-slate-700">Potentiel d'amélioration</h3>
+          <div class="rounded-xl bg-amber-50 p-4 border border-amber-200">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-sm text-amber-800">Marge de progression</p>
+              <p class="text-2xl font-bold text-amber-700">{{ getAmeliorationPotentielle() }} / 25</p>
+            </div>
+            <div class="h-2 bg-amber-200 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-500 rounded-full" 
+                   [style.width]="getAmeliorationPourcentage() + '%'"></div>
+            </div>
+            <p class="text-xs text-amber-700 mt-2">
+              En optimisant les contrôles de protection et de prévention, le score résiduel peut être réduit jusqu'à {{ getAmeliorationPotentielle() }} points.
+            </p>
+          </div>
+        </div>
+
+        <!-- Recommandation -->
         <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Niveau de contrôle</h3>
+          <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Recommandation</h3>
           <div class="rounded-xl bg-slate-50 p-4">
-            <span [class]="'inline-block rounded-full px-4 py-2 text-sm font-medium ' + getNiveauControleBadgeClass(evaluation.niveauControle)">
-              {{ evaluation.niveauControle }} - {{ getNiveauControleLabel(evaluation.niveauControle) }}
-            </span>
+            <p class="text-slate-700 whitespace-pre-wrap">{{ evaluation.recommandation || 'Non renseignée' }}</p>
           </div>
         </div>
 
         <!-- Bonnes pratiques -->
         <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Bonnes pratiques</h3>
+          <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Bonnes pratiques</h3>
           <div class="rounded-xl bg-slate-50 p-4">
-            <p class="text-slate-700">{{ evaluation.bonnesPratiques || 'Non renseignées' }}</p>
+            <p class="text-slate-700 whitespace-pre-wrap">{{ evaluation.bonnesPratiques || 'Non renseignées' }}</p>
           </div>
         </div>
 

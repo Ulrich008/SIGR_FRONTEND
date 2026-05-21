@@ -7,6 +7,7 @@ export enum StatutPlanMitigation {
 
 export interface PlanMitigationRequest {
   description?: string;
+  libelle?: string;
   dateCreation: string;
   statut: StatutPlanMitigation;
   codeRisque: string;
@@ -16,6 +17,7 @@ export interface PlanMitigationResponse {
   id: string;
   code: string;
   description?: string;
+  libelle?: string;
   dateCreation: string;
   statut: StatutPlanMitigation;
   codeRisque: string;

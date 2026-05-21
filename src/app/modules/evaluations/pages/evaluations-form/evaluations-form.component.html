@@ -4,7 +4,6 @@
   searchPlaceholder="Rechercher..."
   organizationName="Ministère de l'Économie et des Finances"
   userInitials="AD">
-
   <div class="p-6">
     <div class="max-w-4xl mx-auto space-y-6">
 
@@ -16,25 +15,25 @@
             {{ isEditMode ? 'Modifier l\'évaluation' : 'Nouvelle évaluation' }}
           </h1>
         </div>
-        <button
-          (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
+        <button (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
           Retour
         </button>
       </div>
 
       <!-- Erreur globale -->
-      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <div *ngIf="error"
+        class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
       </div>
 
       <!-- Loader -->
-      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+      <div *ngIf="loading"
+        class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
 
-      <!-- Légende Échelle d'Évaluation -->
+      <!-- Légende -->
       <div *ngIf="!loading" class="rounded-3xl bg-slate-50 p-4 shadow-sm">
         <h3 class="text-sm font-semibold text-slate-900 mb-3">Échelle d'Évaluation (1 à 5)</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
@@ -49,7 +48,7 @@
             </ul>
           </div>
           <div>
-            <p class="font-semibold text-slate-700 mb-1">Niveau de Contrôle</p>
+            <p class="font-semibold text-slate-700 mb-1">Protection / Prévention</p>
             <ul class="space-y-0.5">
               <li><span class="font-medium">1:</span> Très faible</li>
               <li><span class="font-medium">2:</span> Faible</li>
@@ -59,7 +58,7 @@
             </ul>
           </div>
           <div>
-            <p class="font-semibold text-slate-700 mb-1">Score Initial (Impact × Probabilité)</p>
+            <p class="font-semibold text-slate-700 mb-1">Score Inhérent (Impact × Probabilité)</p>
             <ul class="space-y-0.5">
               <li><span class="font-medium">1-4:</span> Faible</li>
               <li><span class="font-medium">5-9:</span> Moyen</li>
@@ -74,160 +73,242 @@
       <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
 
+          <!-- SECTION 1: Informations générales -->
           <div class="space-y-4">
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Code -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
-                <input
-                  formControlName="code"
-                  type="text"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-4 py-3 text-sm focus:outline-none transition"
-                  placeholder="Généré automatiquement"
-                />
-              </div>
-
-              <!-- Date d'évaluation -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date d'évaluation</label>
-                <input
-                  formControlName="dateEvaluation"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
-                <p *ngIf="form.get('dateEvaluation')?.invalid && form.get('dateEvaluation')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('dateEvaluation') }}
-                </p>
-              </div>
-
               <!-- Risque -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque</label>
-                <select
-                  formControlName="codeRisque"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque *</label>
+                <select formControlName="codeRisque"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
                   <option value="">Sélectionner un risque</option>
-                  <option *ngIf="loadingRisques" value="" disabled>Chargement...</option>
                   <option *ngFor="let risque of risques" [value]="risque.code">
                     {{ risque.code }} - {{ risque.libelle }}
                   </option>
                 </select>
                 <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('codeRisque') }}
-                </p>
+                   class="mt-1 text-xs text-red-600">{{ getFieldError('codeRisque') }}</p>
               </div>
-
               <!-- Agent -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Évaluateur (optionnel)</label>
-                <select
-                  formControlName="matriculeAgent"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
+                <select formControlName="matriculeAgent"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
                   <option value="">Sélectionner un agent</option>
-                  <option *ngIf="loadingAgents" value="" disabled>Chargement...</option>
                   <option *ngFor="let agent of agents" [value]="agent.matricule">
                     {{ agent.matricule }} - {{ agent.nom }} {{ agent.prenoms }}
                   </option>
                 </select>
               </div>
+            </div>
+          </div>
 
-              <!-- Impact -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Impact (1-5)</label>
-                <input
-                  formControlName="impact"
-                  type="number"
-                  min="1"
-                  max="5"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="1 à 5"
-                />
-                <p *ngIf="form.get('impact')?.invalid && form.get('impact')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('impact') }}
-                </p>
+          <!-- SECTION 2: Période d'évaluation (togglable) -->
+          <div class="space-y-4 border-t border-slate-100 pt-4">
+            <button type="button" (click)="toggleSection('period')"
+              class="flex items-center justify-between w-full text-left">
+              <h3 class="text-lg font-semibold text-slate-900">Période d'évaluation</h3>
+              <svg [class.rotate-180]="sections.period"
+                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div *ngIf="sections.period" class="space-y-3 pt-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Date début -->
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début (optionnel)</label>
+                  <input formControlName="dateDebut" type="date"
+                    [class.border-red-400]="dateFinError"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
+                </div>
+                <!-- Date fin -->
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin (optionnel)</label>
+                  <input formControlName="dateFin" type="date"
+                    [class.border-red-400]="dateFinError"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
+                </div>
               </div>
+              <!-- Erreur date -->
+              <p *ngIf="dateFinError" class="text-xs text-red-600 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"/>
+                </svg>
+                La date de fin doit être supérieure à la date de début.
+              </p>
+            </div>
+          </div>
 
-              <!-- Probabilité -->
+          <!-- SECTION 3: Risque inhérent (togglable) -->
+          <div class="space-y-4 border-t border-slate-100 pt-4">
+            <button type="button" (click)="toggleSection('inherent')"
+              class="flex items-center justify-between w-full text-left">
+              <h3 class="text-lg font-semibold text-slate-900">Risque inhérent</h3>
+              <svg [class.rotate-180]="sections.inherent"
+                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div *ngIf="sections.inherent" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <!-- Impact inhérent -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Probabilité (1-5)</label>
-                <input
-                  formControlName="probabilite"
-                  type="number"
-                  min="1"
-                  max="5"
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Impact inhérent (1-5) *</label>
+                <input formControlName="impactInherent" type="number" min="1" max="5"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="1 à 5"
-                />
-                <p *ngIf="form.get('probabilite')?.invalid && form.get('probabilite')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('probabilite') }}
-                </p>
+                  placeholder="1 à 5" />
+                <p *ngIf="form.get('impactInherent')?.invalid && form.get('impactInherent')?.touched"
+                   class="mt-1 text-xs text-red-600">{{ getFieldError('impactInherent') }}</p>
               </div>
-
-              <!-- Niveau de contrôle -->
+              <!-- Probabilité inhérente -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Niveau de contrôle (1-5)</label>
-                <input
-                  formControlName="niveauControle"
-                  type="number"
-                  min="1"
-                  max="5"
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Probabilité inhérente (1-5) *</label>
+                <input formControlName="probabiliteInherente" type="number" min="1" max="5"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="1 à 5"
-                />
-                <p *ngIf="form.get('niveauControle')?.invalid && form.get('niveauControle')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('niveauControle') }}
-                </p>
+                  placeholder="1 à 5" />
+                <p *ngIf="form.get('probabiliteInherente')?.invalid && form.get('probabiliteInherente')?.touched"
+                   class="mt-1 text-xs text-red-600">{{ getFieldError('probabiliteInherente') }}</p>
               </div>
+            </div>
+          </div>
 
-              <!-- Bonnes pratiques -->
-              <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques (max 1000 caractères)</label>
-                <textarea
-                  formControlName="bonnesPratiques"
-                  rows="4"
+          <!-- SECTION 4: Contrôles existants (togglable) -->
+          <div class="space-y-4 border-t border-slate-100 pt-4">
+            <button type="button" (click)="toggleSection('controles')"
+              class="flex items-center justify-between w-full text-left">
+              <h3 class="text-lg font-semibold text-slate-900">Contrôles existants</h3>
+              <svg [class.rotate-180]="sections.controles"
+                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div *ngIf="sections.controles" class="space-y-3 pt-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Protection -->
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Protection (1-5) *</label>
+                  <input formControlName="protection" type="number" min="1" max="5"
+                    [class.border-red-400]="!!protectionError"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    placeholder="1 à 5" />
+                  <p *ngIf="form.get('protection')?.invalid && form.get('protection')?.touched && !protectionError"
+                     class="mt-1 text-xs text-red-600">{{ getFieldError('protection') }}</p>
+                  <p *ngIf="!!protectionError" class="mt-1 text-xs text-red-600 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd"/>
+                    </svg>
+                    {{ protectionError }}
+                  </p>
+                </div>
+                <!-- Prévention -->
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Prévention (1-5) *</label>
+                  <input formControlName="prevention" type="number" min="1" max="5"
+                    [class.border-red-400]="!!preventionError"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    placeholder="1 à 5" />
+                  <p *ngIf="form.get('prevention')?.invalid && form.get('prevention')?.touched && !preventionError"
+                     class="mt-1 text-xs text-red-600">{{ getFieldError('prevention') }}</p>
+                  <p *ngIf="!!preventionError" class="mt-1 text-xs text-red-600 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd"/>
+                    </svg>
+                    {{ preventionError }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 5: Contrôles supplémentaires (togglable) -->
+          <div class="space-y-4 border-t border-slate-100 pt-4">
+            <button type="button" (click)="toggleSection('additional')"
+              class="flex items-center justify-between w-full text-left">
+              <h3 class="text-lg font-semibold text-slate-900">Contrôles supplémentaires</h3>
+              <svg [class.rotate-180]="sections.additional"
+                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div *ngIf="sections.additional" class="grid grid-cols-1 gap-4 pt-2">
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Contrôles existants (optionnel)</label>
+                <textarea formControlName="controleExistants" rows="2"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Description des bonnes pratiques..."
-                ></textarea>
+                  placeholder="Décrivez les contrôles existants..."></textarea>
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Contrôles inexistants (optionnel)</label>
+                <textarea formControlName="controleInexistants" rows="2"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Décrivez les contrôles manquants..."></textarea>
+              </div>
+              <div>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input formControlName="dejaSurvenu" type="checkbox"
+                    class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <span class="text-sm font-semibold text-slate-700">Le risque est déjà survenu</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 6: Recommandations (togglable) -->
+          <div class="space-y-4 border-t border-slate-100 pt-4">
+            <button type="button" (click)="toggleSection('recommendations')"
+              class="flex items-center justify-between w-full text-left">
+              <h3 class="text-lg font-semibold text-slate-900">Recommandations & Bonnes pratiques</h3>
+              <svg [class.rotate-180]="sections.recommendations"
+                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div *ngIf="sections.recommendations" class="grid grid-cols-1 gap-4 pt-2">
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Recommandation (optionnel, max 1000 caractères)</label>
+                <textarea formControlName="recommandation" rows="3"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Recommandations pour la gestion du risque..."></textarea>
+                <p *ngIf="form.get('recommandation')?.invalid && form.get('recommandation')?.touched"
+                   class="mt-1 text-xs text-red-600">{{ getFieldError('recommandation') }}</p>
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques (optionnel, max 1000 caractères)</label>
+                <textarea formControlName="bonnesPratiques" rows="3"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Description des bonnes pratiques..."></textarea>
                 <p *ngIf="form.get('bonnesPratiques')?.invalid && form.get('bonnesPratiques')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('bonnesPratiques') }}
-                </p>
+                   class="mt-1 text-xs text-red-600">{{ getFieldError('bonnesPratiques') }}</p>
               </div>
-
             </div>
           </div>
 
           <!-- Actions -->
-          <div class="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              (click)="cancel()"
-              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button type="button" (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
               Annuler
             </button>
-            <button
-              type="submit"
-              [disabled]="loading"
-              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
-            >
+            <button type="submit" [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
               {{ isEditMode ? 'Modifier' : 'Créer' }}
             </button>
           </div>
 
         </form>
       </div>
-
     </div>
   </div>
-
 </app-main-layout>

@@ -4,15 +4,25 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
+
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+
 import { RisqueService } from '../../../../core/services/risque.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
 import { CartographieRisquesService } from '../../../../core/services/cartographie-risques.service';
-import { RisqueRequest, RisqueResponse, StatutRisque, TypeRisque } from '../../../../core/models/risque.model';
+
+import {
+  RisqueRequest,
+  RisqueResponse,
+  StatutRisque,
+  TypeRisque
+} from '../../../../core/models/risque.model';
+
 import { ProcessusResponse } from '../../../../core/models/processus.model';
 import { CartographieRisquesResponse } from '../../../../core/models/cartographie-risques.model';
+
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -22,18 +32,23 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './risques-form.component.html'
 })
 export class RisquesFormComponent implements OnInit {
+
   form: FormGroup;
+
   isEditMode = false;
   code?: string;
+
   loading = false;
   error: string | null = null;
+
   menuItems: MenuItem[];
-  
+
   processus: ProcessusResponse[] = [];
   cartographies: CartographieRisquesResponse[] = [];
+
   loadingProcessus = false;
   loadingCartographies = false;
-  
+
   statutOptions = [
     { value: StatutRisque.ACTIF, label: 'Actif' },
     { value: StatutRisque.EN_COURS, label: 'En cours' },
@@ -41,13 +56,48 @@ export class RisquesFormComponent implements OnInit {
     { value: StatutRisque.CLOTURE, label: 'Clôturé' },
     { value: StatutRisque.SUPPRIME, label: 'Supprimé' }
   ];
-  
+
   typeRisqueOptions = [
-    { value: TypeRisque.FINANCIER, label: 'Financier' },
-    { value: TypeRisque.OPERATIONNEL, label: 'Opérationnel' },
-    { value: TypeRisque.JURIDIQUE, label: 'Juridique' },
-    { value: TypeRisque.STRATEGIQUE, label: 'Stratégique' },
-    { value: TypeRisque.TECHNIQUE, label: 'Technique' }
+    {
+      value: TypeRisque.STRATEGIQUE_PILOTAGE,
+      label: 'Stratégique / Pilotage'
+    },
+    {
+      value: TypeRisque.OPERATIONNEL,
+      label: 'Opérationnel'
+    },
+    {
+      value: TypeRisque.FINANCIER,
+      label: 'Financier'
+    },
+    {
+      value: TypeRisque.RESSOURCES_HUMAINES,
+      label: 'Ressources humaines'
+    },
+    {
+      value: TypeRisque.ETHIQUE_DEONTOLOGIE_FRAUDE,
+      label: 'Éthique / Déontologie / Fraude'
+    },
+    {
+      value: TypeRisque.JURIDIQUE,
+      label: 'Juridique'
+    },
+    {
+      value: TypeRisque.INFORMATIQUE,
+      label: 'Informatique'
+    },
+    {
+      value: TypeRisque.IMAGE_REPUTATION,
+      label: 'Image / Réputation'
+    },
+    {
+      value: TypeRisque.GESTION_CONNAISSANCE,
+      label: 'Gestion de la connaissance'
+    },
+    {
+      value: TypeRisque.EXTERNE,
+      label: 'Externe'
+    }
   ];
 
   constructor(
@@ -61,77 +111,114 @@ export class RisquesFormComponent implements OnInit {
     private menuService: MenuService,
     private cdr: ChangeDetectorRef
   ) {
+
     this.menuItems = this.menuService.items;
+
     this.form = this.fb.group({
       code: [{ value: '', disabled: true }],
-      libelle: ['', [Validators.required, Validators.maxLength(200)]],
-      causeProbable: ['', [Validators.maxLength(1000)]],
-      consequenceProbable: ['', [Validators.maxLength(1000)]],
+
+      libelle: ['', [
+        Validators.required,
+        Validators.maxLength(200)
+      ]],
+
+      causeProbable: ['', [
+        Validators.maxLength(1000)
+      ]],
+
+      consequenceProbable: ['', [
+        Validators.maxLength(1000)
+      ]],
+
       statut: ['', [Validators.required]],
+
       dateIdentification: ['', [Validators.required]],
+
       codeProcessus: ['', [Validators.required]],
+
       codeCartographie: [''],
+
       typeRisque: ['', [Validators.required]]
     });
   }
 
   ngOnInit(): void {
+
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/auth/login']);
       return;
     }
 
     const codeParam = this.route.snapshot.paramMap.get('code');
+
     if (codeParam) {
+
       this.isEditMode = true;
       this.code = codeParam;
-      
-      // En mode édition, charger les listes et le risque en parallèle
+
       forkJoin({
         processus: this.processusService.getAll(),
         cartographies: this.cartographieService.getAll(),
         risque: this.risqueService.getByCode(codeParam)
       }).subscribe({
+
         next: (data) => {
+
           this.processus = data.processus;
           this.cartographies = data.cartographies;
+
           this.patchForm(data.risque);
+
           this.loading = false;
           this.cdr.detectChanges();
         },
+
         error: (err) => {
+
           this.loading = false;
           this.error = err?.message || 'Impossible de charger les données';
+
           this.cdr.detectChanges();
         }
       });
+
     } else {
-      // En mode création, charger uniquement les listes
+
       this.loadReferenceData();
     }
   }
 
   loadReferenceData(): void {
+
     this.loading = true;
+
     forkJoin({
       processus: this.processusService.getAll(),
       cartographies: this.cartographieService.getAll()
     }).subscribe({
+
       next: (data) => {
+
         this.processus = data.processus;
         this.cartographies = data.cartographies;
+
         this.loading = false;
+
         this.cdr.detectChanges();
       },
+
       error: (err) => {
+
         this.loading = false;
         this.error = err?.message || 'Impossible de charger les données';
+
         this.cdr.detectChanges();
       }
     });
   }
 
   patchForm(risque: RisqueResponse): void {
+
     this.form.patchValue({
       code: risque.code,
       libelle: risque.libelle,
@@ -146,7 +233,9 @@ export class RisquesFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+
     if (this.form.invalid) {
+
       this.form.markAllAsTouched();
       return;
     }
@@ -169,9 +258,13 @@ export class RisquesFormComponent implements OnInit {
     };
 
     if (this.isEditMode && this.code) {
+
       this.risqueService.updateByCode(this.code, request).subscribe({
+
         next: () => {
+
           this.loading = false;
+
           Swal.fire({
             title: 'Modifié',
             text: 'Le risque a bien été modifié.',
@@ -180,16 +273,24 @@ export class RisquesFormComponent implements OnInit {
             showConfirmButton: false
           }).then(() => this.router.navigate(['/risques']));
         },
+
         error: (err) => {
+
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier le risque';
+
           this.cdr.detectChanges();
         }
       });
+
     } else {
+
       this.risqueService.create(request).subscribe({
+
         next: () => {
+
           this.loading = false;
+
           Swal.fire({
             title: 'Créé',
             text: 'Le risque a bien été créé.',
@@ -198,9 +299,12 @@ export class RisquesFormComponent implements OnInit {
             showConfirmButton: false
           }).then(() => this.router.navigate(['/risques']));
         },
+
         error: (err) => {
+
           this.loading = false;
           this.error = err?.message || 'Impossible de créer le risque';
+
           this.cdr.detectChanges();
         }
       });
@@ -212,19 +316,38 @@ export class RisquesFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
+
     const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
+
+    if (!field || !field.errors || !field.touched) {
+      return '';
+    }
 
     const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
+
+    if (errors['required']) {
+      return 'Ce champ est requis';
+    }
+
+    if (errors['maxlength']) {
+      return `Maximum ${errors['maxlength'].requiredLength} caractères`;
+    }
+
     return 'Champ invalide';
   }
 
   private formatDateForInput(date: string): string {
-    if (!date) return '';
+
+    if (!date) {
+      return '';
+    }
+
     const d = new Date(date);
-    if (isNaN(d.getTime())) return '';
+
+    if (isNaN(d.getTime())) {
+      return '';
+    }
+
     return d.toISOString().split('T')[0];
   }
 }
