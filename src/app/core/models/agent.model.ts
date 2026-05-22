@@ -9,6 +9,7 @@ export interface AgentRequest {
   prenoms: string;
   sexe: Sexe;
   role: Role;
+  codeProfil: string;        // ← nouveau champ obligatoire
   dateNaissance: string;
   datePriseService: string;
   codeUnite: string;
@@ -22,6 +23,8 @@ export interface AgentResponse {
   prenoms: string;
   sexe: Sexe;
   role: Role;
+  codeProfil?: string;       // ← retourné par le backend
+  libelleProfil?: string;    // ← libellé du profil pour affichage
   enabled: boolean;
   dateNaissance: string;
   datePriseService: string;

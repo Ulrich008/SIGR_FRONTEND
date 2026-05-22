@@ -16,21 +16,21 @@
             {{ isEditMode ? 'Modifier l\'agent' : 'Nouvel agent' }}
           </h1>
           <p *ngIf="isEditMode && matricule" class="text-xs text-gray-500 mt-1">
-            Matricule: {{ matricule }}
+            Matricule : {{ matricule }}
           </p>
         </div>
         <button
           (click)="cancel()"
           class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 w-full sm:w-auto"
         >
-          <svg class="w-4 h-4 mr-2 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
           Retour
         </button>
       </div>
 
-      <!-- Error -->
+      <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-3 sm:p-4 text-sm text-red-700 break-words">
         <div class="flex items-start gap-2">
           <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,62 +40,56 @@
         </div>
       </div>
 
-      <!-- Form Card -->
+      <!-- Carte formulaire -->
       <div class="relative rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-sm">
 
-        <!-- Loading Overlay -->
+        <!-- Overlay chargement -->
         <div *ngIf="loading" class="absolute inset-0 z-10 flex items-center justify-center bg-white/70 rounded-2xl sm:rounded-3xl">
           <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-700"></div>
         </div>
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5 sm:space-y-6">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 sm:space-y-8">
 
-          <!-- Informations personnelles -->
-          <div class="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
-            <h3 class="text-base sm:text-lg font-semibold text-slate-900">Informations personnelles</h3>
+          <!-- ═══════════════════════════════════════
+               SECTION 1 — Informations personnelles
+          ════════════════════════════════════════ -->
+          <div class="space-y-4">
+            <h3 class="text-base sm:text-lg font-semibold text-slate-900 pb-2 border-b border-slate-100">
+              Informations personnelles
+            </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Nom</label>
-                <input
-                  formControlName="nom"
-                  type="text"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm uppercase focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Nom <span class="text-red-500">*</span></label>
+                <input formControlName="nom" type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm uppercase focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
                 <p *ngIf="nomControl?.invalid && nomControl?.touched" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('nom') }}
                 </p>
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Prénoms</label>
-                <input
-                  formControlName="prenoms"
-                  type="text"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Prénoms <span class="text-red-500">*</span></label>
+                <input formControlName="prenoms" type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
                 <p *ngIf="prenomsControl?.invalid && prenomsControl?.touched" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('prenoms') }}
                 </p>
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Sexe</label>
-                <select
-                  formControlName="sexe"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                >
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Sexe <span class="text-red-500">*</span></label>
+                <select formControlName="sexe"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
                   <option value="MASCULIN">Masculin</option>
                   <option value="FEMININ">Féminin</option>
                 </select>
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Rôle</label>
-                <select
-                  formControlName="role"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                >
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Rôle <span class="text-red-500">*</span></label>
+                <select formControlName="role"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
                   <option value="AGENT">Agent</option>
                   <option value="MANAGER">Manager</option>
                   <option value="ADMIN">Administrateur</option>
@@ -103,24 +97,18 @@
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de naissance</label>
-                <input
-                  formControlName="dateNaissance"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de naissance <span class="text-red-500">*</span></label>
+                <input formControlName="dateNaissance" type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
                 <p *ngIf="dateNaissanceControl?.invalid && dateNaissanceControl?.touched" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('dateNaissance') }}
                 </p>
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de prise de service</label>
-                <input
-                  formControlName="datePriseService"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de prise de service <span class="text-red-500">*</span></label>
+                <input formControlName="datePriseService" type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
                 <p *ngIf="datePriseServiceControl?.invalid && datePriseServiceControl?.touched" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('datePriseService') }}
                 </p>
@@ -129,45 +117,88 @@
             </div>
           </div>
 
-          <!-- Informations d'identification -->
-          <div class="space-y-3 sm:space-y-4">
-            <h3 class="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
+          <!-- ═══════════════════════════════════════
+               SECTION 2 — Affectation
+          ════════════════════════════════════════ -->
+          <div class="space-y-4">
+            <h3 class="text-base sm:text-lg font-semibold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              Affectation
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
+              <!-- Unité administrative -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Unité administrative <span class="text-red-500">*</span>
+                </label>
+                <select formControlName="codeUnite"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
+                  <option value="">Sélectionner une unité</option>
+                  <option *ngIf="loadingUnites" value="" disabled>Chargement...</option>
+                  <option *ngFor="let unite of unites" [value]="unite.code">
+                    {{ unite.code }} — {{ unite.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="codeUniteControl?.invalid && codeUniteControl?.touched" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeUnite') }}
+                </p>
+              </div>
+
+              <!-- ★ Profil métier -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Profil métier <span class="text-red-500">*</span>
+                </label>
+                <select formControlName="codeProfil"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
+                  <option value="">Sélectionner un profil</option>
+                  <option *ngIf="loadingProfils" value="" disabled>Chargement...</option>
+                  <option *ngFor="let profil of profils" [value]="profil.code">
+                    {{ profil.code }} — {{ profil.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="codeProfilControl?.invalid && codeProfilControl?.touched" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeProfil') }}
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ═══════════════════════════════════════
+               SECTION 3 — Identification / Accès
+          ════════════════════════════════════════ -->
+          <div class="space-y-4">
+            <h3 class="text-base sm:text-lg font-semibold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
               <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
-              Informations d'identification
+              Identification &amp; Accès
             </h3>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
-              <!-- Matricule — toujours grisé, généré automatiquement -->
+              <!-- NPI -->
               <div>
-                <label class="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-semibold text-slate-700">
-                  Matricule
-                  <span class="text-xs font-normal text-gray-400 ml-1">(généré automatiquement)</span>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  NPI <span class="text-xs font-normal text-gray-400 ml-1">(optionnel)</span>
                 </label>
-                <input
-                  formControlName="matricule"
-                  type="text"
-                  placeholder="Généré automatiquement"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:outline-none"
-                />
+                <input formControlName="npi" type="text" placeholder="1234567890"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
               </div>
 
               <!-- Mot de passe -->
               <div class="relative">
-                <label class="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-semibold text-slate-700">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Mot de passe
                   <span *ngIf="!isEditMode" class="text-red-500">*</span>
-                  <span *ngIf="isEditMode" class="text-xs font-normal text-gray-500">(Laisser vide pour conserver)</span>
+                  <span *ngIf="isEditMode" class="text-xs font-normal text-gray-500 ml-1">(laisser vide pour conserver)</span>
                 </label>
                 <div class="relative">
-                  <input
-                    formControlName="password"
-                    [type]="showPassword ? 'text' : 'password'"
-                    placeholder="Mot de passe"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors pr-10"
-                  />
+                  <input formControlName="password" [type]="showPassword ? 'text' : 'password'" placeholder="Mot de passe"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors pr-10"/>
                   <button type="button" (click)="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <ng-container *ngIf="showPassword">
@@ -187,16 +218,12 @@
 
               <!-- Confirmation mot de passe (création uniquement) -->
               <div class="relative" *ngIf="!isEditMode">
-                <label class="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-semibold text-slate-700">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Confirmation mot de passe <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
-                  <input
-                    formControlName="confirmPassword"
-                    [type]="showConfirmPassword ? 'text' : 'password'"
-                    placeholder="Confirmer le mot de passe"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors pr-10"
-                  />
+                  <input formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" placeholder="Confirmer le mot de passe"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors pr-10"/>
                   <button type="button" (click)="toggleConfirmPasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <ng-container *ngIf="showConfirmPassword">
@@ -214,57 +241,18 @@
                 </p>
               </div>
 
-              <!-- NPI -->
-              <div>
-                <label class="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-semibold text-slate-700">
-                  NPI (optionnel)
-                </label>
-                <input
-                  formControlName="npi"
-                  type="text"
-                  placeholder="1234567890"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                />
-              </div>
-
-              <!-- Unité administrative -->
-              <div>
-                <label class="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-semibold text-slate-700">
-                  Unité administrative <span class="text-red-500">*</span>
-                </label>
-                <select
-                  formControlName="codeUnite"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
-                >
-                  <option value="">Sélectionner une unité</option>
-                  <option *ngIf="loadingUnites" value="" disabled>Chargement...</option>
-                  <option *ngFor="let unite of unites" [value]="unite.code">
-                    {{ unite.code }} - {{ unite.libelle }}
-                  </option>
-                </select>
-                <p *ngIf="codeUniteControl?.invalid && codeUniteControl?.touched" class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('codeUnite') }}
-                </p>
-              </div>
-
             </div>
           </div>
 
           <!-- Actions -->
-          <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4">
-            <button
-              type="submit"
-              [disabled]="loading || form.invalid"
-              class="rounded-lg bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
-            >
-              {{ loading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
-            </button>
-            <button
-              type="button"
-              (click)="cancel()"
-              class="rounded-lg border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
+          <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-slate-100">
+            <button type="button" (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 order-2 sm:order-1">
               Annuler
+            </button>
+            <button type="submit" [disabled]="loading || form.invalid"
+              class="rounded-lg bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50 order-1 sm:order-2">
+              {{ loading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
             </button>
           </div>
 
@@ -272,4 +260,5 @@
       </div>
     </div>
   </div>
+
 </app-main-layout>

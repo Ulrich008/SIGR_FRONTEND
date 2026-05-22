@@ -58,5 +58,19 @@ export class MenuService {
         { icon: 'fas fa-user-tag', label: 'Affectations', path: '/agents/affectations', roles: ['ADMIN', 'MANAGER'] }
       ]
     },
+    {
+      icon: 'fas fa-id-card',      
+      label: 'Profils',
+      path: '/profils',
+      roles: ['ADMIN', 'MANAGER'],
+      children: [
+        {
+          icon: 'fas fa-list-alt',
+          label: 'Liste des profils',
+          path: '/profils',
+          roles: ['ADMIN', 'MANAGER']
+        }
+      ]
+    }
   ];
 }

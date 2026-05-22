@@ -65,11 +65,19 @@ export const routes: Routes = [
     path: 'agents/affectations',
     loadChildren: () => import('./modules/affectations/affectations.module').then(m => m.AffectationsModule)
   },
+   
+{
+  path: 'profils',
+  loadChildren: () =>
+    import('./modules/profils/profils.module').then(m => m.ProfilsModule)
+},
   {
     path: 'ministere',
     redirectTo: '/ministeres',
     pathMatch: 'full'
   },
+
+  
   {
     path: 'ministère',
     redirectTo: '/ministeres',

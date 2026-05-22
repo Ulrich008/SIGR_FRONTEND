@@ -1,0 +1,152 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  [activeMenu]="'Profils'"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 sm:p-6">
+    <div class="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div class="min-w-0 flex-1">
+          <p class="text-xs sm:text-sm text-gray-500">Administration</p>
+          <h1 class="text-xl sm:text-2xl font-semibold text-slate-900 break-words">
+            {{ isEditMode ? 'Modifier le profil' : 'Nouveau profil' }}
+          </h1>
+          <p *ngIf="isEditMode && code" class="text-xs text-gray-500 mt-1">
+            Code : {{ code }}
+          </p>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 w-full sm:w-auto"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Retour
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-3 sm:p-4 text-sm text-red-700 break-words">
+        <div class="flex items-start gap-2">
+          <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>{{ error }}</span>
+        </div>
+      </div>
+
+      <!-- Carte formulaire -->
+      <div class="relative rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-sm">
+
+        <!-- Overlay chargement -->
+        <div
+          *ngIf="loading"
+          class="absolute inset-0 z-10 flex items-center justify-center bg-white/70 rounded-2xl sm:rounded-3xl"
+        >
+          <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-700"></div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5 sm:space-y-6">
+
+          <!-- Section identité du profil -->
+          <div class="space-y-3 sm:space-y-4 pt-2">
+            <h3 class="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Informations du profil
+            </h3>
+
+            <!-- Code -->
+            <div>
+              <label class="mb-1.5 block text-xs sm:text-sm font-semibold text-slate-700">
+                Code
+                <span *ngIf="!isEditMode" class="text-red-500">*</span>
+                <span *ngIf="isEditMode" class="text-xs font-normal text-gray-400 ml-1">(non modifiable)</span>
+              </label>
+              <input
+                formControlName="code"
+                type="text"
+                placeholder="Ex: CMMR"
+                [class.cursor-not-allowed]="isEditMode"
+                [class.bg-slate-100]="isEditMode"
+                [class.text-slate-400]="isEditMode"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm uppercase tracking-wider focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
+              />
+              <p *ngIf="codeControl?.invalid && codeControl?.touched" class="mt-1 text-xs text-red-600">
+                {{ getFieldError('code') }}
+              </p>
+              <p *ngIf="!isEditMode" class="mt-1 text-xs text-gray-400">
+                Majuscules uniquement, sans espaces (lettres, chiffres, _ ou -)
+              </p>
+            </div>
+
+            <!-- Libellé -->
+            <div>
+              <label class="mb-1.5 block text-xs sm:text-sm font-semibold text-slate-700">
+                Libellé <span class="text-red-500">*</span>
+              </label>
+              <input
+                formControlName="libelle"
+                type="text"
+                placeholder="Ex: Comité Ministériel de Maîtrise des Risques"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"
+              />
+              <p *ngIf="libelleControl?.invalid && libelleControl?.touched" class="mt-1 text-xs text-red-600">
+                {{ getFieldError('libelle') }}
+              </p>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="mb-1.5 block text-xs sm:text-sm font-semibold text-slate-700">
+                Description
+                <span class="text-xs font-normal text-gray-400 ml-1">(optionnel)</span>
+              </label>
+              <textarea
+                formControlName="description"
+                rows="4"
+                placeholder="Décrivez les responsabilités et le périmètre de ce profil..."
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors resize-none"
+              ></textarea>
+              <div class="flex justify-between mt-1">
+                <p *ngIf="descriptionControl?.invalid && descriptionControl?.touched" class="text-xs text-red-600">
+                  {{ getFieldError('description') }}
+                </p>
+                <p class="text-xs text-gray-400 ml-auto">
+                  {{ (descriptionControl?.value?.length || 0) }} / 300
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-slate-100">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 order-2 sm:order-1"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading || form.invalid"
+              class="rounded-lg bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50 order-1 sm:order-2"
+            >
+              {{ loading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>
