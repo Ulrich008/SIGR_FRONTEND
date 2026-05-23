@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.sigr.com'
+  apiUrl: 'https://api.sigr.lisabenin.org'
 };
