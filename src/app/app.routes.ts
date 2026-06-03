@@ -50,6 +50,14 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/indicateurs/indicateurs.module').then(m => m.IndicateursModule)
   },
   {
+    path: 'unites-mesure',
+    loadChildren: () => import('./modules/unites-mesure/unites-mesure.module').then(m => m.UnitesMesureModule)
+  },
+  {
+    path: 'missions',
+    loadChildren: () => import('./modules/missions/missions.module').then(m => m.MissionsModule)
+  },
+  {
     path: 'plans-mitigation',
     loadChildren: () => import('./modules/plans-mitigation/plans-mitigation.module').then(m => m.PlansMitigationModule)
   },

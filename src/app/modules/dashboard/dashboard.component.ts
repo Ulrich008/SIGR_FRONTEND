@@ -12,6 +12,8 @@ import { PlanMitigationService } from '../../core/services/plan-mitigation.servi
 import { ActionService } from '../../core/services/action.service';
 import { ProcessusService } from '../../core/services/processus.service';
 import { AgentService } from '../../core/services/agent.service';
+import { MinistereService } from '../../core/services/ministere.service';
+import { AuthService } from '../../core/services/auth.service';
 import Chart from 'chart.js/auto';
 import { forkJoin } from 'rxjs';
 
@@ -39,6 +41,11 @@ export class DashboardComponent implements AfterViewInit {
   totalActions = 0;
   totalAgents = 0;
 
+  // Ministère information
+  ministereNom: string = '';
+  ministereCode: string = '';
+  ministereDescription: string = '';
+
   // Chart data
   barData: { name: string; value: number; dark: boolean }[] = [];
 
@@ -57,6 +64,8 @@ export class DashboardComponent implements AfterViewInit {
     private actionService: ActionService,
     private processusService: ProcessusService,
     private agentService: AgentService,
+    private ministereService: MinistereService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
@@ -70,6 +79,24 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   loadDashboardData(): void {
+    // Récupérer le ministère de l'utilisateur connecté
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser && currentUser.codeMinistere) {
+      this.ministereService.getAll().subscribe({
+        next: (ministeres) => {
+          const ministere = ministeres.find(m => m.code === currentUser.codeMinistere);
+          if (ministere) {
+            this.ministereNom = ministere.nom;
+            this.ministereCode = ministere.code;
+            this.ministereDescription = ministere.description || '';
+          }
+        },
+        error: (err: any) => {
+          console.error('Erreur chargement ministère:', err);
+        }
+      });
+    }
+
     forkJoin({
       risques: this.risqueService.getAll(),
       evaluations: this.evaluationService.getAll(),
@@ -110,7 +137,7 @@ export class DashboardComponent implements AfterViewInit {
         this.cdr.detectChanges();
         setTimeout(() => this.initChart(), 100);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erreur chargement dashboard:', err);
         this.loading = false;
         this.cdr.detectChanges();

@@ -11,4 +11,5 @@ export interface LoginResponse {
   prenoms: string;
   role: string;
   codeUnite?: string;
+  codeMinistere?: string;  // ← ajouté pour multi-ministères
 }

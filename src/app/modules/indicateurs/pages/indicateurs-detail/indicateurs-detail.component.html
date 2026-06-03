@@ -60,7 +60,7 @@
             </div>
             <div class="absolute inset-0 flex items-center justify-between px-4">
               <span class="text-sm font-semibold text-white drop-shadow">
-                {{ indicateur.valeurObtenue || 0 }} / {{ indicateur.valeurCible || 100 }} {{ indicateur.uniteMesure }}
+                {{ formatValue(indicateur.valeurObtenue || 0, indicateur.libelleUniteMesure) }} / {{ formatValue(indicateur.valeurCible || 100, indicateur.libelleUniteMesure) }}
               </span>
               <span class="text-sm font-semibold text-white drop-shadow">
                 {{ getPerformancePercentage(indicateur.valeurObtenue || 0, indicateur.valeurCible || 100).toFixed(1) }}%
@@ -81,7 +81,7 @@
           <div class="space-y-2">
             <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Unité de mesure</h3>
             <div class="rounded-xl bg-slate-50 p-4">
-              <p class="text-slate-700 font-medium">{{ indicateur.uniteMesure }}</p>
+              <p class="text-slate-700 font-medium">{{ indicateur.libelleUniteMesure }}</p>
             </div>
           </div>
 
@@ -93,9 +93,11 @@
           </div>
 
           <div class="space-y-2">
-            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Date de mesure</h3>
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Période de mesure</h3>
             <div class="rounded-xl bg-slate-50 p-4">
-              <p class="text-slate-700 font-medium">{{ formatDate(indicateur.dateMesure) }}</p>
+              <p class="text-slate-700 font-medium">
+                {{ formatDate(indicateur.dateDebut) }} - {{ formatDate(indicateur.dateFin) }}
+              </p>
             </div>
           </div>
         </div>

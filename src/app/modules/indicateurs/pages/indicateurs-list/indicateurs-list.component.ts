@@ -46,11 +46,13 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
   @ViewChild('overviewChart') overviewChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('statutChart')   statutChartRef!:   ElementRef<HTMLCanvasElement>;
   @ViewChild('radarChart')    radarChartRef!:     ElementRef<HTMLCanvasElement>;
+  @ViewChild('dateChart')     dateChartRef!:      ElementRef<HTMLCanvasElement>;
 
   // Instances Chart.js à détruire proprement
   private overviewChart?: Chart;
   private statutChart?:   Chart;
   private radarChart?:    Chart;
+  private dateChart?:     Chart;
   private miniCharts: Chart[] = [];
 
   // Flag pour savoir si la vue est prête
@@ -121,6 +123,7 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     this.buildOverviewChart();
     this.buildStatutChart();
     this.buildRadarChart();
+    this.buildDateChart();
     this.buildMiniCharts();
   }
 
@@ -129,9 +132,14 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     const canvas = this.overviewChartRef?.nativeElement;
     if (!canvas) return;
 
-    const labels  = this.indicateurs.map(i => i.code);
-    const obtenues = this.indicateurs.map(i => i.valeurObtenue ?? 0);
-    const cibles   = this.indicateurs.map(i => i.valeurCible ?? 100);
+    // Filtrer les indicateurs de type NUMERIQUE uniquement
+    const numericIndicateurs = this.indicateurs.filter(i => i.typeUniteMesure !== 'DATE');
+    
+    if (numericIndicateurs.length === 0) return;
+
+    const labels  = numericIndicateurs.map(i => i.code);
+    const obtenues = numericIndicateurs.map(i => this.toNumber(i.valeurObtenue, 0));
+    const cibles   = numericIndicateurs.map(i => this.toNumber(i.valeurCible, 100));
 
     this.overviewChart = new Chart(canvas, {
       type: 'bar',
@@ -141,8 +149,8 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
           {
             label: 'Valeur obtenue',
             data: obtenues,
-            backgroundColor: this.indicateurs.map(i =>
-              this.getChartColor(i.valeurObtenue ?? 0, i.valeurCible ?? 100, 0.8)
+            backgroundColor: numericIndicateurs.map(i =>
+              this.getChartColor(i.valeurObtenue, i.valeurCible, 0.8)
             ),
             borderRadius: 6,
             borderSkipped: false,
@@ -166,8 +174,8 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
           tooltip: {
             callbacks: {
               label: (ctx) => {
-                const ind = this.indicateurs[ctx.dataIndex];
-                return ` ${ctx.dataset.label}: ${ctx.raw} ${ind?.uniteMesure ?? ''}`;
+                const ind = numericIndicateurs[ctx.dataIndex];
+                return ` ${ctx.dataset.label}: ${ctx.raw} ${ind?.libelleUniteMesure ?? ''}`;
               }
             }
           }
@@ -185,18 +193,19 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     const canvas = this.statutChartRef?.nativeElement;
     if (!canvas) return;
 
-    const ok      = this.countByStatut('OK');
-    const alerte  = this.countByStatut('ALERTE');
-    const inconnu = this.countByStatut('INCONNU');
+    const enCours = this.countByStatut('Plan de mitigation en cours conformément au calendrier');
+    const attention = this.countByStatut('Attention : échéance proche, suivi renforcé requis');
+    const enRetard = this.countByStatut('Échéance dépassée - Action de mitigation en retard');
+    const nonDisponible = this.countByStatut('Informations de suivi non disponibles');
 
     this.statutChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: ['OK', 'Alerte', 'Inconnu'],
+        labels: ['En cours', 'Attention', 'En retard', 'Non disponible'],
         datasets: [{
-          data: [ok, alerte, inconnu],
-          backgroundColor: ['#22c55e', '#ef4444', '#94a3b8'],
-          borderColor: ['#fff', '#fff', '#fff'],
+          data: [enCours, attention, enRetard, nonDisponible],
+          backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#94a3b8'],
+          borderColor: ['#fff', '#fff', '#fff', '#fff'],
           borderWidth: 3,
           hoverOffset: 8
         }]
@@ -224,7 +233,7 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
 
     const labels = this.indicateurs.map(i => i.code);
     const taux   = this.indicateurs.map(i =>
-      Math.min(this.getPerformancePercentage(i.valeurObtenue ?? 0, i.valeurCible ?? 100), 150)
+      Math.min(this.getPerformancePercentage(i.valeurObtenue, i.valeurCible), 150)
     );
 
     this.radarChart = new Chart(canvas, {
@@ -268,18 +277,113 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     });
   }
 
+  /** Bar chart : écart en jours pour les indicateurs de type DATE */
+  private buildDateChart(): void {
+    const canvas = this.dateChartRef?.nativeElement;
+    if (!canvas) return;
+
+    // Filtrer les indicateurs de type DATE
+    const dateIndicateurs = this.indicateurs.filter(i => i.typeUniteMesure === 'DATE');
+    
+    if (dateIndicateurs.length === 0) return;
+
+    const labels = dateIndicateurs.map(i => i.code);
+    const ecarts = dateIndicateurs.map(i => i.ecartCible || 0);
+    const datesCibles = dateIndicateurs.map(i => i.valeurCible || '-');
+    const datesObtenues = dateIndicateurs.map(i => i.valeurObtenue || '-');
+
+    this.dateChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Écart (jours)',
+          data: ecarts,
+          backgroundColor: ecarts.map(e => {
+            if (e > 0) return 'rgba(239, 68, 68, 0.8)'; // Rouge pour retard
+            if (e < 0) return 'rgba(34, 197, 94, 0.8)'; // Vert pour avance
+            return 'rgba(100, 116, 139, 0.8)'; // Gris pour égalité
+          }),
+          borderColor: ecarts.map(e => {
+            if (e > 0) return '#dc2626';
+            if (e < 0) return '#16a34a';
+            return '#64748b';
+          }),
+          borderWidth: 2,
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: 'rgba(148, 163, 184, 0.2)',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 8,
+            callbacks: {
+              title: (ctx) => {
+                const index = ctx[0].dataIndex;
+                return `Indicateur : ${labels[index]}`;
+              },
+              label: (ctx) => {
+                const index = ctx.dataIndex;
+                const ecart = ecarts[index];
+                const dateCible = datesCibles[index];
+                const dateObtenue = datesObtenues[index];
+                const sign = ecart > 0 ? '+' : '';
+                const status = ecart > 0 ? '🔴 Retard' : ecart < 0 ? '🟢 En avance' : '⚪ À temps';
+                return [
+                  `${status} : ${sign}${ecart} jour(s)`,
+                  `Date cible : ${dateCible}`,
+                  `Date obtenue : ${dateObtenue}`
+                ];
+              }
+            }
+          }
+        },
+        scales: {
+          x: { 
+            grid: { color: '#f1f5f9' }, 
+            ticks: { font: { size: 11 } },
+            title: {
+              display: true,
+              text: 'Écart en jours',
+              font: { size: 12, weight: 'bold' },
+              color: '#64748b'
+            }
+          },
+          y: { 
+            grid: { display: false }, 
+            ticks: { font: { size: 11 } }
+          }
+        }
+      }
+    });
+  }
+
   /** Mini doughnut pour chaque indicateur */
   private buildMiniCharts(): void {
     this.miniCharts.forEach(c => c.destroy());
     this.miniCharts = [];
 
     this.indicateurs.forEach((indicateur, i) => {
+      // Ne pas créer de mini graphe pour les indicateurs de type DATE
+      if (indicateur.typeUniteMesure === 'DATE') return;
+
       const canvas = document.getElementById(`mini-chart-${i}`) as HTMLCanvasElement;
       if (!canvas) return;
 
-      const pct       = Math.min(this.getPerformancePercentage(indicateur.valeurObtenue ?? 0, indicateur.valeurCible ?? 100), 100);
+      const pct       = Math.min(this.getPerformancePercentage(indicateur.valeurObtenue, indicateur.valeurCible), 100);
       const remaining = 100 - pct;
-      const color     = this.getChartColor(indicateur.valeurObtenue ?? 0, indicateur.valeurCible ?? 100, 1);
+      const color     = this.getChartColor(indicateur.valeurObtenue, indicateur.valeurCible, 1);
 
       const chart = new Chart(canvas, {
         type: 'doughnut',
@@ -311,11 +415,16 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     this.overviewChart?.destroy();
     this.statutChart?.destroy();
     this.radarChart?.destroy();
+    this.dateChart?.destroy();
     this.miniCharts.forEach(c => c.destroy());
     this.miniCharts = [];
   }
 
   // ─── Navigation ──────────────────────────────────────────────────────────
+
+  hasDateIndicateurs(): boolean {
+    return this.indicateurs.some(i => i.typeUniteMesure === 'DATE');
+  }
 
   createIndicateur(): void {
     this.router.navigate(['/indicateurs/nouveau']);
@@ -355,20 +464,35 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
 
   // ─── Utilitaires ─────────────────────────────────────────────────────────
 
+  toNumber(value: string | undefined, defaultValue: number): number {
+    if (!value) return defaultValue;
+    const num = parseFloat(value);
+    return isNaN(num) ? defaultValue : num;
+  }
+
   getStatutBadgeClass(statut: string): string {
     switch (statut) {
-      case 'OK':    return 'bg-green-100 text-green-700';
-      case 'ALERTE': return 'bg-red-100 text-red-700';
-      default:      return 'bg-gray-100 text-gray-700';
+      case 'Plan de mitigation en cours conformément au calendrier':
+        return 'bg-green-100 text-green-700';
+      case 'Attention : échéance proche, suivi renforcé requis':
+        return 'bg-amber-100 text-amber-700';
+      case 'Échéance dépassée - Action de mitigation en retard':
+        return 'bg-red-100 text-red-700';
+      case 'Informations de suivi non disponibles':
+        return 'bg-gray-100 text-gray-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   }
 
-  getPerformancePercentage(valeurObtenue: number, valeurCible: number): number {
-    if (!valeurObtenue || !valeurCible) return 0;
-    return (valeurObtenue / valeurCible) * 100;
+  getPerformancePercentage(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined): number {
+    const obtenueNum = typeof valeurObtenue === 'string' ? this.toNumber(valeurObtenue, 0) : (valeurObtenue ?? 0);
+    const cibleNum = typeof valeurCible === 'string' ? this.toNumber(valeurCible, 100) : (valeurCible ?? 100);
+    if (!obtenueNum || !cibleNum) return 0;
+    return (obtenueNum / cibleNum) * 100;
   }
 
-  getPerformanceTextColor(valeurObtenue: number, valeurCible: number): string {
+  getPerformanceTextColor(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined): string {
     const pct = this.getPerformancePercentage(valeurObtenue, valeurCible);
     if (pct >= 100) return 'text-green-600';
     if (pct >= 75)  return 'text-yellow-600';
@@ -376,7 +500,7 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   /** Couleur Chart.js selon le taux d'atteinte */
-  private getChartColor(valeurObtenue: number, valeurCible: number, alpha: number): string {
+  private getChartColor(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined, alpha: number): string {
     const pct = this.getPerformancePercentage(valeurObtenue, valeurCible);
     if (pct >= 100) return `rgba(34, 197, 94, ${alpha})`;   // vert
     if (pct >= 75)  return `rgba(234, 179, 8, ${alpha})`;   // jaune
@@ -385,5 +509,35 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
 
   countByStatut(statut: string): number {
     return this.indicateurs.filter(i => i.statut === statut).length;
+  }
+
+  formatValue(value: string | number | undefined, uniteMesure?: string): string {
+    const numValue = typeof value === 'string' ? this.toNumber(value, 0) : (value ?? 0);
+    if (!uniteMesure) return `${numValue}`;
+    
+    switch (uniteMesure) {
+      case 'Pourcentage':
+        return `${numValue}%`;
+      case 'Heure':
+        return `${numValue}h`;
+      case 'Minute':
+        return `${numValue}min`;
+      case 'Jour':
+        return `${numValue}j`;
+      case 'Euro':
+        return `${numValue}€`;
+      case 'Score sur 10':
+        return `${numValue}/10`;
+      case 'Score sur 100':
+        return `${numValue}/100`;
+      case 'Mètre cube':
+        return `${numValue}m³`;
+      case 'Kilogramme':
+        return `${numValue}kg`;
+      case 'Litre':
+        return `${numValue}L`;
+      default:
+        return `${numValue} ${uniteMesure}`;
+    }
   }
 }

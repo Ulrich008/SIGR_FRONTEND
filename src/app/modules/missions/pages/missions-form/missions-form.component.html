@@ -1,0 +1,160 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Missions"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des missions</p>
+          <h1 class="text-2xl font-semibold text-slate-900">
+            {{ isEditMode ? 'Modifier la mission' : 'Nouvelle mission' }}
+          </h1>
+        </div>
+        <button
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          Retour
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <!-- Formulaire -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <!-- Libellé -->
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé</label>
+            <input
+              formControlName="libelle"
+              type="text"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+              placeholder="Libellé de la mission"
+            />
+            <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched"
+               class="mt-1 text-xs text-red-600">
+              {{ getFieldError('libelle') }}
+            </p>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Description</label>
+            <textarea
+              formControlName="description"
+              rows="3"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+              placeholder="Description de la mission"
+            ></textarea>
+            <p *ngIf="form.get('description')?.invalid && form.get('description')?.touched"
+               class="mt-1 text-xs text-red-600">
+              {{ getFieldError('description') }}
+            </p>
+          </div>
+
+          <!-- Processus -->
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Processus</label>
+            <select
+              formControlName="codeProcessus"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+            >
+              <option value="">Sélectionner un processus</option>
+              <option *ngFor="let proc of processus" [value]="proc.code">
+                {{ proc.code }} - {{ proc.libelle }}
+              </option>
+            </select>
+            <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched"
+               class="mt-1 text-xs text-red-600">
+              {{ getFieldError('codeProcessus') }}
+            </p>
+          </div>
+
+          <!-- Période -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début</label>
+              <input
+                formControlName="dateDebut"
+                type="date"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin</label>
+              <input
+                formControlName="dateFin"
+                type="date"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <!-- Statut -->
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+            <select
+              formControlName="statut"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+            >
+              <option value="ACTIF">Actif</option>
+              <option value="INACTIF">Inactif</option>
+              <option value="EN_COURS">En cours</option>
+              <option value="TERMINE">Terminé</option>
+              <option value="SUSPENDU">Suspendu</option>
+            </select>
+          </div>
+
+          <!-- Responsable -->
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Responsable</label>
+            <select
+              formControlName="codeResponsable"
+              class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+            >
+              <option value="">Sélectionner un responsable</option>
+              <option *ngFor="let agent of agents" [value]="agent.matricule">
+                {{ agent.nom }} {{ agent.prenoms }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            >
+              {{ isEditMode ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</app-main-layout>

@@ -13,6 +13,7 @@ export interface AgentRequest {
   dateNaissance: string;
   datePriseService: string;
   codeUnite: string;
+  codeMinistere: string;     // ← nouveau champ pour multi-ministères
 }
 
 export interface AgentResponse {
@@ -30,4 +31,6 @@ export interface AgentResponse {
   datePriseService: string;
   codeUnite: string;
   libelleUnite?: string;
+  codeMinistere?: string;    // ← nouveau champ pour multi-ministères
+  libelleMinistere?: string; // ← libellé du ministère pour affichage
 }

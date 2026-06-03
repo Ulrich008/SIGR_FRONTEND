@@ -23,7 +23,9 @@ export class MenuService {
       roles: ['ADMIN', 'MANAGER', 'AGENT'],
       children: [
         { icon: 'fas fa-chart-line', label: 'Processus', path: '/processus', roles: ['ADMIN', 'MANAGER', 'AGENT'] },
-        { icon: 'fas fa-chart-simple', label: 'Indicateurs', path: '/indicateurs', roles: ['ADMIN', 'MANAGER', 'AGENT'] }
+        { icon: 'fas fa-chart-simple', label: 'Indicateurs', path: '/indicateurs', roles: ['ADMIN', 'MANAGER', 'AGENT'] },
+        { icon: 'fas fa-ruler', label: 'Unités de mesure', path: '/unites-mesure', roles: ['ADMIN', 'MANAGER'] },
+        { icon: 'fas fa-tasks', label: 'Missions', path: '/missions', roles: ['ADMIN', 'MANAGER', 'AGENT'] }
       ]
     },
     { 

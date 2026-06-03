@@ -2,7 +2,7 @@
   [menuItems]="menuItems"
   [activeMenu]="activeMenu"
   searchPlaceholder="Rechercher un risque, processus..."
-  organizationName="Ministère de l'Économie et des Finances"
+  [organizationName]="ministereNom || 'Ministère'"
   userInitials="AD">
 
   <!-- Page Content -->
@@ -12,7 +12,10 @@
     <div class="mb-4 sm:mb-5">
       <p class="text-xs text-gray-400 mb-1">Dashboards › Vue d'ensemble</p>
       <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Tableau de bord</h1>
-      <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">Ministère de l'Économie et des Finances - Gestion des risques</p>
+      <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">
+        <span *ngIf="ministereNom">{{ ministereNom }} ({{ ministereCode }})</span>
+        <span *ngIf="!ministereNom">Ministère - Gestion des risques</span>
+      </p>
     </div>
 
     <!-- KPI Cards - Responsive Grid -->

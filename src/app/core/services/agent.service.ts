@@ -33,9 +33,9 @@ export class AgentService {
     return this.http.get<AgentResponse[]>(this.apiUrl, this.headers).pipe(
       map(agents => {
         const currentUser = this.authService.getCurrentUser();
-        // Si l'utilisateur est MANAGER, filtrer les agents de son unité administrative
-        if (currentUser && currentUser.role === 'MANAGER' && currentUser.codeUnite) {
-          return agents.filter(agent => agent.codeUnite === currentUser.codeUnite);
+        // Si l'utilisateur est MANAGER, filtrer les agents de son ministère
+        if (currentUser && currentUser.role === 'MANAGER' && currentUser.codeMinistere) {
+          return agents.filter(agent => agent.codeMinistere === currentUser.codeMinistere);
         }
         // ADMIN voit tous les agents
         return agents;

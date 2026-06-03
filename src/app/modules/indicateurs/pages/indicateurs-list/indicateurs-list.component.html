@@ -37,7 +37,7 @@
       </div>
 
       <!-- Statistiques -->
-      <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
           <div class="flex items-center gap-3">
             <div class="rounded-xl bg-green-50 p-3">
@@ -46,8 +46,22 @@
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">OK</p>
-              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('OK') }}</p>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">En cours</p>
+              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('Plan de mitigation en cours conformément au calendrier') }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="rounded-xl bg-amber-50 p-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Attention</p>
+              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('Attention : échéance proche, suivi renforcé requis') }}</p>
             </div>
           </div>
         </div>
@@ -60,8 +74,8 @@
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Alerte</p>
-              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('ALERTE') }}</p>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">En retard</p>
+              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('Échéance dépassée - Action de mitigation en retard') }}</p>
             </div>
           </div>
         </div>
@@ -74,8 +88,8 @@
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Inconnu</p>
-              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('INCONNU') }}</p>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Non disponible</p>
+              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('Informations de suivi non disponibles') }}</p>
             </div>
           </div>
         </div>
@@ -95,7 +109,7 @@
 
         <div class="rounded-3xl bg-white p-6 shadow-sm">
           <h3 class="text-lg font-semibold text-slate-900 mb-1">Répartition par Statut</h3>
-          <p class="text-xs text-slate-400 mb-6">Distribution OK / Alerte / Inconnu</p>
+          <p class="text-xs text-slate-400 mb-6">Distribution En cours / Attention / En retard / Non disponible</p>
           <div class="h-64 flex items-center justify-center">
             <canvas #statutChart></canvas>
           </div>
@@ -110,6 +124,15 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Graphe bar : Écart en jours pour les indicateurs de type DATE -->
+      <div *ngIf="!loading && indicateurs.length > 0 && hasDateIndicateurs()" class="rounded-3xl bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-semibold text-slate-900 mb-1">Écart en Jours — Indicateurs de Type Date</h3>
+        <p class="text-xs text-slate-400 mb-6">Différence entre date obtenue et date cible (en jours)</p>
+        <div class="h-72">
+          <canvas #dateChart></canvas>
+        </div>
       </div>
 
       <!-- Liste des indicateurs avec mini-graphes individuels -->
@@ -163,8 +186,8 @@
                   </span>
                 </div>
 
-                <!-- Mini graphe doughnut individuel -->
-                <div class="flex items-center gap-4 mt-2">
+                <!-- Mini graphe doughnut individuel (uniquement pour les indicateurs numériques) -->
+                <div *ngIf="indicateur.typeUniteMesure !== 'DATE'" class="flex items-center gap-4 mt-2">
                   <div class="w-16 h-16 flex-shrink-0">
                     <canvas [id]="'mini-chart-' + i"></canvas>
                   </div>
@@ -173,7 +196,30 @@
                       {{ getPerformancePercentage(indicateur.valeurObtenue || 0, indicateur.valeurCible || 100).toFixed(1) }}%
                     </p>
                     <p class="text-xs text-slate-500">
-                      {{ indicateur.valeurObtenue || 0 }} / {{ indicateur.valeurCible || 100 }} {{ indicateur.uniteMesure }}
+                      {{ formatValue(indicateur.valeurObtenue || 0, indicateur.libelleUniteMesure) }} / {{ formatValue(indicateur.valeurCible || 100, indicateur.libelleUniteMesure) }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Affichage de l'écart en jours pour les indicateurs de type DATE -->
+                <div *ngIf="indicateur.typeUniteMesure === 'DATE'" class="flex items-center gap-4 mt-2">
+                  <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-full" 
+                       [class.bg-red-100]="(indicateur.ecartCible ?? 0) > 0"
+                       [class.bg-green-100]="(indicateur.ecartCible ?? 0) <= 0">
+                    <span class="text-2xl font-bold" 
+                          [class.text-red-600]="(indicateur.ecartCible ?? 0) > 0"
+                          [class.text-green-600]="(indicateur.ecartCible ?? 0) <= 0">
+                      {{ (indicateur.ecartCible ?? 0) > 0 ? '+' : '' }}{{ indicateur.ecartCible ?? 0 }}
+                    </span>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold" 
+                       [class.text-red-600]="(indicateur.ecartCible ?? 0) > 0"
+                       [class.text-green-600]="(indicateur.ecartCible ?? 0) <= 0">
+                      {{ (indicateur.ecartCible ?? 0) > 0 ? 'Retard' : (indicateur.ecartCible ?? 0) < 0 ? 'En avance' : 'À temps' }}
+                    </p>
+                    <p class="text-xs text-slate-500">
+                      {{ indicateur.valeurObtenue || '-' }} / {{ indicateur.valeurCible || '-' }}
                     </p>
                   </div>
                 </div>

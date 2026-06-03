@@ -129,6 +129,24 @@
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
+              <!-- Ministère -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Ministère <span class="text-red-500">*</span>
+                </label>
+                <select formControlName="codeMinistere"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
+                  <option value="">Sélectionner un ministère</option>
+                  <option *ngIf="loadingMinisteres" value="" disabled>Chargement...</option>
+                  <option *ngFor="let ministere of ministeres" [value]="ministere.code">
+                    {{ ministere.code }} — {{ ministere.nom }}
+                  </option>
+                </select>
+                <p *ngIf="codeMinistereControl?.invalid && codeMinistereControl?.touched" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeMinistere') }}
+                </p>
+              </div>
+
               <!-- Unité administrative -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">

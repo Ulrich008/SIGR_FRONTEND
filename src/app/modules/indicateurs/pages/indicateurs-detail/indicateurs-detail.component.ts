@@ -72,31 +72,80 @@ export class IndicateursDetailComponent implements OnInit {
     this.router.navigate(['/indicateurs']);
   }
 
+  // ─── Utilitaires ─────────────────────────────────────────────────────────
+
+  toNumber(value: string | undefined, defaultValue: number): number {
+    if (!value) return defaultValue;
+    const num = parseFloat(value);
+    return isNaN(num) ? defaultValue : num;
+  }
+
   getStatutBadgeClass(statut: string): string {
     switch (statut) {
-      case 'OK': return 'bg-green-100 text-green-700';
-      case 'ALERTE': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'Plan de mitigation en cours conformément au calendrier':
+        return 'bg-green-100 text-green-700';
+      case 'Attention : échéance proche, suivi renforcé requis':
+        return 'bg-amber-100 text-amber-700';
+      case 'Échéance dépassée - Action de mitigation en retard':
+        return 'bg-red-100 text-red-700';
+      case 'Informations de suivi non disponibles':
+        return 'bg-gray-100 text-gray-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   }
 
-  getPerformanceColor(valeurObtenue: number, valeurCible: number): string {
-    if (!valeurObtenue || !valeurCible) return 'bg-gray-300';
-    const percentage = (valeurObtenue / valeurCible) * 100;
+  getPerformanceColor(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined): string {
+    const obtenueNum = typeof valeurObtenue === 'string' ? this.toNumber(valeurObtenue, 0) : (valeurObtenue ?? 0);
+    const cibleNum = typeof valeurCible === 'string' ? this.toNumber(valeurCible, 100) : (valeurCible ?? 100);
+    if (!obtenueNum || !cibleNum) return 'bg-gray-300';
+    const percentage = (obtenueNum / cibleNum) * 100;
     if (percentage >= 100) return 'bg-green-500';
     if (percentage >= 75) return 'bg-yellow-500';
     return 'bg-red-500';
   }
 
-  getPerformancePercentage(valeurObtenue: number, valeurCible: number): number {
-    if (!valeurObtenue || !valeurCible) return 0;
-    return (valeurObtenue / valeurCible) * 100;
+  getPerformancePercentage(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined): number {
+    const obtenueNum = typeof valeurObtenue === 'string' ? this.toNumber(valeurObtenue, 0) : (valeurObtenue ?? 0);
+    const cibleNum = typeof valeurCible === 'string' ? this.toNumber(valeurCible, 100) : (valeurCible ?? 100);
+    if (!obtenueNum || !cibleNum) return 0;
+    return (obtenueNum / cibleNum) * 100;
   }
 
-  formatDate(date: string): string {
+  formatDate(date: string | undefined): string {
     if (!date) return 'Non renseignée';
     const d = new Date(date);
     if (isNaN(d.getTime())) return 'Non renseignée';
     return d.toLocaleDateString('fr-FR');
+  }
+
+  formatValue(value: string | number | undefined, uniteMesure?: string): string {
+    const numValue = typeof value === 'string' ? this.toNumber(value, 0) : (value ?? 0);
+    if (!uniteMesure) return `${numValue}`;
+    
+    switch (uniteMesure) {
+      case 'Pourcentage':
+        return `${numValue}%`;
+      case 'Heure':
+        return `${numValue}h`;
+      case 'Minute':
+        return `${numValue}min`;
+      case 'Jour':
+        return `${numValue}j`;
+      case 'Euro':
+        return `${numValue}€`;
+      case 'Score sur 10':
+        return `${numValue}/10`;
+      case 'Score sur 100':
+        return `${numValue}/100`;
+      case 'Mètre cube':
+        return `${numValue}m³`;
+      case 'Kilogramme':
+        return `${numValue}kg`;
+      case 'Litre':
+        return `${numValue}L`;
+      default:
+        return `${numValue} ${uniteMesure}`;
+    }
   }
 }

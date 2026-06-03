@@ -1,0 +1,105 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Missions"
+  searchPlaceholder="Rechercher une mission..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-6xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des missions</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Missions</h1>
+        </div>
+        <button
+          (click)="createMission()"
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Nouvelle mission
+        </button>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des missions...</span>
+      </div>
+
+      <!-- Liste des missions -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <div *ngIf="missions.length === 0" class="text-center py-10 text-slate-500">
+          Aucune mission trouvée.
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-slate-200">
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Code</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Libellé</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Processus</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Statut</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Période</th>
+                <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Responsable</th>
+                <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mission of missions" class="border-b border-slate-100 hover:bg-slate-50">
+                <td class="py-3 px-4">
+                  <span class="inline-block rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
+                    {{ mission.code }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-sm font-medium text-slate-900">{{ mission.libelle }}</td>
+                <td class="py-3 px-4 text-sm text-slate-600">{{ mission.nomProcessus }}</td>
+                <td class="py-3 px-4">
+                  <span [class]="'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ' + getStatutBadgeClass(mission.statut)">
+                    {{ mission.statut }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-sm text-slate-600">
+                  {{ mission.dateDebut || '-' }} - {{ mission.dateFin || '-' }}
+                </td>
+                <td class="py-3 px-4 text-sm text-slate-600">{{ mission.nomResponsable || '-' }}</td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex justify-end gap-2">
+                    <button (click)="editMission(mission.code)" title="Modifier"
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button (click)="deleteMission(mission.code)" title="Supprimer"
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

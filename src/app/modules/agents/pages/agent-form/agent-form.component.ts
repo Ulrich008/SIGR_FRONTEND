@@ -18,10 +18,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { AgentService } from '../../../../core/services/agent.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { ProfilService } from '../../../../core/services/profil.service';             // ← nouveau
+import { MinistereService } from '../../../../core/services/ministere.service';       // ← nouveau pour multi-ministères
 import { AgentRequest, AgentResponse, Sexe, Role } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { ProfilResponse } from '../../../../core/models/profil.model';                // ← nouveau
+import { MinistereResponse } from '../../../../core/models/ministere.model';           // ← nouveau pour multi-ministères
 
 @Component({
   standalone: true,
@@ -40,17 +42,22 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   menuItems: MenuItem[];
   private subscriptions: Subscription = new Subscription();
 
-  unites: UniteAdministrativeResponse[] = [];
+  allUnites: UniteAdministrativeResponse[] = [];  // Toutes les unités chargées
+  unites: UniteAdministrativeResponse[] = [];     // Unités filtrées par ministère
   loadingUnites = false;
 
   profils: ProfilResponse[] = [];          // ← nouveau
   loadingProfils = false;                  // ← nouveau
+
+  ministeres: MinistereResponse[] = [];    // ← nouveau pour multi-ministères
+  loadingMinisteres = false;              // ← nouveau pour multi-ministères
 
   constructor(
     private fb: FormBuilder,
     private agentService: AgentService,
     private uniteService: UniteAdministrativeService,
     private profilService: ProfilService,  // ← nouveau
+    private ministereService: MinistereService,  // ← nouveau pour multi-ministères
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -73,6 +80,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
       codeProfil:       ['', Validators.required],   // ← nouveau champ
       dateNaissance:    ['', Validators.required],
       datePriseService: ['', Validators.required],
+      codeMinistere:    ['', Validators.required],  // ← nouveau champ pour multi-ministères
       codeUnite:        ['', Validators.required]
     });
   }
@@ -110,8 +118,14 @@ export class AgentFormComponent implements OnInit, OnDestroy {
       this.router.navigate(['/auth/login']);
       return;
     }
+    this.loadMinisteres();  // ← nouveau pour multi-ministères
     this.loadUnites();
     this.loadProfils();   // ← nouveau
+
+    // Écouter les changements du ministère pour filtrer les unités
+    this.form.get('codeMinistere')?.valueChanges.subscribe(codeMinistere => {
+      this.filterUnitesByMinistere(codeMinistere);
+    });
 
     const matriculeParam = this.route.snapshot.paramMap.get('matricule');
     if (matriculeParam) {
@@ -130,7 +144,11 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   loadUnites(): void {
     this.loadingUnites = true;
     this.uniteService.getAll().subscribe({
-      next:  (u) => { this.unites = u; this.loadingUnites = false; },
+      next:  (u) => {
+        this.allUnites = u;  // Stocker toutes les unités
+        this.unites = u;     // Initialiser avec toutes les unités
+        this.loadingUnites = false;
+      },
       error: (e) => { console.error('Erreur unités', e); this.loadingUnites = false; }
     });
   }
@@ -141,6 +159,32 @@ export class AgentFormComponent implements OnInit, OnDestroy {
       next:  (p) => { this.profils = p; this.loadingProfils = false; },
       error: (e) => { console.error('Erreur profils', e); this.loadingProfils = false; }
     });
+  }
+
+  loadMinisteres(): void {
+    this.loadingMinisteres = true;
+    this.ministereService.getAll().subscribe({
+      next:  (m) => { this.ministeres = m; this.loadingMinisteres = false; },
+      error: (e) => { console.error('Erreur ministères', e); this.loadingMinisteres = false; }
+    });
+  }
+
+  filterUnitesByMinistere(codeMinistere: string): void {
+    if (!codeMinistere) {
+      // Si aucun ministère n'est sélectionné, afficher toutes les unités
+      this.unites = [...this.allUnites];
+    } else {
+      // Filtrer les unités par ministère à partir de toutes les unités
+      this.unites = this.allUnites.filter(unite => unite.codeMinistere === codeMinistere);
+    }
+    // Réinitialiser le champ unité si l'unité sélectionnée n'appartient pas au ministère
+    const currentUnite = this.form.get('codeUnite')?.value;
+    if (currentUnite) {
+      const selectedUnite = this.unites.find(u => u.code === currentUnite);
+      if (!selectedUnite) {
+        this.form.get('codeUnite')?.setValue('');
+      }
+    }
   }
 
   loadAgent(matricule: string): void {
@@ -160,6 +204,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
           codeProfil:       agent.codeProfil       ?? '',   // ← nouveau
           dateNaissance:    this.formatDateForInput(agent.dateNaissance),
           datePriseService: this.formatDateForInput(agent.datePriseService),
+          codeMinistere:    agent.codeMinistere    ?? '',  // ← nouveau pour multi-ministères
           codeUnite:        agent.codeUnite        ?? ''
         });
 
@@ -284,6 +329,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   get passwordControl()         { return this.form.get('password'); }
   get nomControl()              { return this.form.get('nom'); }
   get prenomsControl()          { return this.form.get('prenoms'); }
+  get codeMinistereControl()    { return this.form.get('codeMinistere'); }  // ← nouveau pour multi-ministères
   get codeUniteControl()        { return this.form.get('codeUnite'); }
   get codeProfilControl()       { return this.form.get('codeProfil'); }   // ← nouveau
   get dateNaissanceControl()    { return this.form.get('dateNaissance'); }

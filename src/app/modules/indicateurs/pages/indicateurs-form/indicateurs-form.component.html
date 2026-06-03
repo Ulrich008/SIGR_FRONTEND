@@ -33,122 +33,6 @@
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
 
-      <!-- ── Légende ──────────────────────────────────────────────── -->
-      <div *ngIf="!loading" class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <div class="flex items-center gap-2 mb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="16" x2="12" y2="12"/>
-            <line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
-          <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">Légende</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-
-          <div class="flex items-start gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2.5 shadow-sm">
-            <div class="mt-0.5 flex-shrink-0 rounded-md bg-blue-50 p-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/>
-                <line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-semibold text-slate-700">Libellé</p>
-              <p class="text-xs text-slate-400">Nom descriptif et lisible de l'indicateur de performance.</p>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2.5 shadow-sm">
-            <div class="mt-0.5 flex-shrink-0 rounded-md bg-violet-50 p-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-violet-500" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-semibold text-slate-700">Fréquence</p>
-              <p class="text-xs text-slate-400">Périodicité de mesure : mensuelle, trimestrielle, annuelle…</p>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2.5 shadow-sm">
-            <div class="mt-0.5 flex-shrink-0 rounded-md bg-emerald-50 p-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                <path d="M8 21h8M12 17v4"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-semibold text-slate-700">Processus</p>
-              <p class="text-xs text-slate-400">Processus métier auquel cet indicateur est rattaché.</p>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2.5 shadow-sm">
-            <div class="mt-0.5 flex-shrink-0 rounded-md bg-sky-50 p-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-500" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-semibold text-slate-700">Date de mesure</p>
-              <p class="text-xs text-slate-400">Date à laquelle la valeur de l'indicateur a été relevée.</p>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2.5 shadow-sm">
-            <div class="mt-0.5 flex-shrink-0 rounded-md bg-amber-50 p-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-semibold text-slate-700">Valeur cible</p>
-              <p class="text-xs text-slate-400">Objectif chiffré à atteindre pour cet indicateur.</p>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2.5 shadow-sm">
-            <div class="mt-0.5 flex-shrink-0 rounded-md bg-green-50 p-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-semibold text-slate-700">Valeur obtenue</p>
-              <p class="text-xs text-slate-400">Résultat réel mesuré à la date de relevé.</p>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-3 rounded-xl bg-white border border-slate-100 px-3 py-2.5 shadow-sm">
-            <div class="mt-0.5 flex-shrink-0 rounded-md bg-red-50 p-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs font-semibold text-slate-700">Seuil d'alerte</p>
-              <p class="text-xs text-slate-400">Valeur plancher en dessous de laquelle une alerte est déclenchée.</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <!-- ── Fin légende ──────────────────────────────────────────── -->
-
       <!-- Formulaire -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -194,6 +78,7 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Processus</label>
                 <select
                   formControlName="codeProcessus"
+                  (ngModelChange)="onProcessusChange($event)"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                 >
                   <option value="">Sélectionner un processus</option>
@@ -202,24 +87,134 @@
                     {{ proc.code }} - {{ proc.libelle }}
                   </option>
                 </select>
+                <p *ngIf="!loadingProcessus && processus.length === 0"
+                   class="mt-1 text-xs text-amber-600">
+                  Aucun processus disponible
+                </p>
                 <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('codeProcessus') }}
                 </p>
               </div>
 
-              <!-- Date de mesure -->
+              <!-- Risque -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de mesure</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque</label>
+                <select
+                  formControlName="codeRisque"
+                  (ngModelChange)="onRisqueChange($event)"
+                  [disabled]="!form.get('codeProcessus')?.value"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">Sélectionner un risque</option>
+                  <option *ngIf="loadingRisques" value="" disabled>Chargement...</option>
+                  <option *ngFor="let risque of risques" [value]="risque.code">
+                    {{ risque.code }} - {{ risque.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="!loadingRisques && risques.length === 0 && form.get('codeProcessus')?.value"
+                   class="mt-1 text-xs text-amber-600">
+                  Aucun risque disponible pour ce processus
+                </p>
+              </div>
+
+              <!-- Plan de Mitigation -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Plan de Mitigation</label>
+                <select
+                  formControlName="codePlanMitigation"
+                  (ngModelChange)="onPlanMitigationChange($event)"
+                  [disabled]="!form.get('codeRisque')?.value"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">Sélectionner un plan</option>
+                  <option *ngIf="loadingPlans" value="" disabled>Chargement...</option>
+                  <option *ngFor="let plan of plansMitigation" [value]="plan.code">
+                    {{ plan.code }} - {{ plan.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="!loadingPlans && plansMitigation.length === 0 && form.get('codeRisque')?.value"
+                   class="mt-1 text-xs text-amber-600">
+                  Aucun plan de mitigation disponible pour ce risque
+                </p>
+              </div>
+
+              <!-- Action -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Action</label>
+                <select
+                  formControlName="codeAction"
+                  (ngModelChange)="onActionChange($event)"
+                  [disabled]="!form.get('codePlanMitigation')?.value"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+                >
+                  <option value="">Sélectionner une action</option>
+                  <option *ngIf="loadingActions" value="" disabled>Chargement...</option>
+                  <option *ngFor="let action of actions" [value]="action.code">
+                    {{ action.code }} - {{ action.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="!loadingActions && actions.length === 0 && form.get('codePlanMitigation')?.value"
+                   class="mt-1 text-xs text-amber-600">
+                  Aucune action disponible pour ce plan de mitigation
+                </p>
+              </div>
+
+              <!-- Unité de mesure -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité de mesure</label>
+                <select
+                  formControlName="codeUniteMesure"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner une unité de mesure</option>
+                  <option *ngIf="loadingUnitesMesure" value="" disabled>Chargement...</option>
+                  <option *ngFor="let unite of unitesMesure" [value]="unite.code">
+                    {{ unite.code }} - {{ unite.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="!loadingUnitesMesure && unitesMesure.length === 0"
+                   class="mt-1 text-xs text-amber-600">
+                  Aucune unité de mesure disponible
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── Section : Dates ── -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Dates</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+              <!-- Date de début -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début</label>
                 <input
-                  formControlName="dateMesure"
+                  formControlName="dateDebut"
                   type="date"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                 />
-                <p *ngIf="form.get('dateMesure')?.invalid && form.get('dateMesure')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('dateMesure') }}
-                </p>
+              </div>
+
+              <!-- Date de fin -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin</label>
+                <input
+                  formControlName="dateFin"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
+              </div>
+
+              <!-- Seuil d'alerte -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil d'alerte</label>
+                <input
+                  formControlName="seuilAlerte"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
               </div>
 
             </div>
@@ -227,9 +222,9 @@
 
           <!-- ── Section : Valeurs ── -->
           <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-slate-900">Valeurs <span class="text-sm font-normal text-slate-400">(en %)</span></h3>
+            <h3 class="text-lg font-semibold text-slate-900">Valeurs</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <!-- Valeur cible -->
               <div>
@@ -237,11 +232,14 @@
                 <div class="relative">
                   <input
                     formControlName="valeurCible"
-                    type="number" min="0" max="100" step="0.01"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-8 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="0"
+                    [type]="isDateUnite() ? 'date' : 'number'"
+                    [step]="isDateUnite() ? undefined : '0.01'"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    [placeholder]="isDateUnite() ? '' : '0'"
                   />
-                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">%</span>
+                  <span *ngIf="!isDateUnite()" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+                    {{ getUniteSymbole(form.get('codeUniteMesure')?.value) }}
+                  </span>
                 </div>
                 <p *ngIf="form.get('valeurCible')?.invalid && form.get('valeurCible')?.touched"
                    class="mt-1 text-xs text-red-600">
@@ -255,33 +253,18 @@
                 <div class="relative">
                   <input
                     formControlName="valeurObtenue"
-                    type="number" min="0" max="100" step="0.01"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-8 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="0"
+                    [type]="isDateUnite() ? 'date' : 'number'"
+                    [step]="isDateUnite() ? undefined : '0.01'"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    [placeholder]="isDateUnite() ? '' : '0'"
                   />
-                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">%</span>
+                  <span *ngIf="!isDateUnite()" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+                    {{ getUniteSymbole(form.get('codeUniteMesure')?.value) }}
+                  </span>
                 </div>
                 <p *ngIf="form.get('valeurObtenue')?.invalid && form.get('valeurObtenue')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('valeurObtenue') }}
-                </p>
-              </div>
-
-              <!-- Seuil d'alerte -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil d'alerte</label>
-                <div class="relative">
-                  <input
-                    formControlName="seuilAlerte"
-                    type="number" min="0" max="100" step="0.01"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-8 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="0"
-                  />
-                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">%</span>
-                </div>
-                <p *ngIf="form.get('seuilAlerte')?.invalid && form.get('seuilAlerte')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('seuilAlerte') }}
                 </p>
               </div>
 
