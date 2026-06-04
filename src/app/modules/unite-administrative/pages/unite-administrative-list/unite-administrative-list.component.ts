@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,14 +13,16 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-unite-administrative-list',
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
   templateUrl: './unite-administrative-list.component.html'
 })
 export class UniteAdministrativeListComponent implements OnInit {
   unites: UniteAdministrativeResponse[] = [];
+  filteredUnites: UniteAdministrativeResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+  selectedUniteParent: string = '';
 
   constructor(
     private uniteService: UniteAdministrativeService,
@@ -45,6 +48,7 @@ export class UniteAdministrativeListComponent implements OnInit {
     this.uniteService.getAll().subscribe({
       next: (unites) => {
         this.unites = unites;
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -54,6 +58,19 @@ export class UniteAdministrativeListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onUniteParentChange(): void {
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (!this.selectedUniteParent) {
+      this.filteredUnites = this.unites;
+    } else {
+      // Filtrer les unités qui sont sous l'unité parent sélectionnée
+      this.filteredUnites = this.unites.filter(u => u.idUniteParent === this.selectedUniteParent);
+    }
   }
 
   createUnite(): void {

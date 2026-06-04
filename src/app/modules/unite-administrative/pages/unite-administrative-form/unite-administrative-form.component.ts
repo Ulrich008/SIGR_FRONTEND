@@ -30,8 +30,10 @@ export class UniteAdministrativeFormComponent implements OnInit {
   menuItems: MenuItem[];
   typeUnites: TypeUniteResponse[] = [];
   ministeres: MinistereResponse[] = [];
+  unitesAdministratives: UniteAdministrativeResponse[] = [];
   loadingTypeUnites = false;
   loadingMinisteres = false;
+  loadingUnites = false;
 
   constructor(
     private fb: FormBuilder,
@@ -51,7 +53,7 @@ export class UniteAdministrativeFormComponent implements OnInit {
       idTypeUnite:         ['', [Validators.required]],
       codeMinistere:       ['', [Validators.required]],
       idUniteParent:       [''],
-      niveauHierarchique:  ['', [Validators.required, Validators.min(1), Validators.max(10)]]
+      niveauHierarchique:  [{ value: '', disabled: true }, [Validators.required, Validators.min(1), Validators.max(10)]]
     });
   }
 
@@ -89,6 +91,37 @@ export class UniteAdministrativeFormComponent implements OnInit {
       // Mode création: charger uniquement les listes
       this.loadTypeUnites();
       this.loadMinisteres();
+      this.loadUnitesAdministratives();
+    }
+  }
+
+  loadUnitesAdministratives(): void {
+    this.loadingUnites = true;
+    this.uniteService.getAll().subscribe({
+      next: (unites) => {
+        this.unitesAdministratives = unites;
+        this.loadingUnites = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.loadingUnites = false;
+        this.error = err?.message || 'Impossible de charger les unités administratives';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onUniteParentChange(idUniteParent: string): void {
+    if (!idUniteParent) {
+      this.form.patchValue({ niveauHierarchique: 1 });
+      return;
+    }
+
+    // Trouver l'unité parent et calculer le niveau hiérarchique
+    const uniteParent = this.unitesAdministratives.find(u => u.id === idUniteParent);
+    if (uniteParent) {
+      const nouveauNiveau = (uniteParent.niveauHierarchique || 0) + 1;
+      this.form.patchValue({ niveauHierarchique: nouveauNiveau });
     }
   }
 

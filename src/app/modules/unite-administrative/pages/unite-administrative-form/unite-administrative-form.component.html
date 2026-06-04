@@ -100,25 +100,31 @@
 
               <!-- Unité parent -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Code Unité parent (optionnel)</label>
-                <input
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité parent (optionnel)</label>
+                <select
                   formControlName="idUniteParent"
-                  type="text"
+                  (change)="onUniteParentChange(form.get('idUniteParent')?.value)"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="ID de l'unité parent"
-                />
+                >
+                  <option value="">Aucune unité parent</option>
+                  <option *ngIf="loadingUnites" value="" disabled>Chargement...</option>
+                  <option *ngFor="let unite of unitesAdministratives" [value]="unite.id">
+                    {{ unite.libelle }} ({{ unite.code }})
+                  </option>
+                </select>
               </div>
 
-              <!-- Niveau hiérarchique -->
+              <!-- Niveau hiérarchique (calculé automatiquement) -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Niveau hiérarchique (1-10)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Niveau hiérarchique (calculé automatiquement)</label>
                 <input
                   formControlName="niveauHierarchique"
                   type="number"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="2"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-600 cursor-not-allowed"
+                  placeholder="1"
+                  readonly
                 />
-                <p *ngIf="form.get('niveauHierarchique')?.invalid && form.get('niveauHierarchique')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('niveauHierarchique') }}</p>
+                <p class="mt-1 text-xs text-slate-500">Calculé automatiquement en fonction de l'unité parent</p>
               </div>
 
             </div>
