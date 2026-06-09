@@ -33,7 +33,7 @@
           class="w-full md:w-80 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
         >
           <option value="">Toutes les unités</option>
-          <option *ngFor="let unite of unites" [value]="unite.id">
+          <option *ngFor="let unite of unites" [value]="unite.code">
             {{ unite.libelle }} ({{ unite.code }})
           </option>
         </select>

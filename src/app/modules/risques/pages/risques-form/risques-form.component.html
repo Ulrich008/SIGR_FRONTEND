@@ -42,24 +42,33 @@
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Libellé -->
+              <!-- Processus -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé (max 200 caractères)</label>
-                <input
-                  formControlName="libelle"
-                  type="text"
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Processus <span class="text-red-500">*</span>
+                </label>
+                <select
+                  formControlName="codeProcessus"
+                  (change)="onProcessusChange()"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Fraude financière"
-                />
-                <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched"
+                >
+                  <option value="">Sélectionner un processus</option>
+                  <option *ngIf="loadingProcessus" value="" disabled>Chargement...</option>
+                  <option *ngFor="let proc of processus" [value]="proc.code">
+                    {{ proc.code }} - {{ proc.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched"
                    class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('libelle') }}
+                  {{ getFieldError('codeProcessus') }}
                 </p>
               </div>
 
               <!-- Type de risque -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Type de risque</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Type de risque <span class="text-red-500">*</span>
+                </label>
                 <select
                   formControlName="typeRisque"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
@@ -75,9 +84,62 @@
                 </p>
               </div>
 
+              <!-- Cartographie -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Cartographie (optionnel)
+                </label>
+                <select
+                  formControlName="codeCartographie"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner une cartographie</option>
+                  <option *ngIf="loadingCartographies" value="" disabled>Chargement...</option>
+                  <option *ngFor="let carto of cartographies" [value]="carto.code">
+                    {{ carto.code }} - {{ carto.titre }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Libellé -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Libellé <span class="text-red-500">*</span>
+                  <span class="ml-1 text-xs font-normal text-slate-400">(max 200 caractères)</span>
+                </label>
+                <input
+                  formControlName="libelle"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Fraude financière"
+                />
+                <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('libelle') }}
+                </p>
+              </div>
+
+              <!-- Date d'identification -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Date d'identification <span class="text-red-500">*</span>
+                </label>
+                <input
+                  formControlName="dateIdentification"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
+                <p *ngIf="form.get('dateIdentification')?.invalid && form.get('dateIdentification')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('dateIdentification') }}
+                </p>
+              </div>
+
               <!-- Statut -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Statut <span class="text-red-500">*</span>
+                </label>
                 <select
                   formControlName="statut"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
@@ -93,81 +155,205 @@
                 </p>
               </div>
 
-              <!-- Date d'identification -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date d'identification</label>
-                <input
-                  formControlName="dateIdentification"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
-                <p *ngIf="form.get('dateIdentification')?.invalid && form.get('dateIdentification')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('dateIdentification') }}
+              <!-- Finalités du processus (affichées après sélection) -->
+              <div class="md:col-span-2" *ngIf="finalitesProcessus.length > 0">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Finalités du processus
+                </label>
+                <div class="space-y-2">
+                  <div *ngFor="let finalite of finalitesProcessus; let i = index"
+                       class="flex items-center gap-3 rounded-lg bg-emerald-50 px-4 py-3">
+                    <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                      {{ i + 1 }}
+                    </span>
+                    <span class="text-sm text-slate-700">{{ finalite }}</span>
+                  </div>
+                </div>
+                <p class="mt-2 text-xs text-slate-500">
+                  Ces finalités peuvent vous aider à définir le libellé du risque.
                 </p>
-              </div>
-
-              <!-- Processus -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Processus</label>
-                <select
-                  formControlName="codeProcessus"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner un processus</option>
-                  <option *ngIf="loadingProcessus" value="" disabled>Chargement...</option>
-                  <option *ngFor="let proc of processus" [value]="proc.code">
-                    {{ proc.code }} - {{ proc.libelle }}
-                  </option>
-                </select>
-                <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('codeProcessus') }}
-                </p>
-              </div>
-
-              <!-- Cartographie -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Cartographie (optionnel)</label>
-                <select
-                  formControlName="codeCartographie"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner une cartographie</option>
-                  <option *ngIf="loadingCartographies" value="" disabled>Chargement...</option>
-                  <option *ngFor="let carto of cartographies" [value]="carto.code">
-                    {{ carto.code }} - {{ carto.titre }}
-                  </option>
-                </select>
               </div>
 
               <!-- Cause probable -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Cause probable (max 1000 caractères)</label>
-                <textarea
-                  formControlName="causeProbable"
-                  rows="3"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Description de la cause probable..."
-                ></textarea>
-                <p *ngIf="form.get('causeProbable')?.invalid && form.get('causeProbable')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('causeProbable') }}
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Cause probable (optionnel)</label>
+
+                <!-- Champ + bouton ajouter -->
+                <div class="flex gap-2 mb-3">
+                  <input
+                    [(ngModel)]="nouvelleCauseProbable"
+                    [ngModelOptions]="{standalone: true}"
+                    (keyup.enter)="ajouterCauseProbable()"
+                    type="text"
+                    maxlength="500"
+                    class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    placeholder="Saisir une cause probable et appuyer sur Entrée ou cliquer sur Ajouter..."
+                  />
+                  <button
+                    (click)="ajouterCauseProbable()"
+                    type="button"
+                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap"
+                  >
+                    + Ajouter
+                  </button>
+                </div>
+
+                <!-- Liste des causes probables ajoutées -->
+                <div *ngIf="causesProbables.length > 0" class="space-y-2">
+                  <div
+                    *ngFor="let cause of causesProbables; let i = index"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
+                  >
+                    <div class="flex items-center gap-3 min-w-0">
+                      <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                        {{ i + 1 }}
+                      </span>
+                      <span class="text-sm text-slate-700 truncate">{{ cause }}</span>
+                    </div>
+                    <button
+                      (click)="supprimerCauseProbable(i)"
+                      type="button"
+                      class="flex-shrink-0 text-slate-400 hover:text-red-600 transition"
+                      title="Supprimer cette cause probable"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Message si aucune cause probable -->
+                <p *ngIf="causesProbables.length === 0" class="mt-1 text-xs text-slate-400 italic">
+                  Aucune cause probable ajoutée.
+                </p>
+
+                <!-- Compteur -->
+                <p *ngIf="causesProbables.length > 0" class="mt-2 text-xs text-slate-400">
+                  {{ causesProbables.length }} cause{{ causesProbables.length > 1 ? 's' : '' }} probable{{ causesProbables.length > 1 ? 's' : '' }} ajoutée{{ causesProbables.length > 1 ? 's' : '' }}
                 </p>
               </div>
 
               <!-- Conséquence probable -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Conséquence probable (max 1000 caractères)</label>
-                <textarea
-                  formControlName="consequenceProbable"
-                  rows="3"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Description de la conséquence probable..."
-                ></textarea>
-                <p *ngIf="form.get('consequenceProbable')?.invalid && form.get('consequenceProbable')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('consequenceProbable') }}
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Conséquence probable (optionnel)</label>
+
+                <!-- Champ + bouton ajouter -->
+                <div class="flex gap-2 mb-3">
+                  <input
+                    [(ngModel)]="nouvelleConsequenceProbable"
+                    [ngModelOptions]="{standalone: true}"
+                    (keyup.enter)="ajouterConsequenceProbable()"
+                    type="text"
+                    maxlength="500"
+                    class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    placeholder="Saisir une conséquence probable et appuyer sur Entrée ou cliquer sur Ajouter..."
+                  />
+                  <button
+                    (click)="ajouterConsequenceProbable()"
+                    type="button"
+                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap"
+                  >
+                    + Ajouter
+                  </button>
+                </div>
+
+                <!-- Liste des conséquences probables ajoutées -->
+                <div *ngIf="consequencesProbables.length > 0" class="space-y-2">
+                  <div
+                    *ngFor="let consequence of consequencesProbables; let i = index"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
+                  >
+                    <div class="flex items-center gap-3 min-w-0">
+                      <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                        {{ i + 1 }}
+                      </span>
+                      <span class="text-sm text-slate-700 truncate">{{ consequence }}</span>
+                    </div>
+                    <button
+                      (click)="supprimerConsequenceProbable(i)"
+                      type="button"
+                      class="flex-shrink-0 text-slate-400 hover:text-red-600 transition"
+                      title="Supprimer cette conséquence probable"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Message si aucune conséquence probable -->
+                <p *ngIf="consequencesProbables.length === 0" class="mt-1 text-xs text-slate-400 italic">
+                  Aucune conséquence probable ajoutée.
+                </p>
+
+                <!-- Compteur -->
+                <p *ngIf="consequencesProbables.length > 0" class="mt-2 text-xs text-slate-400">
+                  {{ consequencesProbables.length }} conséquence{{ consequencesProbables.length > 1 ? 's' : '' }} probable{{ consequencesProbables.length > 1 ? 's' : '' }} ajoutée{{ consequencesProbables.length > 1 ? 's' : '' }}
+                </p>
+              </div>
+
+              <!-- Bonnes pratiques -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques (optionnel)</label>
+
+                <!-- Champ + bouton ajouter -->
+                <div class="flex gap-2 mb-3">
+                  <input
+                    [(ngModel)]="nouvelleBonnePratique"
+                    [ngModelOptions]="{standalone: true}"
+                    (keyup.enter)="ajouterBonnesPratiques()"
+                    type="text"
+                    maxlength="500"
+                    class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    placeholder="Saisir une bonne pratique et appuyer sur Entrée ou cliquer sur Ajouter..."
+                  />
+                  <button
+                    (click)="ajouterBonnesPratiques()"
+                    type="button"
+                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap"
+                  >
+                    + Ajouter
+                  </button>
+                </div>
+
+                <!-- Liste des bonnes pratiques ajoutées -->
+                <div *ngIf="bonnesPratiques.length > 0" class="space-y-2">
+                  <div
+                    *ngFor="let pratique of bonnesPratiques; let i = index"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
+                  >
+                    <div class="flex items-center gap-3 min-w-0">
+                      <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                        {{ i + 1 }}
+                      </span>
+                      <span class="text-sm text-slate-700 truncate">{{ pratique }}</span>
+                    </div>
+                    <button
+                      (click)="supprimerBonnesPratiques(i)"
+                      type="button"
+                      class="flex-shrink-0 text-slate-400 hover:text-red-600 transition"
+                      title="Supprimer cette bonne pratique"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Message si aucune bonne pratique -->
+                <p *ngIf="bonnesPratiques.length === 0" class="mt-1 text-xs text-slate-400 italic">
+                  Aucune bonne pratique ajoutée.
+                </p>
+
+                <!-- Compteur -->
+                <p *ngIf="bonnesPratiques.length > 0" class="mt-2 text-xs text-slate-400">
+                  {{ bonnesPratiques.length }} bonne{{ bonnesPratiques.length > 1 ? 's' : '' }} pratique{{ bonnesPratiques.length > 1 ? 's' : '' }} ajoutée{{ bonnesPratiques.length > 1 ? 's' : '' }}
                 </p>
               </div>
 

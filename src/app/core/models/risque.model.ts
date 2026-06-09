@@ -22,8 +22,9 @@ export enum StatutRisque {
 export interface RisqueRequest {
   code?: string;
   libelle: string;
-  causeProbable?: string;
-  consequenceProbable?: string;
+  causeProbable?: string[];
+  consequenceProbable?: string[];
+  bonnesPratiques?: string[];
   statut: StatutRisque;
   dateIdentification: string; // ISO date string
   codeProcessus: string;
@@ -35,8 +36,9 @@ export interface RisqueResponse {
   id: string;
   code: string;
   libelle: string;
-  causeProbable?: string;
-  consequenceProbable?: string;
+  causeProbable?: string[];
+  consequenceProbable?: string[];
+  bonnesPratiques?: string[];
   statut: StatutRisque;
   dateIdentification: string; // ISO date string
   codeProcessus: string;

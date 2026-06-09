@@ -111,14 +111,14 @@ export class UniteAdministrativeFormComponent implements OnInit {
     });
   }
 
-  onUniteParentChange(idUniteParent: string): void {
-    if (!idUniteParent) {
+  onUniteParentChange(codeUniteParent: string): void {
+    if (!codeUniteParent) {
       this.form.patchValue({ niveauHierarchique: 1 });
       return;
     }
 
-    // Trouver l'unité parent et calculer le niveau hiérarchique
-    const uniteParent = this.unitesAdministratives.find(u => u.id === idUniteParent);
+    // Trouver l'unité parent par code et calculer le niveau hiérarchique
+    const uniteParent = this.unitesAdministratives.find(u => u.code === codeUniteParent);
     if (uniteParent) {
       const nouveauNiveau = (uniteParent.niveauHierarchique || 0) + 1;
       this.form.patchValue({ niveauHierarchique: nouveauNiveau });

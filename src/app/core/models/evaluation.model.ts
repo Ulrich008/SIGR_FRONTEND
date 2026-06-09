@@ -13,7 +13,6 @@ export interface EvaluationRequest {
   dateFin?: string;
 
   recommandation?: string;
-  bonnesPratiques?: string;
 
   codeRisque: string;
   matriculeAgent?: string;
@@ -44,7 +43,6 @@ export interface EvaluationResponse {
   dateFin?: string;
 
   recommandation?: string;
-  bonnesPratiques?: string;
 
   codeRisque: string;
   libelleRisque: string;

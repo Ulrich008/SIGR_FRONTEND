@@ -108,7 +108,7 @@
                 >
                   <option value="">Aucune unité parent</option>
                   <option *ngIf="loadingUnites" value="" disabled>Chargement...</option>
-                  <option *ngFor="let unite of unitesAdministratives" [value]="unite.id">
+                  <option *ngFor="let unite of unitesAdministratives" [value]="unite.code">
                     {{ unite.libelle }} ({{ unite.code }})
                   </option>
                 </select>

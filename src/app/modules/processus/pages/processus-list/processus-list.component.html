@@ -112,10 +112,6 @@
               {{ getTypeProcessusLabel(proc.typeProcessus) }}
             </span>
           </div>
-          <div *ngIf="proc.finalite" class="text-xs text-slate-600">
-            <p class="font-semibold text-slate-400 uppercase tracking-wide mb-1">Finalité</p>
-            <p>{{ proc.finalite }}</p>
-          </div>
           <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
             <div class="space-y-0.5">
               <p class="font-semibold text-slate-400 uppercase tracking-wide">Unité</p>
@@ -163,7 +159,6 @@
               <th class="px-4 py-3">Code</th>
               <th class="px-4 py-3">Libellé</th>
               <th class="px-4 py-3">Type</th>
-              <th class="px-4 py-3">Finalité</th>
               <th class="px-4 py-3">Unité</th>
               <th class="px-4 py-3">Propriétaire</th>
               <th class="px-4 py-3">Actions</th>
@@ -178,7 +173,6 @@
                   {{ getTypeProcessusLabel(proc.typeProcessus) }}
                 </span>
               </td>
-              <td class="px-4 py-4 text-slate-700">{{ proc.finalite || '—' }}</td>
               <td class="px-4 py-4 text-slate-700">
                 <div>
                   <p class="font-medium">{{ proc.nomUnite }}</p>
@@ -218,7 +212,7 @@
               </td>
             </tr>
             <tr *ngIf="processus.length === 0">
-              <td colspan="7" class="px-4 py-8 text-center text-slate-500">Aucun processus trouvé.</td>
+              <td colspan="6" class="px-4 py-8 text-center text-slate-500">Aucun processus trouvé.</td>
             </tr>
           </tbody>
         </table>

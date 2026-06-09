@@ -68,7 +68,7 @@ export class UniteAdministrativeListComponent implements OnInit {
     if (!this.selectedUniteParent) {
       this.filteredUnites = this.unites;
     } else {
-      // Filtrer les unités qui sont sous l'unité parent sélectionnée
+      // Filtrer les unités qui sont sous l'unité parent sélectionnée (par code)
       this.filteredUnites = this.unites.filter(u => u.idUniteParent === this.selectedUniteParent);
     }
   }

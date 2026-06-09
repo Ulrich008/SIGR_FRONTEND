@@ -97,6 +97,24 @@
         </div>
       </div>
 
+      <!-- Filtres -->
+      <div *ngIf="!loading" class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+          <label class="mb-2 block text-sm font-semibold text-slate-700">Filtrer par processus</label>
+          <select
+            [(ngModel)]="selectedProcessus"
+            (change)="onProcessusFilterChange()"
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+          >
+            <option value="">Tous les processus</option>
+            <option *ngIf="loadingProcessus" value="" disabled>Chargement...</option>
+            <option *ngFor="let proc of processus" [value]="proc.code">
+              {{ proc.code }} - {{ proc.libelle }}
+            </option>
+          </select>
+        </div>
+      </div>
+
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
@@ -109,11 +127,11 @@
 
       <!-- Vue MOBILE : cartes -->
       <div *ngIf="!loading" class="flex flex-col gap-4 md:hidden">
-        <div *ngIf="risques.length === 0" class="rounded-3xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
+        <div *ngIf="filteredRisques.length === 0" class="rounded-3xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
           Aucun risque trouvé.
         </div>
         <div
-          *ngFor="let risque of risques"
+          *ngFor="let risque of filteredRisques"
           class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 space-y-3"
         >
           <div class="flex items-start justify-between gap-2">
@@ -175,10 +193,10 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr *ngIf="risques.length === 0">
+            <tr *ngIf="filteredRisques.length === 0">
               <td colspan="6" class="px-4 py-8 text-center text-slate-500">Aucun risque trouvé.</td>
             </tr>
-            <tr *ngFor="let risque of risques" class="hover:bg-slate-50 transition">
+            <tr *ngFor="let risque of filteredRisques" class="hover:bg-slate-50 transition">
               <td class="px-4 py-4">
                 <span class="inline-block rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
                   {{ risque.code }}

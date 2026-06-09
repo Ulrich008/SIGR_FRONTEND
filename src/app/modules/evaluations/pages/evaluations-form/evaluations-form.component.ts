@@ -84,17 +84,16 @@ export class EvaluationsFormComponent implements OnInit {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
       code:                 [{ value: '', disabled: true }],
-      impactInherent:       ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-      probabiliteInherente: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-      protection:           ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-      prevention:           ['', [Validators.required, Validators.min(1), Validators.max(5)]],
+      impactInherent:       [{ value: 5, disabled: true }, [Validators.required, Validators.min(1), Validators.max(5)]],
+      probabiliteInherente: [{ value: 5, disabled: true }, [Validators.required, Validators.min(1), Validators.max(5)]],
+      protection:           ['', [Validators.required, Validators.min(1), Validators.max(3)]],
+      prevention:           ['', [Validators.required, Validators.min(1), Validators.max(3)]],
       controleExistants:    [''],
       controleInexistants:  [''],
       dejaSurvenu:          [false],
       dateDebut:            [''],
       dateFin:              [''],
       recommandation:       ['', [Validators.maxLength(1000)]],
-      bonnesPratiques:      ['', [Validators.maxLength(1000)]],
       codeRisque:           ['', [Validators.required]],
       matriculeAgent:       ['']
     }, {
@@ -183,7 +182,6 @@ export class EvaluationsFormComponent implements OnInit {
       dateDebut:            this.formatDateForInput(evaluation.dateDebut),
       dateFin:              this.formatDateForInput(evaluation.dateFin),
       recommandation:       evaluation.recommandation,
-      bonnesPratiques:      evaluation.bonnesPratiques,
       codeRisque:           evaluation.codeRisque,
       matriculeAgent:       evaluation.matriculeAgent ?? ''
     });
@@ -219,6 +217,84 @@ export class EvaluationsFormComponent implements OnInit {
       return;
     }
 
+    // Afficher le récapitulatif avant la soumission
+    this.showRecapitulatif();
+  }
+
+  showRecapitulatif(): void {
+    const raw = this.form.getRawValue();
+    const risque = this.risques.find(r => r.code === raw.codeRisque);
+    const agent = this.agents.find(a => a.matricule === raw.matriculeAgent);
+
+    const recapitulatifHTML = `
+      <div style="text-align: left; font-size: 14px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr style="background-color: #f8fafc;">
+            <td style="padding: 8px; font-weight: bold; border: 1px solid #e2e8f0;">Champ</td>
+            <td style="padding: 8px; font-weight: bold; border: 1px solid #e2e8f0;">Valeur</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Risque</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${risque ? `${risque.code} - ${risque.libelle}` : raw.codeRisque}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Évaluateur</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${agent ? `${agent.matricule} - ${agent.nom} ${agent.prenoms}` : 'Non renseigné'}</td>
+          </tr>
+          <tr style="background-color: #f8fafc;">
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Impact inhérent</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.impactInherent} (automatique)</td>
+          </tr>
+          <tr style="background-color: #f8fafc;">
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Probabilité inhérente</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.probabiliteInherente} (automatique)</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Protection</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.protection}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Prévention</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.prevention}</td>
+          </tr>
+          <tr style="background-color: #f8fafc;">
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Date de début</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.dateDebut || 'Non renseigné'}</td>
+          </tr>
+          <tr style="background-color: #f8fafc;">
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Date de fin</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.dateFin || 'Non renseigné'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">Déjà survenu</td>
+            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.dejaSurvenu ? 'Oui' : 'Non'}</td>
+          </tr>
+          ${raw.controleExistants ? `<tr><td style="padding: 8px; border: 1px solid #e2e8f0;">Contrôles existants</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.controleExistants}</td></tr>` : ''}
+          ${raw.controleInexistants ? `<tr><td style="padding: 8px; border: 1px solid #e2e8f0;">Contrôles inexistants</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.controleInexistants}</td></tr>` : ''}
+          ${raw.recommandation ? `<tr><td style="padding: 8px; border: 1px solid #e2e8f0;">Recommandation</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.recommandation}</td></tr>` : ''}
+        </table>
+      </div>
+    `;
+
+    Swal.fire({
+      title: 'Récapitulatif de l\'évaluation',
+      html: recapitulatifHTML,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmer',
+      cancelButtonText: 'Modifier',
+      width: '600px',
+      customClass: {
+        popup: 'swal-wide'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.submitEvaluation();
+      }
+    });
+  }
+
+  submitEvaluation(): void {
     this.loading = true;
     this.error   = null;
 
@@ -234,7 +310,6 @@ export class EvaluationsFormComponent implements OnInit {
       dateDebut:            raw.dateDebut           || undefined,
       dateFin:              raw.dateFin             || undefined,
       recommandation:       raw.recommandation      || undefined,
-      bonnesPratiques:      raw.bonnesPratiques     || undefined,
       codeRisque:           raw.codeRisque,
       matriculeAgent:       raw.matriculeAgent      || undefined
     };

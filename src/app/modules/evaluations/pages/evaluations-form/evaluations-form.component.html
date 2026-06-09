@@ -53,8 +53,6 @@
               <li><span class="font-medium">1:</span> Très faible</li>
               <li><span class="font-medium">2:</span> Faible</li>
               <li><span class="font-medium">3:</span> Moyen</li>
-              <li><span class="font-medium">4:</span> Élevé</li>
-              <li><span class="font-medium">5:</span> Très élevé</li>
             </ul>
           </div>
           <div>
@@ -158,21 +156,17 @@
             <div *ngIf="sections.inherent" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <!-- Impact inhérent -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Impact inhérent (1-5) *</label>
-                <input formControlName="impactInherent" type="number" min="1" max="5"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="1 à 5" />
-                <p *ngIf="form.get('impactInherent')?.invalid && form.get('impactInherent')?.touched"
-                   class="mt-1 text-xs text-red-600">{{ getFieldError('impactInherent') }}</p>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Impact inhérent</label>
+                <input formControlName="impactInherent" type="number" min="1" max="5" readonly
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500 focus:outline-none cursor-not-allowed"
+                  value="5" />
               </div>
               <!-- Probabilité inhérente -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Probabilité inhérente (1-5) *</label>
-                <input formControlName="probabiliteInherente" type="number" min="1" max="5"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="1 à 5" />
-                <p *ngIf="form.get('probabiliteInherente')?.invalid && form.get('probabiliteInherente')?.touched"
-                   class="mt-1 text-xs text-red-600">{{ getFieldError('probabiliteInherente') }}</p>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Probabilité inhérente</label>
+                <input formControlName="probabiliteInherente" type="number" min="1" max="5" readonly
+                  class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500 focus:outline-none cursor-not-allowed"
+                  value="5" />
               </div>
             </div>
           </div>
@@ -192,11 +186,11 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Protection -->
                 <div>
-                  <label class="mb-2 block text-sm font-semibold text-slate-700">Protection (1-5) *</label>
-                  <input formControlName="protection" type="number" min="1" max="5"
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Protection (1-3) *</label>
+                  <input formControlName="protection" type="number" min="1" max="3"
                     [class.border-red-400]="!!protectionError"
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="1 à 5" />
+                    placeholder="1 à 3" />
                   <p *ngIf="form.get('protection')?.invalid && form.get('protection')?.touched && !protectionError"
                      class="mt-1 text-xs text-red-600">{{ getFieldError('protection') }}</p>
                   <p *ngIf="!!protectionError" class="mt-1 text-xs text-red-600 flex items-center gap-1">
@@ -210,11 +204,11 @@
                 </div>
                 <!-- Prévention -->
                 <div>
-                  <label class="mb-2 block text-sm font-semibold text-slate-700">Prévention (1-5) *</label>
-                  <input formControlName="prevention" type="number" min="1" max="5"
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Prévention (1-3) *</label>
+                  <input formControlName="prevention" type="number" min="1" max="3"
                     [class.border-red-400]="!!preventionError"
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="1 à 5" />
+                    placeholder="1 à 3" />
                   <p *ngIf="form.get('prevention')?.invalid && form.get('prevention')?.touched && !preventionError"
                      class="mt-1 text-xs text-red-600">{{ getFieldError('prevention') }}</p>
                   <p *ngIf="!!preventionError" class="mt-1 text-xs text-red-600 flex items-center gap-1">
@@ -264,11 +258,11 @@
             </div>
           </div>
 
-          <!-- SECTION 6: Recommandations (togglable) -->
+          <!-- SECTION 6: Recommandation (togglable) -->
           <div class="space-y-4 border-t border-slate-100 pt-4">
             <button type="button" (click)="toggleSection('recommendations')"
               class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Recommandations & Bonnes pratiques</h3>
+              <h3 class="text-lg font-semibold text-slate-900">Recommandation</h3>
               <svg [class.rotate-180]="sections.recommendations"
                    class="w-5 h-5 text-slate-500 transition-transform duration-200"
                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,14 +277,6 @@
                   placeholder="Recommandations pour la gestion du risque..."></textarea>
                 <p *ngIf="form.get('recommandation')?.invalid && form.get('recommandation')?.touched"
                    class="mt-1 text-xs text-red-600">{{ getFieldError('recommandation') }}</p>
-              </div>
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques (optionnel, max 1000 caractères)</label>
-                <textarea formControlName="bonnesPratiques" rows="3"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Description des bonnes pratiques..."></textarea>
-                <p *ngIf="form.get('bonnesPratiques')?.invalid && form.get('bonnesPratiques')?.touched"
-                   class="mt-1 text-xs text-red-600">{{ getFieldError('bonnesPratiques') }}</p>
               </div>
             </div>
           </div>

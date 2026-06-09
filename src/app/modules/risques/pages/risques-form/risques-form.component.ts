@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -28,7 +29,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-risques-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent],
   templateUrl: './risques-form.component.html'
 })
 export class RisquesFormComponent implements OnInit {
@@ -45,6 +46,15 @@ export class RisquesFormComponent implements OnInit {
 
   processus: ProcessusResponse[] = [];
   cartographies: CartographieRisquesResponse[] = [];
+  finalitesProcessus: string[] = [];
+
+  causesProbables: string[] = [];
+  consequencesProbables: string[] = [];
+  bonnesPratiques: string[] = [];
+
+  nouvelleCauseProbable: string = '';
+  nouvelleConsequenceProbable: string = '';
+  nouvelleBonnePratique: string = '';
 
   loadingProcessus = false;
   loadingCartographies = false;
@@ -120,14 +130,6 @@ export class RisquesFormComponent implements OnInit {
       libelle: ['', [
         Validators.required,
         Validators.maxLength(200)
-      ]],
-
-      causeProbable: ['', [
-        Validators.maxLength(1000)
-      ]],
-
-      consequenceProbable: ['', [
-        Validators.maxLength(1000)
       ]],
 
       statut: ['', [Validators.required]],
@@ -222,14 +224,42 @@ export class RisquesFormComponent implements OnInit {
     this.form.patchValue({
       code: risque.code,
       libelle: risque.libelle,
-      causeProbable: risque.causeProbable,
-      consequenceProbable: risque.consequenceProbable,
       statut: risque.statut,
       dateIdentification: this.formatDateForInput(risque.dateIdentification),
       codeProcessus: risque.codeProcessus,
       codeCartographie: risque.idCartographie,
       typeRisque: risque.typeRisque
     });
+
+    // Charger les tableaux de chaînes
+    this.causesProbables = risque.causeProbable || [];
+    this.consequencesProbables = risque.consequenceProbable || [];
+    this.bonnesPratiques = risque.bonnesPratiques || [];
+
+    // Charger les finalités du processus sélectionné
+    this.loadFinalitesProcessus(risque.codeProcessus);
+  }
+
+  onProcessusChange(): void {
+    const codeProcessus = this.form.get('codeProcessus')?.value;
+    this.loadFinalitesProcessus(codeProcessus);
+  }
+
+  loadFinalitesProcessus(codeProcessus: string): void {
+    if (!codeProcessus) {
+      this.finalitesProcessus = [];
+      return;
+    }
+
+    const processus = this.processus.find(p => p.code === codeProcessus);
+    if (processus && processus.finalite) {
+      // Les finalités sont séparées par des points-virgules
+      this.finalitesProcessus = processus.finalite.split(';').map(f => f.trim()).filter(f => f);
+    } else {
+      this.finalitesProcessus = [];
+    }
+
+    this.cdr.detectChanges();
   }
 
   onSubmit(): void {
@@ -248,8 +278,9 @@ export class RisquesFormComponent implements OnInit {
     const request: RisqueRequest = {
       code: raw.code,
       libelle: raw.libelle,
-      causeProbable: raw.causeProbable,
-      consequenceProbable: raw.consequenceProbable,
+      causeProbable: this.causesProbables.length > 0 ? this.causesProbables : undefined,
+      consequenceProbable: this.consequencesProbables.length > 0 ? this.consequencesProbables : undefined,
+      bonnesPratiques: this.bonnesPratiques.length > 0 ? this.bonnesPratiques : undefined,
       statut: raw.statut,
       dateIdentification: raw.dateIdentification,
       codeProcessus: raw.codeProcessus,
@@ -313,6 +344,93 @@ export class RisquesFormComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/risques']);
+  }
+
+  ajouterCauseProbable(): void {
+    const trimmed = this.nouvelleCauseProbable.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    if (trimmed.length > 500) {
+      this.error = 'Une cause probable ne peut pas dépasser 500 caractères';
+      return;
+    }
+
+    // Vérifier les doublons
+    if (this.causesProbables.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+      this.error = 'Cette cause probable existe déjà';
+      return;
+    }
+
+    this.causesProbables.push(trimmed);
+    this.nouvelleCauseProbable = '';
+    this.error = null;
+    this.cdr.detectChanges();
+  }
+
+  supprimerCauseProbable(index: number): void {
+    this.causesProbables.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
+  ajouterConsequenceProbable(): void {
+    const trimmed = this.nouvelleConsequenceProbable.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    if (trimmed.length > 500) {
+      this.error = 'Une conséquence probable ne peut pas dépasser 500 caractères';
+      return;
+    }
+
+    // Vérifier les doublons
+    if (this.consequencesProbables.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+      this.error = 'Cette conséquence probable existe déjà';
+      return;
+    }
+
+    this.consequencesProbables.push(trimmed);
+    this.nouvelleConsequenceProbable = '';
+    this.error = null;
+    this.cdr.detectChanges();
+  }
+
+  supprimerConsequenceProbable(index: number): void {
+    this.consequencesProbables.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
+  ajouterBonnesPratiques(): void {
+    const trimmed = this.nouvelleBonnePratique.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    if (trimmed.length > 500) {
+      this.error = 'Une bonne pratique ne peut pas dépasser 500 caractères';
+      return;
+    }
+
+    // Vérifier les doublons
+    if (this.bonnesPratiques.some(b => b.toLowerCase() === trimmed.toLowerCase())) {
+      this.error = 'Cette bonne pratique existe déjà';
+      return;
+    }
+
+    this.bonnesPratiques.push(trimmed);
+    this.nouvelleBonnePratique = '';
+    this.error = null;
+    this.cdr.detectChanges();
+  }
+
+  supprimerBonnesPratiques(index: number): void {
+    this.bonnesPratiques.splice(index, 1);
+    this.cdr.detectChanges();
   }
 
   getFieldError(fieldName: string): string {

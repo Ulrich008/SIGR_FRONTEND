@@ -26,7 +26,7 @@
       </div>
 
       <!-- Statistiques -->
-      <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
           <div class="flex items-center gap-3">
             <div class="rounded-xl bg-green-50 p-3">
@@ -57,28 +57,14 @@
 
         <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
           <div class="flex items-center gap-3">
-            <div class="rounded-xl bg-orange-50 p-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Élevé</p>
-              <p class="text-2xl font-bold text-slate-900">{{ countByScore(10, 14) }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
-          <div class="flex items-center gap-3">
             <div class="rounded-xl bg-red-50 p-3">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Critique</p>
-              <p class="text-2xl font-bold text-slate-900">{{ countByScore(15, 25) }}</p>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Élevé</p>
+              <p class="text-2xl font-bold text-slate-900">{{ countByScore(10, 25) }}</p>
             </div>
           </div>
         </div>
@@ -125,7 +111,7 @@
         </div>
 
         <!-- Légende -->
-        <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded bg-green-500"></div>
             <span class="text-slate-600">Faible (1-4)</span>
@@ -135,12 +121,8 @@
             <span class="text-slate-600">Moyen (5-9)</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded bg-orange-500"></div>
-            <span class="text-slate-600">Élevé (10-14)</span>
-          </div>
-          <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded bg-red-500"></div>
-            <span class="text-slate-600">Critique (15-25)</span>
+            <span class="text-slate-600">Élevé (10-25)</span>
           </div>
         </div>
       </div>

@@ -42,9 +42,13 @@
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
               <!-- Libellé -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé (max 200 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Libellé <span class="text-red-500">*</span>
+                  <span class="ml-1 text-xs font-normal text-slate-400">(max 200 caractères)</span>
+                </label>
                 <input
                   formControlName="libelle"
                   type="text"
@@ -59,7 +63,9 @@
 
               <!-- Type de processus -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Type de processus</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Type de processus <span class="text-red-500">*</span>
+                </label>
                 <select
                   formControlName="typeProcessus"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
@@ -76,43 +82,114 @@
               </div>
 
               <!-- Unité administrative -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative</label>
-                <select
+              <div class="relative">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Unité administrative <span class="text-red-500">*</span>
+                </label>
+                <input
                   formControlName="idUnite"
+                  type="text"
+                  (input)="onUniteSearch($event)"
+                  (blur)="onUniteBlur()"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner une unité</option>
-                  <option *ngFor="let unite of unites" [value]="unite.code">
-                    {{ unite.libelle }} ({{ unite.code }})
-                  </option>
-                </select>
+                  placeholder="Saisir le code de l'unité administrative..."
+                />
                 <p *ngIf="form.get('idUnite')?.invalid && form.get('idUnite')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('idUnite') }}
                 </p>
+                <!-- Liste déroulante de résultats -->
+                <div *ngIf="filteredUnites.length > 0 && showUniteDropdown"
+                     class="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                  <div
+                    *ngFor="let unite of filteredUnites"
+                    (click)="selectUnite(unite)"
+                    class="px-4 py-3 cursor-pointer hover:bg-slate-50 border-b border-slate-100 last:border-b-0">
+                    <div class="text-sm font-medium text-slate-700">{{ unite.code }}</div>
+                    <div class="text-xs text-slate-500">{{ unite.libelle }}</div>
+                  </div>
+                </div>
+                <!-- Message si aucune unité trouvée -->
+                <p *ngIf="filteredUnites.length === 0 && form.get('idUnite')?.value && showUniteDropdown"
+                   class="mt-1 text-xs text-slate-400">
+                  Aucune unité administrative trouvée
+                </p>
               </div>
 
-              <!-- Finalité -->
+              <!-- Finalités -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Finalité (optionnel, max 1000 caractères)</label>
-                <textarea
-                  formControlName="finalite"
-                  rows="3"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"
-                  placeholder="Description de la finalité du processus..."
-                ></textarea>
-                <p *ngIf="form.get('finalite')?.invalid && form.get('finalite')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('finalite') }}
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Finalités <span class="text-red-500">*</span>
+                </label>
+
+                <!-- Champ + bouton ajouter -->
+                <div class="flex gap-2 mb-3">
+                  <input
+                    [(ngModel)]="nouvelleFinalite"
+                    [ngModelOptions]="{standalone: true}"
+                    (keyup.enter)="ajouterFinalite()"
+                    type="text"
+                    maxlength="500"
+                    class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    [class.border-red-400]="finaliteError"
+                    placeholder="Saisir une finalité et appuyer sur Entrée ou cliquer sur Ajouter..."
+                  />
+                  <button
+                    (click)="ajouterFinalite()"
+                    type="button"
+                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap"
+                  >
+                    + Ajouter
+                  </button>
+                </div>
+
+                <!-- Erreur spécifique finalité -->
+                <p *ngIf="finaliteError" class="mb-2 text-xs text-red-600">
+                  {{ finaliteError }}
+                </p>
+
+                <!-- Liste des finalités ajoutées -->
+                <div *ngIf="finalites.length > 0" class="space-y-2">
+                  <div
+                    *ngFor="let finalite of finalites; let i = index"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
+                  >
+                    <div class="flex items-center gap-3 min-w-0">
+                      <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                        {{ i + 1 }}
+                      </span>
+                      <span class="text-sm text-slate-700 truncate">{{ finalite }}</span>
+                    </div>
+                    <button
+                      (click)="supprimerFinalite(i)"
+                      type="button"
+                      class="flex-shrink-0 text-slate-400 hover:text-red-600 transition"
+                      title="Supprimer cette finalité"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Message si aucune finalité -->
+                <p *ngIf="finalites.length === 0 && !finaliteError" class="mt-1 text-xs text-slate-400 italic">
+                  Aucune finalité ajoutée. Au moins une finalité est requise.
+                </p>
+
+                <!-- Compteur -->
+                <p *ngIf="finalites.length > 0" class="mt-2 text-xs text-slate-400">
+                  {{ finalites.length }} finalité{{ finalites.length > 1 ? 's' : '' }} ajoutée{{ finalites.length > 1 ? 's' : '' }}
                 </p>
               </div>
 
               <!-- Propriétaire — uniquement les MANAGER -->
               <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  Propriétaire (optionnel)
-                  <span class="ml-1 text-xs font-normal text-slate-400">— Managers uniquement</span>
+                  Propriétaire
+                  <span class="ml-1 text-xs font-normal text-slate-400">— Managers uniquement (optionnel)</span>
                 </label>
                 <select
                   formControlName="idProprietaire"
@@ -120,7 +197,6 @@
                 >
                   <option value="">Aucun propriétaire</option>
                   <option *ngIf="loadingAgents" value="" disabled>Chargement...</option>
-                  <!-- On itère sur managers (filtrés role === 'MANAGER') -->
                   <option *ngFor="let manager of managers" [value]="manager.matricule">
                     {{ manager.nom }} {{ manager.prenoms }} ({{ manager.matricule }})
                   </option>
@@ -135,7 +211,7 @@
           </div>
 
           <!-- Actions -->
-          <div class="flex justify-end gap-3 pt-4">
+          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <button
               type="button"
               (click)="cancel()"
@@ -146,7 +222,7 @@
             <button
               type="submit"
               [disabled]="loading"
-              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ isEditMode ? 'Modifier' : 'Créer' }}
             </button>

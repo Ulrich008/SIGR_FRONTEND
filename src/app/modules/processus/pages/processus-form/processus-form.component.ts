@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -18,7 +19,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-processus-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent],
   templateUrl: './processus-form.component.html'
 })
 export class ProcessusFormComponent implements OnInit {
@@ -34,8 +35,13 @@ export class ProcessusFormComponent implements OnInit {
     { value: TypeProcessus.PILOTAGE, label: 'Pilotage' }
   ];
   unites: UniteAdministrativeResponse[] = [];
+  filteredUnites: UniteAdministrativeResponse[] = [];
+  showUniteDropdown: boolean = false;
   agents:   AgentResponse[]             = [];
-  managers: AgentResponse[]             = []; // ← liste filtrée pour le select
+  managers: AgentResponse[]             = [];
+  finalites: string[]                   = [];
+  nouvelleFinalite: string              = '';
+  finaliteError: string | null          = null; // erreur spécifique au champ finalité
   loadingUnites = false;
   loadingAgents = false;
 
@@ -54,7 +60,6 @@ export class ProcessusFormComponent implements OnInit {
     this.form = this.fb.group({
       code:           [{ value: '', disabled: true }],
       libelle:        ['', [Validators.required, Validators.maxLength(200)]],
-      finalite:       ['', [Validators.maxLength(1000)]],
       typeProcessus:  ['', [Validators.required]],
       idUnite:        ['', [Validators.required]],
       idProprietaire: ['']
@@ -84,7 +89,7 @@ export class ProcessusFormComponent implements OnInit {
         next: ({ unites, agents, processus }) => {
           this.unites        = unites;
           this.agents        = agents;
-          this.managers      = agents.filter(a => a.role === 'MANAGER'); // ← filtre
+          this.managers      = agents.filter(a => a.role === 'MANAGER');
           this.loadingUnites = false;
           this.loadingAgents = false;
           this.loading       = false;
@@ -92,11 +97,15 @@ export class ProcessusFormComponent implements OnInit {
           this.form.patchValue({
             code:           processus.code,
             libelle:        processus.libelle,
-            finalite:       processus.finalite       || '',
             typeProcessus:  processus.typeProcessus,
             idUnite:        processus.idUnite        || '',
             idProprietaire: processus.idProprietaire || ''
           });
+
+          // Charger les finalités existantes
+          if (processus.finalite) {
+            this.finalites = processus.finalite.split(';').map(f => f.trim()).filter(f => f);
+          }
 
           this.cdr.detectChanges();
         },
@@ -136,7 +145,7 @@ export class ProcessusFormComponent implements OnInit {
     this.agentService.getAll().subscribe({
       next: (agents) => {
         this.agents        = agents;
-        this.managers      = agents.filter(a => a.role === 'MANAGER'); // ← filtre
+        this.managers      = agents.filter(a => a.role === 'MANAGER');
         this.loadingAgents = false;
         this.cdr.detectChanges();
       },
@@ -154,15 +163,22 @@ export class ProcessusFormComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-    this.error   = null;
+    // Valider qu'au moins une finalité est ajoutée
+    if (this.finalites.length === 0) {
+      this.finaliteError = 'Au moins une finalité est requise';
+      return;
+    }
+
+    this.loading       = true;
+    this.error         = null;
+    this.finaliteError = null;
 
     const raw = this.form.getRawValue();
 
     const request: ProcessusRequest = {
       code:           raw.code,
       libelle:        raw.libelle,
-      finalite:       raw.finalite      || null,
+      finalite:       this.finalites.join('; '),
       typeProcessus:  raw.typeProcessus,
       idUnite:        raw.idUnite,
       idProprietaire: raw.idProprietaire || null
@@ -211,6 +227,40 @@ export class ProcessusFormComponent implements OnInit {
     this.router.navigate(['/processus']);
   }
 
+  ajouterFinalite(): void {
+    const trimmed = this.nouvelleFinalite.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    if (trimmed.length > 500) {
+      this.finaliteError = 'Une finalité ne peut pas dépasser 500 caractères';
+      return;
+    }
+
+    // Vérifier les doublons
+    if (this.finalites.some(f => f.toLowerCase() === trimmed.toLowerCase())) {
+      this.finaliteError = 'Cette finalité existe déjà';
+      return;
+    }
+
+    this.finalites.push(trimmed);
+    this.nouvelleFinalite = '';
+    this.finaliteError    = null;
+    this.error            = null;
+    this.cdr.detectChanges();
+  }
+
+  supprimerFinalite(index: number): void {
+    this.finalites.splice(index, 1);
+    // Réafficher l'erreur si la liste devient vide
+    if (this.finalites.length === 0) {
+      this.finaliteError = 'Au moins une finalité est requise';
+    }
+    this.cdr.detectChanges();
+  }
+
   getFieldError(fieldName: string): string {
     const field = this.form.get(fieldName);
     if (!field || !field.errors || !field.touched) return '';
@@ -218,5 +268,38 @@ export class ProcessusFormComponent implements OnInit {
     if (errors['required'])  return 'Ce champ est requis';
     if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
     return 'Champ invalide';
+  }
+
+  onUniteSearch(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const searchTerm = input.value.toLowerCase();
+
+    if (searchTerm.length === 0) {
+      this.filteredUnites = [];
+      this.showUniteDropdown = false;
+      return;
+    }
+
+    this.filteredUnites = this.unites.filter(unite =>
+      unite.code.toLowerCase().includes(searchTerm) ||
+      unite.libelle.toLowerCase().includes(searchTerm)
+    );
+
+    this.showUniteDropdown = true;
+    this.cdr.detectChanges();
+  }
+
+  onUniteBlur(): void {
+    // Masquer la liste déroulante après un court délai
+    setTimeout(() => {
+      this.showUniteDropdown = false;
+      this.cdr.detectChanges();
+    }, 200);
+  }
+
+  selectUnite(unite: UniteAdministrativeResponse): void {
+    this.form.patchValue({ idUnite: unite.code });
+    this.showUniteDropdown = false;
+    this.cdr.detectChanges();
   }
 }

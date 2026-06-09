@@ -1,23 +1,30 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
+import { ProcessusService } from '../../../../core/services/processus.service';
 import { RisqueResponse, StatutRisque, TypeRisque } from '../../../../core/models/risque.model';
+import { ProcessusResponse } from '../../../../core/models/processus.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-risques-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './risques-list.component.html'
 })
 export class RisquesListComponent implements OnInit {
   risques: RisqueResponse[] = [];
+  filteredRisques: RisqueResponse[] = [];
+  processus: ProcessusResponse[] = [];
+  selectedProcessus: string = '';
   loading = false;
+  loadingProcessus = false;
   error: string | null = null;
   menuItems: MenuItem[];
 
@@ -26,6 +33,7 @@ export class RisquesListComponent implements OnInit {
 
   constructor(
     private risqueService: RisqueService,
+    private processusService: ProcessusService,
     private router: Router,
     private authService: AuthService,
     private menuService: MenuService,
@@ -39,7 +47,24 @@ export class RisquesListComponent implements OnInit {
       this.router.navigate(['/auth/login']);
       return;
     }
+    this.loadProcessus();
     this.loadRisques();
+  }
+
+  loadProcessus(): void {
+    this.loadingProcessus = true;
+    this.processusService.getAll().subscribe({
+      next: (processus) => {
+        this.processus = processus;
+        this.loadingProcessus = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.loadingProcessus = false;
+        this.error = err?.message || 'Impossible de charger les processus';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadRisques(): void {
@@ -49,6 +74,7 @@ export class RisquesListComponent implements OnInit {
     this.risqueService.getAll().subscribe({
       next: (risques) => {
         this.risques = risques;
+        this.filteredRisques = risques;
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -58,6 +84,15 @@ export class RisquesListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onProcessusFilterChange(): void {
+    if (!this.selectedProcessus) {
+      this.filteredRisques = this.risques;
+    } else {
+      this.filteredRisques = this.risques.filter(r => r.codeProcessus === this.selectedProcessus);
+    }
+    this.cdr.detectChanges();
   }
 
   createRisque(): void {
