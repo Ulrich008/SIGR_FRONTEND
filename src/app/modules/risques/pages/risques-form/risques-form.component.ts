@@ -56,6 +56,10 @@ export class RisquesFormComponent implements OnInit {
   nouvelleConsequenceProbable: string = '';
   nouvelleBonnePratique: string = '';
 
+  causeProbableError: string | null = null;
+  consequenceProbableError: string | null = null;
+  bonnesPratiquesError: string | null = null;
+
   loadingProcessus = false;
   loadingCartographies = false;
 
@@ -270,17 +274,38 @@ export class RisquesFormComponent implements OnInit {
       return;
     }
 
+    // Valider qu'au moins une cause probable est ajoutée
+    if (this.causesProbables.length === 0) {
+      this.causeProbableError = 'Au moins une cause probable est requise';
+      return;
+    }
+
+    // Valider qu'au moins une conséquence probable est ajoutée
+    if (this.consequencesProbables.length === 0) {
+      this.consequenceProbableError = 'Au moins une conséquence probable est requise';
+      return;
+    }
+
+    // Valider qu'au moins une bonne pratique est ajoutée
+    if (this.bonnesPratiques.length === 0) {
+      this.bonnesPratiquesError = 'Au moins une bonne pratique est requise';
+      return;
+    }
+
     this.loading = true;
     this.error = null;
+    this.causeProbableError = null;
+    this.consequenceProbableError = null;
+    this.bonnesPratiquesError = null;
 
     const raw = this.form.getRawValue();
 
     const request: RisqueRequest = {
       code: raw.code,
       libelle: raw.libelle,
-      causeProbable: this.causesProbables.length > 0 ? this.causesProbables : undefined,
-      consequenceProbable: this.consequencesProbables.length > 0 ? this.consequencesProbables : undefined,
-      bonnesPratiques: this.bonnesPratiques.length > 0 ? this.bonnesPratiques : undefined,
+      causeProbable: this.causesProbables,
+      consequenceProbable: this.consequencesProbables,
+      bonnesPratiques: this.bonnesPratiques,
       statut: raw.statut,
       dateIdentification: raw.dateIdentification,
       codeProcessus: raw.codeProcessus,
@@ -372,6 +397,10 @@ export class RisquesFormComponent implements OnInit {
 
   supprimerCauseProbable(index: number): void {
     this.causesProbables.splice(index, 1);
+    // Afficher l'erreur si la liste devient vide
+    if (this.causesProbables.length === 0) {
+      this.causeProbableError = 'Au moins une cause probable est requise';
+    }
     this.cdr.detectChanges();
   }
 
@@ -401,6 +430,10 @@ export class RisquesFormComponent implements OnInit {
 
   supprimerConsequenceProbable(index: number): void {
     this.consequencesProbables.splice(index, 1);
+    // Afficher l'erreur si la liste devient vide
+    if (this.consequencesProbables.length === 0) {
+      this.consequenceProbableError = 'Au moins une conséquence probable est requise';
+    }
     this.cdr.detectChanges();
   }
 
@@ -430,6 +463,10 @@ export class RisquesFormComponent implements OnInit {
 
   supprimerBonnesPratiques(index: number): void {
     this.bonnesPratiques.splice(index, 1);
+    // Afficher l'erreur si la liste devient vide
+    if (this.bonnesPratiques.length === 0) {
+      this.bonnesPratiquesError = 'Au moins une bonne pratique est requise';
+    }
     this.cdr.detectChanges();
   }
 

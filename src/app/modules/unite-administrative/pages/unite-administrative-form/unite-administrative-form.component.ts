@@ -53,7 +53,7 @@ export class UniteAdministrativeFormComponent implements OnInit {
       idTypeUnite:         ['', [Validators.required]],
       codeMinistere:       ['', [Validators.required]],
       idUniteParent:       [''],
-      niveauHierarchique:  [{ value: '', disabled: true }, [Validators.required, Validators.min(1), Validators.max(10)]]
+      niveauHierarchique:  [{ value: 1, disabled: true }, [Validators.required, Validators.min(1), Validators.max(10)]]
     });
   }
 

@@ -176,7 +176,7 @@
 
               <!-- Cause probable -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Cause probable (optionnel)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Cause probable <span class="text-red-500">*</span></label>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
@@ -197,6 +197,11 @@
                     + Ajouter
                   </button>
                 </div>
+
+                <!-- Erreur spécifique -->
+                <p *ngIf="causeProbableError" class="mb-2 text-xs text-red-600">
+                  {{ causeProbableError }}
+                </p>
 
                 <!-- Liste des causes probables ajoutées -->
                 <div *ngIf="causesProbables.length > 0" class="space-y-2">
@@ -225,8 +230,8 @@
                 </div>
 
                 <!-- Message si aucune cause probable -->
-                <p *ngIf="causesProbables.length === 0" class="mt-1 text-xs text-slate-400 italic">
-                  Aucune cause probable ajoutée.
+                <p *ngIf="causesProbables.length === 0 && !causeProbableError" class="mt-1 text-xs text-slate-400 italic">
+                  Aucune cause probable ajoutée. Au moins une cause probable est requise.
                 </p>
 
                 <!-- Compteur -->
@@ -237,7 +242,7 @@
 
               <!-- Conséquence probable -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Conséquence probable (optionnel)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Conséquence probable <span class="text-red-500">*</span></label>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
@@ -258,6 +263,11 @@
                     + Ajouter
                   </button>
                 </div>
+
+                <!-- Erreur spécifique -->
+                <p *ngIf="consequenceProbableError" class="mb-2 text-xs text-red-600">
+                  {{ consequenceProbableError }}
+                </p>
 
                 <!-- Liste des conséquences probables ajoutées -->
                 <div *ngIf="consequencesProbables.length > 0" class="space-y-2">
@@ -286,8 +296,8 @@
                 </div>
 
                 <!-- Message si aucune conséquence probable -->
-                <p *ngIf="consequencesProbables.length === 0" class="mt-1 text-xs text-slate-400 italic">
-                  Aucune conséquence probable ajoutée.
+                <p *ngIf="consequencesProbables.length === 0 && !consequenceProbableError" class="mt-1 text-xs text-slate-400 italic">
+                  Aucune conséquence probable ajoutée. Au moins une conséquence probable est requise.
                 </p>
 
                 <!-- Compteur -->
@@ -298,7 +308,7 @@
 
               <!-- Bonnes pratiques -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques (optionnel)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques <span class="text-red-500">*</span></label>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
@@ -319,6 +329,11 @@
                     + Ajouter
                   </button>
                 </div>
+
+                <!-- Erreur spécifique -->
+                <p *ngIf="bonnesPratiquesError" class="mb-2 text-xs text-red-600">
+                  {{ bonnesPratiquesError }}
+                </p>
 
                 <!-- Liste des bonnes pratiques ajoutées -->
                 <div *ngIf="bonnesPratiques.length > 0" class="space-y-2">
@@ -347,8 +362,8 @@
                 </div>
 
                 <!-- Message si aucune bonne pratique -->
-                <p *ngIf="bonnesPratiques.length === 0" class="mt-1 text-xs text-slate-400 italic">
-                  Aucune bonne pratique ajoutée.
+                <p *ngIf="bonnesPratiques.length === 0 && !bonnesPratiquesError" class="mt-1 text-xs text-slate-400 italic">
+                  Aucune bonne pratique ajoutée. Au moins une bonne pratique est requise.
                 </p>
 
                 <!-- Compteur -->
