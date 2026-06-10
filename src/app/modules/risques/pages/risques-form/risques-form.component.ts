@@ -18,6 +18,7 @@ import {
   RisqueRequest,
   RisqueResponse,
   StatutRisque,
+  StrategieRisque,
   TypeRisque
 } from '../../../../core/models/risque.model';
 
@@ -69,6 +70,13 @@ export class RisquesFormComponent implements OnInit {
     { value: StatutRisque.MAITRISE, label: 'Maîtrisé' },
     { value: StatutRisque.CLOTURE, label: 'Clôturé' },
     { value: StatutRisque.SUPPRIME, label: 'Supprimé' }
+  ];
+
+  strategieRisqueOptions = [
+    { value: StrategieRisque.TRAITER, label: 'Traiter (ou réduire)', description: 'Mettre en place des dispositifs de contrôle interne pour réduire le risque' },
+    { value: StrategieRisque.TRANSFERER, label: 'Transférer (ou partager)', description: 'Partager le risque avec une autre entité (ex : contrat d\'assurance, externalisation, sous-traitance)' },
+    { value: StrategieRisque.TOLERER, label: 'Tolérer (ou accepter)', description: 'Ne prendre aucune mesure particulière - le risque est jugé comme étant acceptable' },
+    { value: StrategieRisque.TERMINER, label: 'Terminer (ou supprimer)', description: 'Abandonner l\'activité à laquelle le risque est lié' }
   ];
 
   typeRisqueOptions = [

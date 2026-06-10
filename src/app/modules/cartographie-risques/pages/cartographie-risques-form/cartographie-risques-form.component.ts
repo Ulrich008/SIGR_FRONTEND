@@ -44,9 +44,9 @@ export class CartographieRisquesFormComponent implements OnInit {
       code:           [{ value: '', disabled: true }],
       titre:          ['', [Validators.required, Validators.maxLength(200)]],
       periode:        ['', [Validators.required]],
-      seuilFaible:    ['', [Validators.required, Validators.min(0)]],
-      seuilMoyen:     ['', [Validators.required, Validators.min(0)]],
-      seuilEleve:     ['', [Validators.required, Validators.min(0)]],
+      seuilFaible:    [7, [Validators.required, Validators.min(0)]],
+      seuilMoyen:     [14, [Validators.required, Validators.min(0)]],
+      seuilEleve:     [25, [Validators.required, Validators.min(0)]],
       statut:         ['', [Validators.required]]
     });
   }

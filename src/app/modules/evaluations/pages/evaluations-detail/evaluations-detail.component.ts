@@ -127,6 +127,16 @@ export class EvaluationsDetailComponent implements OnInit {
     return this.evaluation?.dejaSurvenu ? 'Oui' : 'Non';
   }
 
+  getStrategieRisqueLabel(strategie: string): string {
+    switch(strategie) {
+      case 'TRAITER': return 'Traiter (ou réduire)';
+      case 'TRANSFERER': return 'Transférer (ou partager)';
+      case 'TOLERER': return 'Tolérer (ou accepter)';
+      case 'TERMINER': return 'Terminer (ou supprimer)';
+      default: return strategie;
+    }
+  }
+
   // --- Méthodes pour les couleurs des niveaux ---
 
   getNiveauColor(niveau: number): string {

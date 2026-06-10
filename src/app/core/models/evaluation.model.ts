@@ -38,6 +38,10 @@ export interface EvaluationResponse {
   scoreResiduel: number;
 
   rangPriorite: number;
+  libellePriorite?: string;
+
+  strategieRisque?: string;
+  strategieRisqueDescription?: string;
 
   dateDebut?: string;
   dateFin?: string;

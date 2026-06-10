@@ -19,6 +19,13 @@ export enum StatutRisque {
   SUPPRIME = 'SUPPRIME'
 }
 
+export enum StrategieRisque {
+  TRAITER = 'TRAITER',
+  TRANSFERER = 'TRANSFERER',
+  TOLERER = 'TOLERER',
+  TERMINER = 'TERMINER'
+}
+
 export interface RisqueRequest {
   code?: string;
   libelle: string;
@@ -26,6 +33,7 @@ export interface RisqueRequest {
   consequenceProbable?: string[];
   bonnesPratiques?: string[];
   statut: StatutRisque;
+  strategieRisque?: StrategieRisque;
   dateIdentification: string; // ISO date string
   codeProcessus: string;
   codeCartographie?: string;
@@ -40,6 +48,7 @@ export interface RisqueResponse {
   consequenceProbable?: string[];
   bonnesPratiques?: string[];
   statut: StatutRisque;
+  strategieRisque?: StrategieRisque;
   dateIdentification: string; // ISO date string
   codeProcessus: string;
   nomProcessus: string;
