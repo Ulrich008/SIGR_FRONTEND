@@ -127,7 +127,7 @@
 
           <!-- Libellé -->
           <div class="mb-4">
-            <p class="text-sm font-medium text-slate-900">{{ action.libelle }}</p>
+            <p class="text-sm font-medium text-slate-900">{{ action.libelles && action.libelles.length > 0 ? action.libelles[0] : '' }}</p>
           </div>
 
           <!-- Informations -->

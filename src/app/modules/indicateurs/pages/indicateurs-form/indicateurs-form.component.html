@@ -151,7 +151,7 @@
                   <option value="">Sélectionner une action</option>
                   <option *ngIf="loadingActions" value="" disabled>Chargement...</option>
                   <option *ngFor="let action of actions" [value]="action.code">
-                    {{ action.code }} - {{ action.libelle }}
+                    {{ action.code }} - {{ action.libelles && action.libelles.length > 0 ? action.libelles[0] : '' }}
                   </option>
                 </select>
                 <p *ngIf="!loadingActions && actions.length === 0 && form.get('codePlanMitigation')?.value"

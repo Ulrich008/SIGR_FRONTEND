@@ -6,21 +6,25 @@ export enum StatutAction {
 }
 
 export interface ActionRequest {
-  libelle: string;
+  libelles: string[];
   dateDebut: string;
   dateFin: string;
   statut: StatutAction;
   codePlan: string;
+  codeRisque: string;
+  bonnePratique: string;
   matriculeResponsable: string;
 }
 
 export interface ActionResponse {
   code: string;
-  libelle: string;
+  libelles: string[];
   dateDebut: string;
   dateFin: string;
   statut: StatutAction;
   codePlan: string;
+  codeRisque: string;
+  bonnePratique: string;
   matriculeResponsable: string;
   nomResponsable: string;
 }

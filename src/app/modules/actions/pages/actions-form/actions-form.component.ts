@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -10,15 +11,17 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { ActionService } from '../../../../core/services/action.service';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
 import { AgentService } from '../../../../core/services/agent.service';
+import { RisqueService } from '../../../../core/services/risque.service';
 import { ActionRequest, ActionResponse, StatutAction } from '../../../../core/models/action.model';
 import { PlanMitigationResponse } from '../../../../core/models/plan-mitigation.model';
 import { AgentResponse } from '../../../../core/models/agent.model';
+import { RisqueResponse } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-actions-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent],
   templateUrl: './actions-form.component.html'
 })
 export class ActionsFormComponent implements OnInit {
@@ -35,11 +38,20 @@ export class ActionsFormComponent implements OnInit {
   loadingAgents = false;
   statutOptions = Object.values(StatutAction);
 
+  risqueSelected: RisqueResponse | null = null;
+  bonnesPratiques: string[] = [];
+  loadingBonnesPratiques = false;
+
+  libelles: string[] = [];
+  nouveauLibelle: string = '';
+  errorLibelle: string | null = null;
+
   constructor(
     private fb: FormBuilder,
     private actionService: ActionService,
     private planMitigationService: PlanMitigationService,
     private agentService: AgentService,
+    private risqueService: RisqueService,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -48,12 +60,12 @@ export class ActionsFormComponent implements OnInit {
   ) {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
-      code: [{ value: '', disabled: true }],
-      libelle: ['', [Validators.required, Validators.maxLength(200)]],
       dateDebut: ['', [Validators.required]],
       dateFin: ['', [Validators.required]],
       statut: ['', [Validators.required]],
       codePlan: ['', [Validators.required]],
+      codeRisque: ['', [Validators.required]],
+      bonnePratique: ['', [Validators.required]],
       matriculeResponsable: ['', [Validators.required]]
     });
   }
@@ -113,22 +125,123 @@ export class ActionsFormComponent implements OnInit {
   }
 
   patchForm(action: ActionResponse): void {
+    // Charger les libellés existants
+    if (action.libelles && action.libelles.length > 0) {
+      this.libelles = action.libelles;
+    } else {
+      this.libelles = [];
+    }
+    
     this.form.patchValue({
-      code: action.code,
-      libelle: action.libelle,
       dateDebut: this.formatDateForInput(action.dateDebut),
       dateFin: this.formatDateForInput(action.dateFin),
       statut: action.statut,
       codePlan: action.codePlan,
+      codeRisque: action.codeRisque,
+      bonnePratique: action.bonnePratique,
       matriculeResponsable: action.matriculeResponsable
     });
+
+    // Charger le risque associé au plan
+    if (action.codePlan) {
+      this.loadRisqueFromPlan(action.codePlan);
+    }
+  }
+
+  onPlanChange(): void {
+    const codePlan = this.form.get('codePlan')?.value;
+    if (codePlan) {
+      this.loadRisqueFromPlan(codePlan);
+    } else {
+      this.risqueSelected = null;
+      this.bonnesPratiques = [];
+      this.form.patchValue({ codeRisque: '', bonnePratique: '' });
+      this.cdr.detectChanges();
+    }
+  }
+
+  loadRisqueFromPlan(codePlan: string): void {
+    const plan = this.plans.find(p => p.code === codePlan);
+    if (plan && plan.codeRisque) {
+      this.risqueService.getByCode(plan.codeRisque).subscribe({
+        next: (risque) => {
+          this.risqueSelected = risque;
+          this.form.patchValue({ codeRisque: risque.code });
+          this.loadBonnesPratiques(risque);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.error = err?.message || 'Impossible de charger le risque associé au plan';
+          this.risqueSelected = null;
+          this.bonnesPratiques = [];
+          this.cdr.detectChanges();
+        }
+      });
+    }
+  }
+
+  onRisqueChange(): void {
+    const codeRisque = this.form.get('codeRisque')?.value;
+    if (codeRisque && this.risqueSelected) {
+      this.loadBonnesPratiques(this.risqueSelected);
+    } else {
+      this.bonnesPratiques = [];
+      this.form.patchValue({ bonnePratique: '' });
+      this.cdr.detectChanges();
+    }
+  }
+
+  loadBonnesPratiques(risque: RisqueResponse): void {
+    this.loadingBonnesPratiques = true;
+    this.bonnesPratiques = risque.bonnesPratiques || [];
+    this.loadingBonnesPratiques = false;
+    this.cdr.detectChanges();
+  }
+
+  ajouterLibelle(): void {
+    const trimmed = this.nouveauLibelle.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    if (trimmed.length > 500) {
+      this.errorLibelle = 'Un libellé ne peut pas dépasser 500 caractères';
+      return;
+    }
+
+    // Vérifier les doublons
+    if (this.libelles.some(l => l.toLowerCase() === trimmed.toLowerCase())) {
+      this.errorLibelle = 'Ce libellé existe déjà';
+      return;
+    }
+
+    this.libelles.push(trimmed);
+    this.nouveauLibelle = '';
+    this.errorLibelle = null;
+    this.error = null;
+    this.cdr.detectChanges();
+  }
+
+  supprimerLibelle(index: number): void {
+    this.libelles.splice(index, 1);
+    // Réafficher l'erreur si la liste devient vide
+    if (this.libelles.length === 0) {
+      this.errorLibelle = 'Au moins un libellé est requis';
+    }
+    this.cdr.detectChanges();
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.libelles.length === 0) {
       this.form.markAllAsTouched();
+      if (this.libelles.length === 0) {
+        this.errorLibelle = 'Au moins un libellé est requis';
+      }
       return;
     }
+
+    this.errorLibelle = '';
 
     const dateDebut = this.form.get('dateDebut')?.value;
     const dateFin = this.form.get('dateFin')?.value;
@@ -148,11 +261,13 @@ export class ActionsFormComponent implements OnInit {
     const raw = this.form.getRawValue();
 
     const request: ActionRequest = {
-      libelle: raw.libelle,
+      libelles: this.libelles,
       dateDebut: raw.dateDebut,
       dateFin: raw.dateFin,
       statut: raw.statut,
       codePlan: raw.codePlan,
+      codeRisque: raw.codeRisque,
+      bonnePratique: raw.bonnePratique,
       matriculeResponsable: raw.matriculeResponsable
     };
 

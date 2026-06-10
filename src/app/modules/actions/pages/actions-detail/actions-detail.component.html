@@ -45,7 +45,7 @@
                 </svg>
               </div>
             </div>
-            <h2 class="text-xl font-semibold text-slate-900">{{ action.libelle }}</h2>
+            <h2 class="text-xl font-semibold text-slate-900">{{ action.libelles && action.libelles.length > 0 ? action.libelles[0] : '' }}</h2>
           </div>
           <button
             (click)="editAction()"

@@ -72,7 +72,14 @@
         <div class="space-y-2">
           <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Cause probable</h3>
           <div class="rounded-xl bg-slate-50 p-4">
-            <p class="text-slate-700">{{ risque.causeProbable || 'Non renseignée' }}</p>
+            <p *ngIf="!risque.causeProbable || risque.causeProbable.length === 0" class="text-slate-500">
+              Non renseignée
+            </p>
+            <div *ngIf="risque.causeProbable && risque.causeProbable.length > 0" class="space-y-1">
+              <p *ngFor="let cause of risque.causeProbable" class="text-slate-700 text-sm">
+                • {{ cause }}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -80,7 +87,29 @@
         <div class="space-y-2">
           <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Conséquence probable</h3>
           <div class="rounded-xl bg-slate-50 p-4">
-            <p class="text-slate-700">{{ risque.consequenceProbable || 'Non renseignée' }}</p>
+            <p *ngIf="!risque.consequenceProbable || risque.consequenceProbable.length === 0" class="text-slate-500">
+              Non renseignée
+            </p>
+            <div *ngIf="risque.consequenceProbable && risque.consequenceProbable.length > 0" class="space-y-1">
+              <p *ngFor="let consequence of risque.consequenceProbable" class="text-slate-700 text-sm">
+                • {{ consequence }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bonnes pratiques -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Bonnes pratiques</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p *ngIf="!risque.bonnesPratiques || risque.bonnesPratiques.length === 0" class="text-slate-500">
+              Non renseignées
+            </p>
+            <div *ngIf="risque.bonnesPratiques && risque.bonnesPratiques.length > 0" class="space-y-1">
+              <p *ngFor="let pratique of risque.bonnesPratiques" class="text-slate-700 text-sm">
+                • {{ pratique }}
+              </p>
+            </div>
           </div>
         </div>
 
