@@ -172,11 +172,49 @@
             </div>
           </div>
 
-          <!-- SECTION 4: Contrôles existants (togglable) -->
+          <!-- SECTION 4: Bonnes pratiques (togglable) -->
+          <div class="space-y-4 border-t border-slate-100 pt-4">
+            <button type="button" (click)="toggleSection('additional')"
+              class="flex items-center justify-between w-full text-left">
+              <h3 class="text-lg font-semibold text-slate-900">Bonnes pratiques</h3>
+              <svg [class.rotate-180]="sections.additional"
+                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div *ngIf="sections.additional" class="grid grid-cols-1 gap-4 pt-2">
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques existants *</label>
+                <textarea formControlName="controleExistants" rows="2"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Décrivez les bonnes pratiques existants..."></textarea>
+                <p *ngIf="form.get('controleExistants')?.invalid && form.get('controleExistants')?.touched"
+                   class="mt-1 text-xs text-red-600">Ce champ est requis</p>
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques inexistant *</label>
+                <textarea formControlName="controleInexistants" rows="2"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Décrivez les bonnes pratiques manquants..."></textarea>
+                <p *ngIf="form.get('controleInexistants')?.invalid && form.get('controleInexistants')?.touched"
+                   class="mt-1 text-xs text-red-600">Ce champ est requis</p>
+              </div>
+              <div>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input formControlName="dejaSurvenu" type="checkbox"
+                    class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <span class="text-sm font-semibold text-slate-700">Le risque est déjà survenu</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 5: Maturité (togglable) -->
           <div class="space-y-4 border-t border-slate-100 pt-4">
             <button type="button" (click)="toggleSection('controles')"
               class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Contrôles existants</h3>
+              <h3 class="text-lg font-semibold text-slate-900">Maturité</h3>
               <svg [class.rotate-180]="sections.controles"
                    class="w-5 h-5 text-slate-500 transition-transform duration-200"
                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,40 +259,6 @@
                     {{ preventionError }}
                   </p>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION 5: Contrôles supplémentaires (togglable) -->
-          <div class="space-y-4 border-t border-slate-100 pt-4">
-            <button type="button" (click)="toggleSection('additional')"
-              class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Contrôles supplémentaires</h3>
-              <svg [class.rotate-180]="sections.additional"
-                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-            <div *ngIf="sections.additional" class="grid grid-cols-1 gap-4 pt-2">
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Contrôles existants (optionnel)</label>
-                <textarea formControlName="controleExistants" rows="2"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Décrivez les contrôles existants..."></textarea>
-              </div>
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Contrôles inexistants (optionnel)</label>
-                <textarea formControlName="controleInexistants" rows="2"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Décrivez les contrôles manquants..."></textarea>
-              </div>
-              <div>
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input formControlName="dejaSurvenu" type="checkbox"
-                    class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-                  <span class="text-sm font-semibold text-slate-700">Le risque est déjà survenu</span>
-                </label>
               </div>
             </div>
           </div>
