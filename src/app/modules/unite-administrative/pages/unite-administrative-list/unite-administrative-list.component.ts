@@ -18,11 +18,17 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class UniteAdministrativeListComponent implements OnInit {
   unites: UniteAdministrativeResponse[] = [];
+  allUnites: UniteAdministrativeResponse[] = [];
   filteredUnites: UniteAdministrativeResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
   selectedUniteParent: string = '';
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private uniteService: UniteAdministrativeService,
@@ -47,7 +53,11 @@ export class UniteAdministrativeListComponent implements OnInit {
     this.error = null;
     this.uniteService.getAll().subscribe({
       next: (unites) => {
-        this.unites = unites;
+        // Trier les unités par code (le plus récent en haut)
+        this.allUnites = unites.sort((a, b) => {
+          return b.code.localeCompare(a.code);
+        });
+        
         this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
@@ -66,11 +76,52 @@ export class UniteAdministrativeListComponent implements OnInit {
 
   applyFilter(): void {
     if (!this.selectedUniteParent) {
-      this.filteredUnites = this.unites;
+      this.filteredUnites = this.allUnites;
     } else {
       // Filtrer les unités qui sont sous l'unité parent sélectionnée (par code)
-      this.filteredUnites = this.unites.filter(u => u.idUniteParent === this.selectedUniteParent);
+      this.filteredUnites = this.allUnites.filter(u => u.idUniteParent === this.selectedUniteParent);
     }
+    this.updatePagination();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredUnites.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.unites = this.filteredUnites.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredUnites.length);
+    return { start, end };
   }
 
   createUnite(): void {

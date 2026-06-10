@@ -14,6 +14,7 @@
           <p class="text-sm text-gray-500">Gestion des unités de mesure</p>
           <h1 class="text-2xl font-semibold text-slate-900">Unités de Mesure</h1>
         </div>
+        <!--
         <button
           (click)="createUniteMesure()"
           class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
@@ -24,6 +25,7 @@
           </svg>
           Nouvelle unité de mesure
         </button>
+        -->
       </div>
 
       <!-- Erreur -->
@@ -50,7 +52,7 @@
                 <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Libellé</th>
                 <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Symbole</th>
                 <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Description</th>
-                <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Actions</th>
+                <!-- <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Actions</th> -->
               </tr>
             </thead>
             <tbody>
@@ -63,6 +65,7 @@
                 <td class="py-3 px-4 text-sm font-medium text-slate-900">{{ unite.libelle }}</td>
                 <td class="py-3 px-4 text-sm text-slate-600">{{ unite.symbole || '-' }}</td>
                 <td class="py-3 px-4 text-sm text-slate-600">{{ unite.description || '-' }}</td>
+                <!--
                 <td class="py-3 px-4 text-right">
                   <div class="flex justify-end gap-2">
                     <button (click)="editUniteMesure(unite.id)" title="Modifier"
@@ -83,9 +86,37 @@
                     </button>
                   </div>
                 </td>
+                -->
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Contrôles de pagination -->
+      <div *ngIf="!loading && allUnitesMesure.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
+        <div class="text-sm text-slate-500">
+          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ allUnitesMesure.length }} unités de mesure
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="previousPage()" [disabled]="currentPage === 1"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Précédent
+          </button>
+          <div class="flex gap-1">
+            <button *ngFor="let page of totalPagesArray" (click)="goToPage(page)"
+                    [class.bg-emerald-600]="page === currentPage"
+                    [class.text-white]="page === currentPage"
+                    [class.bg-slate-100]="page !== currentPage"
+                    [class.text-slate-700]="page !== currentPage"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-200">
+              {{ page }}
+            </button>
+          </div>
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Suivant
+          </button>
         </div>
       </div>
 

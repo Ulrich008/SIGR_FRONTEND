@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,14 +13,22 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-processus-list',
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
   templateUrl: './processus-list.component.html'
 })
 export class ProcessusListComponent implements OnInit {
   processus: ProcessusResponse[] = [];
+  allProcessus: ProcessusResponse[] = [];
+  filteredProcessus: ProcessusResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+  selectedUnite: string = '';
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private processusService: ProcessusService,
@@ -44,7 +53,12 @@ export class ProcessusListComponent implements OnInit {
     this.error = null;
     this.processusService.getAll().subscribe({
       next: (processus) => {
-        this.processus = processus;
+        // Trier les processus par code (le plus récent en haut)
+        this.allProcessus = processus.sort((a, b) => {
+          return b.code.localeCompare(a.code);
+        });
+        
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -54,6 +68,60 @@ export class ProcessusListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  applyFilter(): void {
+    if (!this.selectedUnite) {
+      this.filteredProcessus = this.allProcessus;
+    } else {
+      this.filteredProcessus = this.allProcessus.filter(p => p.idUnite === this.selectedUnite);
+    }
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  onUniteChange(): void {
+    this.applyFilter();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredProcessus.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.processus = this.filteredProcessus.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredProcessus.length);
+    return { start, end };
   }
 
   createProcessus(): void {

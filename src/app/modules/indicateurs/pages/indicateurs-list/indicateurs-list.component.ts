@@ -38,9 +38,15 @@ Chart.register(
 export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   indicateurs: IndicateurPerformanceResponse[] = [];
+  allIndicateurs: IndicateurPerformanceResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   // Références aux canvas des graphes globaux
   @ViewChild('overviewChart') overviewChartRef!: ElementRef<HTMLCanvasElement>;
@@ -95,7 +101,14 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     this.error = null;
     this.indicateurService.getAll().subscribe({
       next: (indicateurs) => {
-        this.indicateurs = indicateurs;
+        // Trier les indicateurs par date de fin (le plus récent en haut)
+        this.allIndicateurs = indicateurs.sort((a, b) => {
+          const dateA = a.dateFin ? new Date(a.dateFin).getTime() : 0;
+          const dateB = b.dateFin ? new Date(b.dateFin).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.updatePagination();
         this.loading = false;
         this.dataReady = true;
         this.cdr.detectChanges();
@@ -112,6 +125,46 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
         this.cdr.detectChanges();
       }
     });
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.allIndicateurs.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.indicateurs = this.allIndicateurs.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.allIndicateurs.length);
+    return { start, end };
   }
 
   // ─── Création des graphes ────────────────────────────────────────────────

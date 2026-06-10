@@ -17,9 +17,15 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class CartographieRisquesListComponent implements OnInit {
   cartographies: CartographieRisquesResponse[] = [];
+  allCartographies: CartographieRisquesResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private cartographieService: CartographieRisquesService,
@@ -44,7 +50,14 @@ export class CartographieRisquesListComponent implements OnInit {
     this.error = null;
     this.cartographieService.getAll().subscribe({
       next: (cartographies) => {
-        this.cartographies = cartographies;
+        // Trier les cartographies par période (le plus récent en haut)
+        this.allCartographies = cartographies.sort((a, b) => {
+          const dateA = a.periode ? new Date(a.periode).getTime() : 0;
+          const dateB = b.periode ? new Date(b.periode).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.updatePagination();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -54,6 +67,46 @@ export class CartographieRisquesListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.allCartographies.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.cartographies = this.allCartographies.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.allCartographies.length);
+    return { start, end };
   }
 
   createCartographie(): void {

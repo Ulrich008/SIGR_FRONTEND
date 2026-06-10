@@ -1,25 +1,34 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { ActionService } from '../../../../core/services/action.service';
-import { ActionResponse } from '../../../../core/models/action.model';
+import { ActionResponse, StatutAction } from '../../../../core/models/action.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-actions-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './actions-list.component.html'
 })
 export class ActionsListComponent implements OnInit {
   actions: ActionResponse[] = [];
+  allActions: ActionResponse[] = [];
+  filteredActions: ActionResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+  selectedPlan: string = '';
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private actionService: ActionService,
@@ -44,7 +53,14 @@ export class ActionsListComponent implements OnInit {
     this.error = null;
     this.actionService.getAll().subscribe({
       next: (actions) => {
-        this.actions = actions;
+        // Trier les actions par date de fin (le plus récent en haut)
+        this.allActions = actions.sort((a, b) => {
+          const dateA = a.dateFin ? new Date(a.dateFin).getTime() : 0;
+          const dateB = b.dateFin ? new Date(b.dateFin).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -54,6 +70,60 @@ export class ActionsListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  applyFilter(): void {
+    if (!this.selectedPlan) {
+      this.filteredActions = this.allActions;
+    } else {
+      this.filteredActions = this.allActions.filter(a => a.codePlan === this.selectedPlan);
+    }
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  onPlanChange(): void {
+    this.applyFilter();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredActions.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.actions = this.filteredActions.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredActions.length);
+    return { start, end };
   }
 
   createAction(): void {

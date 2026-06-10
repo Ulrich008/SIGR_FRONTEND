@@ -17,9 +17,15 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class AffectationListComponent implements OnInit {
   affectations: AffectationResponse[] = [];
+  allAffectations: AffectationResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private affectationService: AffectationService,
@@ -49,7 +55,14 @@ export class AffectationListComponent implements OnInit {
     this.error = null;
     this.affectationService.getAll().subscribe({
       next: (affectations) => {
-        this.affectations = affectations;
+        // Trier les affectations par date d'affectation (le plus récent en haut)
+        this.allAffectations = affectations.sort((a, b) => {
+          const dateA = a.dateAffectation ? new Date(a.dateAffectation).getTime() : 0;
+          const dateB = b.dateAffectation ? new Date(b.dateAffectation).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.updatePagination();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -59,6 +72,46 @@ export class AffectationListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.allAffectations.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.affectations = this.allAffectations.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.allAffectations.length);
+    return { start, end };
   }
 
   createAffectation(): void {

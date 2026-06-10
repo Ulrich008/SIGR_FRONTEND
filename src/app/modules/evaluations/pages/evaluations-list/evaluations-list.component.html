@@ -251,6 +251,33 @@
         </table>
       </div>
 
+      <!-- Contrôles de pagination -->
+      <div *ngIf="!loading && allEvaluations.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
+        <div class="text-sm text-slate-500">
+          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ allEvaluations.length }} évaluations
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="previousPage()" [disabled]="currentPage === 1"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Précédent
+          </button>
+          <div class="flex gap-1">
+            <button *ngFor="let page of totalPagesArray" (click)="goToPage(page)"
+                    [class.bg-emerald-600]="page === currentPage"
+                    [class.text-white]="page === currentPage"
+                    [class.bg-slate-100]="page !== currentPage"
+                    [class.text-slate-700]="page !== currentPage"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-200">
+              {{ page }}
+            </button>
+          </div>
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Suivant
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 

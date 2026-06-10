@@ -17,9 +17,15 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class MinistereListComponent implements OnInit {
   ministeres: MinistereResponse[] = [];
+  allMinisteres: MinistereResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private ministereService: MinistereService,
@@ -44,16 +50,61 @@ export class MinistereListComponent implements OnInit {
     this.error = null;
     this.ministereService.getAll().subscribe({
       next: (ministeres) => {
-        this.ministeres = ministeres;
+        // Trier les ministères par code (le plus récent en haut)
+        this.allMinisteres = ministeres.sort((a, b) => {
+          return b.code.localeCompare(a.code);
+        });
+        
+        this.updatePagination();
         this.loading = false;
-        this.cdr.detectChanges(); // ← ajout
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
         this.error = err?.message || 'Impossible de charger les ministères';
-        this.cdr.detectChanges(); // ← ajout
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.allMinisteres.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.ministeres = this.allMinisteres.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.allMinisteres.length);
+    return { start, end };
   }
 
   createMinistere(): void {

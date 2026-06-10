@@ -1,25 +1,35 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // ← ajout
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { AgentService } from '../../../../core/services/agent.service';
-import { AgentResponse } from '../../../../core/models/agent.model';
+import { AgentResponse, Role } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-agent-list',
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
   templateUrl: './agent-list.component.html'
 })
 export class AgentListComponent implements OnInit {
   agents: AgentResponse[] = [];
+  allAgents: AgentResponse[] = [];
+  filteredAgents: AgentResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+  selectedUnite: string = '';
+  selectedRole: Role | '' = '';
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private agentService: AgentService,
@@ -44,16 +54,86 @@ export class AgentListComponent implements OnInit {
     this.error = null;
     this.agentService.getAll().subscribe({
       next: (agents) => {
-        this.agents = agents;
+        // Trier les agents par date de prise de service (le plus récent en haut)
+        this.allAgents = agents.sort((a, b) => {
+          const dateA = a.datePriseService ? new Date(a.datePriseService).getTime() : 0;
+          const dateB = b.datePriseService ? new Date(b.datePriseService).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.applyFilter();
         this.loading = false;
-        this.cdr.detectChanges(); // ← ajout
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
         this.error = err?.message || 'Impossible de charger les agents';
-        this.cdr.detectChanges(); // ← ajout
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  applyFilter(): void {
+    this.filteredAgents = this.allAgents;
+    
+    if (this.selectedUnite) {
+      this.filteredAgents = this.filteredAgents.filter(a => a.codeUnite === this.selectedUnite);
+    }
+    
+    if (this.selectedRole) {
+      this.filteredAgents = this.filteredAgents.filter(a => a.role === this.selectedRole);
+    }
+    
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  onUniteChange(): void {
+    this.applyFilter();
+  }
+
+  onRoleChange(): void {
+    this.applyFilter();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredAgents.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.agents = this.filteredAgents.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredAgents.length);
+    return { start, end };
   }
 
   createAgent(): void {

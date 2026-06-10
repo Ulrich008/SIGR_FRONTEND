@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -17,15 +17,22 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class MissionsListComponent implements OnInit {
   missions: MissionResponse[] = [];
+  allMissions: MissionResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private missionService: MissionService,
     private router: Router,
     private authService: AuthService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private cdr: ChangeDetectorRef
   ) {
     this.menuItems = this.menuService.items;
   }
@@ -43,14 +50,63 @@ export class MissionsListComponent implements OnInit {
     this.error = null;
     this.missionService.getAll().subscribe({
       next: (missions) => {
-        this.missions = missions;
+        // Trier les missions par date de début (le plus récent en haut)
+        this.allMissions = missions.sort((a, b) => {
+          const dateA = a.dateDebut ? new Date(a.dateDebut).getTime() : 0;
+          const dateB = b.dateDebut ? new Date(b.dateDebut).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.updatePagination();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
         this.error = err?.message || 'Impossible de charger les missions';
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.allMissions.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.missions = this.allMissions.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.allMissions.length);
+    return { start, end };
   }
 
   createMission(): void {

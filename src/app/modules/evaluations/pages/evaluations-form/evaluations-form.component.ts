@@ -61,13 +61,15 @@ export class EvaluationsFormComponent implements OnInit {
   menuItems: MenuItem[];
   risques: RisqueResponse[] = [];
   agents: AgentResponse[]   = [];
+  bonnesPratiquesRisque: string[] = [];
+  selectedBonnesPratiques: Set<string> = new Set();
 
   sections = {
     period:          true,
     inherent:        true,
     controles:       true,
-    additional:      false,
-    recommendations: false
+    additional:      true,
+    recommendations: true
   };
 
   constructor(
@@ -91,8 +93,8 @@ export class EvaluationsFormComponent implements OnInit {
       controleExistants:    ['', [Validators.required]],
       controleInexistants:  ['', [Validators.required]],
       dejaSurvenu:          [false],
-      dateDebut:            [''],
-      dateFin:              [''],
+      dateDebut:            ['', [Validators.required]],
+      dateFin:              ['', [Validators.required]],
       recommandation:       ['', [Validators.maxLength(1000)]],
       codeRisque:           ['', [Validators.required]],
       matriculeAgent:       ['']
@@ -147,6 +149,16 @@ export class EvaluationsFormComponent implements OnInit {
     } else {
       this.loadReferenceData();
     }
+
+    // Écouteur sur le champ codeRisque pour récupérer les bonnes pratiques
+    this.form.get('codeRisque')?.valueChanges.subscribe(codeRisque => {
+      if (codeRisque) {
+        this.loadBonnesPratiquesRisque(codeRisque);
+      } else {
+        this.bonnesPratiquesRisque = [];
+        this.selectedBonnesPratiques.clear();
+      }
+    });
   }
 
   loadReferenceData(): void {
@@ -167,6 +179,17 @@ export class EvaluationsFormComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  loadBonnesPratiquesRisque(codeRisque: string): void {
+    const risque = this.risques.find(r => r.code === codeRisque);
+    if (risque && risque.bonnesPratiques) {
+      this.bonnesPratiquesRisque = risque.bonnesPratiques;
+      this.selectedBonnesPratiques.clear();
+    } else {
+      this.bonnesPratiquesRisque = [];
+      this.selectedBonnesPratiques.clear();
+    }
   }
 
   patchForm(evaluation: EvaluationResponse): void {
@@ -397,5 +420,60 @@ export class EvaluationsFormComponent implements OnInit {
     if (!date) return '';
     const d = new Date(date);
     return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+  }
+
+  // ================= GESTION DES BONNES PRATIQUES =================
+  toggleBonnesPratiqueSelection(pratique: string): void {
+    if (this.selectedBonnesPratiques.has(pratique)) {
+      this.selectedBonnesPratiques.delete(pratique);
+    } else {
+      this.selectedBonnesPratiques.add(pratique);
+    }
+  }
+
+  isBonnesPratiqueSelected(pratique: string): boolean {
+    return this.selectedBonnesPratiques.has(pratique);
+  }
+
+  addBonnesPratiquesToExistants(): void {
+    const currentExistants = this.form.get('controleExistants')?.value || '';
+    const nouvellesPratiques = Array.from(this.selectedBonnesPratiques).join('\n');
+    
+    if (currentExistants) {
+      this.form.patchValue({
+        controleExistants: currentExistants + '\n' + nouvellesPratiques
+      });
+    } else {
+      this.form.patchValue({
+        controleExistants: nouvellesPratiques
+      });
+    }
+    
+    // Supprimer les bonnes pratiques ajoutées de la liste disponible
+    this.bonnesPratiquesRisque = this.bonnesPratiquesRisque.filter(
+      pratique => !this.selectedBonnesPratiques.has(pratique)
+    );
+    this.selectedBonnesPratiques.clear();
+  }
+
+  addBonnesPratiquesToInexistants(): void {
+    const currentInexistants = this.form.get('controleInexistants')?.value || '';
+    const nouvellesPratiques = Array.from(this.selectedBonnesPratiques).join('\n');
+    
+    if (currentInexistants) {
+      this.form.patchValue({
+        controleInexistants: currentInexistants + '\n' + nouvellesPratiques
+      });
+    } else {
+      this.form.patchValue({
+        controleInexistants: nouvellesPratiques
+      });
+    }
+    
+    // Supprimer les bonnes pratiques ajoutées de la liste disponible
+    this.bonnesPratiquesRisque = this.bonnesPratiquesRisque.filter(
+      pratique => !this.selectedBonnesPratiques.has(pratique)
+    );
+    this.selectedBonnesPratiques.clear();
   }
 }

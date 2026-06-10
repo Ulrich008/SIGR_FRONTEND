@@ -20,6 +20,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class RisquesListComponent implements OnInit {
   risques: RisqueResponse[] = [];
+  allRisques: RisqueResponse[] = [];
   filteredRisques: RisqueResponse[] = [];
   processus: ProcessusResponse[] = [];
   selectedProcessus: string = '';
@@ -27,6 +28,11 @@ export class RisquesListComponent implements OnInit {
   loadingProcessus = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   StatutRisque = StatutRisque;
   TypeRisque = TypeRisque;
@@ -73,8 +79,14 @@ export class RisquesListComponent implements OnInit {
 
     this.risqueService.getAll().subscribe({
       next: (risques) => {
-        this.risques = risques;
-        this.filteredRisques = risques;
+        // Trier les risques par date d'identification (le plus récent en haut)
+        this.allRisques = risques.sort((a, b) => {
+          const dateA = a.dateIdentification ? new Date(a.dateIdentification).getTime() : 0;
+          const dateB = b.dateIdentification ? new Date(b.dateIdentification).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.updatePagination();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -88,11 +100,57 @@ export class RisquesListComponent implements OnInit {
 
   onProcessusFilterChange(): void {
     if (!this.selectedProcessus) {
-      this.filteredRisques = this.risques;
+      this.filteredRisques = this.allRisques;
     } else {
-      this.filteredRisques = this.risques.filter(r => r.codeProcessus === this.selectedProcessus);
+      this.filteredRisques = this.allRisques.filter(r => r.codeProcessus === this.selectedProcessus);
     }
+    this.currentPage = 1;
+    this.updatePagination();
     this.cdr.detectChanges();
+  }
+
+  updatePagination(): void {
+    this.filteredRisques = this.selectedProcessus 
+      ? this.allRisques.filter(r => r.codeProcessus === this.selectedProcessus)
+      : this.allRisques;
+    
+    this.totalPages = Math.ceil(this.filteredRisques.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.risques = this.filteredRisques.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredRisques.length);
+    return { start, end };
   }
 
   createRisque(): void {

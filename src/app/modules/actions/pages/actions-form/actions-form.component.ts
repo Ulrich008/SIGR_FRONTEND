@@ -12,10 +12,12 @@ import { ActionService } from '../../../../core/services/action.service';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
 import { AgentService } from '../../../../core/services/agent.service';
 import { RisqueService } from '../../../../core/services/risque.service';
+import { EvaluationService } from '../../../../core/services/evaluation.service';
 import { ActionRequest, ActionResponse, StatutAction } from '../../../../core/models/action.model';
 import { PlanMitigationResponse } from '../../../../core/models/plan-mitigation.model';
 import { AgentResponse } from '../../../../core/models/agent.model';
 import { RisqueResponse } from '../../../../core/models/risque.model';
+import { EvaluationResponse } from '../../../../core/models/evaluation.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -52,6 +54,7 @@ export class ActionsFormComponent implements OnInit {
     private planMitigationService: PlanMitigationService,
     private agentService: AgentService,
     private risqueService: RisqueService,
+    private evaluationService: EvaluationService,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -193,9 +196,32 @@ export class ActionsFormComponent implements OnInit {
 
   loadBonnesPratiques(risque: RisqueResponse): void {
     this.loadingBonnesPratiques = true;
-    this.bonnesPratiques = risque.bonnesPratiques || [];
-    this.loadingBonnesPratiques = false;
-    this.cdr.detectChanges();
+    
+    // Récupérer toutes les évaluations pour trouver celles du risque
+    this.evaluationService.getAll().subscribe({
+      next: (evaluations: EvaluationResponse[]) => {
+        const risqueEvaluations = evaluations.filter(e => e.codeRisque === risque.code);
+        if (risqueEvaluations && risqueEvaluations.length > 0) {
+          // Prendre la dernière évaluation
+          const lastEvaluation = risqueEvaluations[risqueEvaluations.length - 1];
+          // Extraire les bonnes pratiques inexistants
+          const controleInexistants = lastEvaluation.controleInexistants || '';
+          // Diviser par lignes pour obtenir un tableau
+          this.bonnesPratiques = controleInexistants.split('\n').filter((bp: string) => bp.trim() !== '');
+        } else {
+          // Si pas d'évaluation, récupérer toutes les bonnes pratiques du risque
+          this.bonnesPratiques = risque.bonnesPratiques || [];
+        }
+        this.loadingBonnesPratiques = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        // En cas d'erreur, récupérer toutes les bonnes pratiques du risque
+        this.bonnesPratiques = risque.bonnesPratiques || [];
+        this.loadingBonnesPratiques = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   ajouterLibelle(): void {

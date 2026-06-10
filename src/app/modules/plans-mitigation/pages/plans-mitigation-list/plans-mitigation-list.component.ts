@@ -17,9 +17,15 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class PlansMitigationListComponent implements OnInit {
   plans: PlanMitigationResponse[] = [];
+  allPlans: PlanMitigationResponse[] = [];
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
   constructor(
     private planMitigationService: PlanMitigationService,
@@ -44,7 +50,14 @@ export class PlansMitigationListComponent implements OnInit {
     this.error = null;
     this.planMitigationService.getAll().subscribe({
       next: (plans) => {
-        this.plans = plans;
+        // Trier les plans par date de création (le plus récent en haut)
+        this.allPlans = plans.sort((a, b) => {
+          const dateA = a.dateCreation ? new Date(a.dateCreation).getTime() : 0;
+          const dateB = b.dateCreation ? new Date(b.dateCreation).getTime() : 0;
+          return dateB - dateA;
+        });
+        
+        this.updatePagination();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -54,6 +67,46 @@ export class PlansMitigationListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.allPlans.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.plans = this.allPlans.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updatePagination();
+    this.cdr.detectChanges();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+      this.cdr.detectChanges();
+    }
+  }
+
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  getDisplayedRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.allPlans.length);
+    return { start, end };
   }
 
   createPlan(): void {

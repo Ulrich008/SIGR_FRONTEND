@@ -193,10 +193,10 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            <tr *ngIf="filteredRisques.length === 0">
+            <tr *ngIf="risques.length === 0">
               <td colspan="6" class="px-4 py-8 text-center text-slate-500">Aucun risque trouvé.</td>
             </tr>
-            <tr *ngFor="let risque of filteredRisques" class="hover:bg-slate-50 transition">
+            <tr *ngFor="let risque of risques" class="hover:bg-slate-50 transition">
               <td class="px-4 py-4">
                 <span class="inline-block rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
                   {{ risque.code }}
@@ -245,6 +245,33 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Contrôles de pagination -->
+      <div *ngIf="!loading && filteredRisques.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
+        <div class="text-sm text-slate-500">
+          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ filteredRisques.length }} risques
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="previousPage()" [disabled]="currentPage === 1"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Précédent
+          </button>
+          <div class="flex gap-1">
+            <button *ngFor="let page of totalPagesArray" (click)="goToPage(page)"
+                    [class.bg-emerald-600]="page === currentPage"
+                    [class.text-white]="page === currentPage"
+                    [class.bg-slate-100]="page !== currentPage"
+                    [class.text-slate-700]="page !== currentPage"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-200">
+              {{ page }}
+            </button>
+          </div>
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            Suivant
+          </button>
+        </div>
       </div>
 
     </div>
