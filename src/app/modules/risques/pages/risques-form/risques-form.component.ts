@@ -144,7 +144,7 @@ export class RisquesFormComponent implements OnInit {
         Validators.maxLength(200)
       ]],
 
-      statut: ['', [Validators.required]],
+      statut: [StatutRisque.ACTIF, [Validators.required]],
 
       dateIdentification: ['', [Validators.required]],
 
