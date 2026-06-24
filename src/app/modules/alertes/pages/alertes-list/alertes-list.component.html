@@ -1,0 +1,252 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Alertes"
+  searchPlaceholder="Rechercher une alerte..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6 lg:p-8">
+    <div class="max-w-5xl mx-auto space-y-6">
+
+      <!-- En-tête avec gradient -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 md:p-8">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <div class="p-1.5 bg-white/10 rounded-lg backdrop-blur-sm">
+                <svg class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </div>
+              <p class="text-xs font-medium text-emerald-400 uppercase tracking-wider">Système d'alertes</p>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-white">Centre d'Alertes</h1>
+            <p class="text-slate-300 text-sm mt-1">Surveillance et gestion des risques en temps réel</p>
+          </div>
+          <button
+            (click)="loadAlertes()"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+              <path d="M16 16h5v5"/>
+            </svg>
+            Rafraîchir
+          </button>
+        </div>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="error" class="rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-orange-50 p-4 text-sm text-red-700 flex items-center gap-3 animate-slideIn">
+        <div class="p-1.5 bg-red-100 rounded-lg">
+          <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        {{ error }}
+      </div>
+
+      <!-- Chargement avec skeleton -->
+      <div *ngIf="loading" class="space-y-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div *ngFor="let i of [1,2,3,4]" class="bg-slate-50 rounded-xl p-4 animate-pulse">
+            <div class="h-3 bg-slate-200 rounded w-16 mb-2"></div>
+            <div class="h-8 bg-slate-200 rounded w-12"></div>
+          </div>
+        </div>
+        <div *ngFor="let i of [1,2,3]" class="bg-white rounded-xl border border-slate-100 p-4 animate-pulse">
+          <div class="flex items-start gap-3">
+            <div class="flex-1">
+              <div class="flex gap-2 mb-2">
+                <div class="h-5 bg-slate-200 rounded w-24"></div>
+                <div class="h-5 bg-slate-200 rounded w-16"></div>
+              </div>
+              <div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
+              <div class="h-3 bg-slate-200 rounded w-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!loading">
+
+        <!-- Cartes de statistiques avec gradient -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <div class="group relative overflow-hidden bg-gradient-to-br from-slate-50 to-white rounded-xl p-5 border border-slate-100 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer" (click)="appliquerFiltre('TOUTES')">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-slate-100 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Total</p>
+            <p class="text-3xl font-bold text-slate-800">{{ alertes.length }}</p>
+            <p class="text-xs text-slate-400 mt-1">Alertes actives</p>
+          </div>
+          
+          <div class="group relative overflow-hidden bg-gradient-to-br from-red-50 to-white rounded-xl p-5 border border-red-100 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer" (click)="appliquerFiltre('CRITIQUE')">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-100 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">Critique</p>
+            <p class="text-3xl font-bold text-red-600">{{ compterParSeverite('CRITIQUE') }}</p>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="text-xs text-red-400">●</span>
+              <p class="text-xs text-red-400">Urgence absolue</p>
+            </div>
+          </div>
+          
+          <div class="group relative overflow-hidden bg-gradient-to-br from-orange-50 to-white rounded-xl p-5 border border-orange-100 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer" (click)="appliquerFiltre('HAUTE')">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-100 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-xs font-semibold text-orange-400 uppercase tracking-wider mb-2">Haute</p>
+            <p class="text-3xl font-bold text-orange-600">{{ compterParSeverite('HAUTE') }}</p>
+            <p class="text-xs text-orange-400 mt-1">Priorité élevée</p>
+          </div>
+          
+          <div class="group relative overflow-hidden bg-gradient-to-br from-yellow-50 to-white rounded-xl p-5 border border-yellow-100 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer" (click)="appliquerFiltre('MOYENNE')">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-100 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-xs font-semibold text-yellow-500 uppercase tracking-wider mb-2">Moyenne</p>
+            <p class="text-3xl font-bold text-yellow-600">{{ compterParSeverite('MOYENNE') }}</p>
+            <p class="text-xs text-yellow-500 mt-1">À surveiller</p>
+          </div>
+          
+          <div class="group relative overflow-hidden bg-gradient-to-br from-blue-50 to-white rounded-xl p-5 border border-blue-100 transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer" (click)="appliquerFiltre('FAIBLE')">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <p class="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Faible</p>
+            <p class="text-3xl font-bold text-blue-600">{{ compterParSeverite('FAIBLE') }}</p>
+            <p class="text-xs text-blue-400 mt-1">Information</p>
+          </div>
+        </div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="space-y-4">
+          <!-- Recherche -->
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="recherche"
+              (ngModelChange)="onRechercheChange()"
+              placeholder="Rechercher par titre, description, élément ou processus..."
+              class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:outline-none focus:ring-4 focus:ring-emerald-50 transition-all"
+            />
+          </div>
+          
+          <!-- Filtres -->
+          <div class="flex flex-wrap gap-2">
+            <button
+              *ngFor="let f of ['TOUTES','CRITIQUE','HAUTE','MOYENNE','FAIBLE']"
+              (click)="appliquerFiltre(f)"
+              [class]="filtreActif === f
+                ? 'px-3 py-1.5 text-xs font-medium rounded-lg bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-md'
+                : 'px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50 transition-all'"
+            >
+              <span class="mr-1">{{ f === 'TOUTES' ? '📊' : (f === 'CRITIQUE' ? '🔴' : f === 'HAUTE' ? '🟠' : f === 'MOYENNE' ? '🟡' : '🔵') }}</span>
+              {{ f === 'TOUTES' ? 'Toutes' : (f | titlecase) }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Liste vide -->
+        <div *ngIf="alertesFiltrees.length === 0" class="rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-100 p-12 text-center">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
+            <svg class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </div>
+          <p class="text-sm font-medium text-slate-600">Aucune alerte trouvée</p>
+          <p class="text-xs text-slate-400 mt-1">Aucune alerte ne correspond à vos critères de recherche</p>
+        </div>
+
+        <!-- Liste des alertes -->
+        <div class="space-y-4">
+          <div
+            *ngFor="let alerte of alertesFiltrees; let i = index"
+            [class]="'group rounded-xl bg-white border border-slate-100 p-5 space-y-3 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 animate-fadeInUp ' + getCardBorderClass(alerte.severite)"
+            [style]="getAnimationStyle(i)"
+          >
+            <!-- Titre + badges -->
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xl" [class]="'bg-' + (alerte.severite === 'CRITIQUE' ? 'red' : alerte.severite === 'HAUTE' ? 'orange' : alerte.severite === 'MOYENNE' ? 'yellow' : 'blue') + '-50'">
+                {{ getSeveriteIcon(alerte.severite) }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                  <!-- Badge type -->
+                  <span [class]="'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ' + getTypeBadgeClass(alerte.type)">
+                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <ng-container [ngSwitch]="alerte.type">
+                        <ng-container *ngSwitchCase="'RISQUE_NON_GERE'">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        </ng-container>
+                        <ng-container *ngSwitchDefault>
+                          <polyline stroke-linecap="round" stroke-linejoin="round" points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </ng-container>
+                      </ng-container>
+                    </svg>
+                    {{ getTypeLabel(alerte.type) }}
+                  </span>
+                  <!-- Badge sévérité -->
+                  <span [class]="'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ' + getSeveriteBadgeClass(alerte.severite)">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    {{ alerte.severite }}
+                  </span>
+                </div>
+                <h3 class="text-base font-semibold text-slate-900 leading-snug group-hover:text-emerald-700 transition-colors">{{ alerte.titre }}</h3>
+                <p class="text-sm text-slate-500 mt-1.5 leading-relaxed">{{ alerte.description }}</p>
+              </div>
+            </div>
+
+            <!-- Métadonnées élément / processus -->
+            <div class="grid grid-cols-2 gap-4 text-sm border-t border-slate-100 pt-3">
+              <div class="space-y-1">
+                <div class="flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                  </svg>
+                  <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Élément</p>
+                </div>
+                <p class="font-medium text-slate-700 text-sm">{{ alerte.libelleElement }}</p>
+                <p class="font-mono text-slate-400 text-xs">{{ alerte.codeElement }}</p>
+              </div>
+              <div class="space-y-1">
+                <div class="flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Processus</p>
+                </div>
+                <p class="font-medium text-slate-700 text-sm">{{ alerte.libelleProcessus }}</p>
+                <p class="font-mono text-slate-400 text-xs">{{ alerte.codeProcessus }}</p>
+              </div>
+            </div>
+
+            <!-- Footer avec date et action -->
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+              <div class="flex items-center gap-2 text-xs text-slate-400">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>{{ alerte.dateAlerte | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <a
+                [routerLink]="['/alertes', alerte.id]"
+                class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-all group-hover:gap-2"
+              >
+                Analyser l'alerte
+                <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+
+    </div>
+  </div>
+</app-main-layout>

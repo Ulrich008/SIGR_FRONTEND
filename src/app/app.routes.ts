@@ -80,6 +80,10 @@ export const routes: Routes = [
     import('./modules/profils/profils.module').then(m => m.ProfilsModule)
 },
   {
+    path: 'alertes',
+    loadChildren: () => import('./modules/alertes/alertes.module').then(m => m.AlertesModule)
+},
+  {
     path: 'ministere',
     redirectTo: '/ministeres',
     pathMatch: 'full'

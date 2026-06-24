@@ -51,9 +51,6 @@ export class HeaderComponent {
   }
 
   openNotifications(): void {
-    // Implémentez ici l'ouverture du panneau de notifications
-    // Par exemple : ouvrir un modal, un dropdown, ou naviguer vers une page
-    console.log('Ouverture du panneau de notifications');
-    // Vous pouvez ajouter votre logique ici
+    this.router.navigate(['/alertes']);
   }
 }
