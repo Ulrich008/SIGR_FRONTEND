@@ -176,7 +176,16 @@
 
               <!-- Cause probable -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Cause probable <span class="text-red-500">*</span></label>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="block text-sm font-semibold text-slate-700">Cause probable <span class="text-red-500">*</span></label>
+                  <button
+                    (click)="toggleCausesProbables()"
+                    type="button"
+                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  >
+                    {{ showCausesProbables ? 'Masquer' : 'Afficher' }} ({{ causesProbables.length }})
+                  </button>
+                </div>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
@@ -204,7 +213,7 @@
                 </p>
 
                 <!-- Liste des causes probables ajoutées -->
-                <div *ngIf="causesProbables.length > 0" class="space-y-2">
+                <div *ngIf="showCausesProbables && causesProbables.length > 0" class="space-y-2">
                   <div
                     *ngFor="let cause of causesProbables; let i = index"
                     class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
@@ -233,16 +242,20 @@
                 <p *ngIf="causesProbables.length === 0 && !causeProbableError" class="mt-1 text-xs text-slate-400 italic">
                   Aucune cause probable ajoutée. Au moins une cause probable est requise.
                 </p>
-
-                <!-- Compteur -->
-                <p *ngIf="causesProbables.length > 0" class="mt-2 text-xs text-slate-400">
-                  {{ causesProbables.length }} cause{{ causesProbables.length > 1 ? 's' : '' }} probable{{ causesProbables.length > 1 ? 's' : '' }} ajoutée{{ causesProbables.length > 1 ? 's' : '' }}
-                </p>
               </div>
 
               <!-- Conséquence probable -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Conséquence probable <span class="text-red-500">*</span></label>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="block text-sm font-semibold text-slate-700">Conséquence probable <span class="text-red-500">*</span></label>
+                  <button
+                    (click)="toggleConsequencesProbables()"
+                    type="button"
+                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  >
+                    {{ showConsequencesProbables ? 'Masquer' : 'Afficher' }} ({{ consequencesProbables.length }})
+                  </button>
+                </div>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
@@ -270,7 +283,7 @@
                 </p>
 
                 <!-- Liste des conséquences probables ajoutées -->
-                <div *ngIf="consequencesProbables.length > 0" class="space-y-2">
+                <div *ngIf="showConsequencesProbables && consequencesProbables.length > 0" class="space-y-2">
                   <div
                     *ngFor="let consequence of consequencesProbables; let i = index"
                     class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
@@ -299,16 +312,20 @@
                 <p *ngIf="consequencesProbables.length === 0 && !consequenceProbableError" class="mt-1 text-xs text-slate-400 italic">
                   Aucune conséquence probable ajoutée. Au moins une conséquence probable est requise.
                 </p>
-
-                <!-- Compteur -->
-                <p *ngIf="consequencesProbables.length > 0" class="mt-2 text-xs text-slate-400">
-                  {{ consequencesProbables.length }} conséquence{{ consequencesProbables.length > 1 ? 's' : '' }} probable{{ consequencesProbables.length > 1 ? 's' : '' }} ajoutée{{ consequencesProbables.length > 1 ? 's' : '' }}
-                </p>
               </div>
 
               <!-- Bonnes pratiques -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques <span class="text-red-500">*</span></label>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="block text-sm font-semibold text-slate-700">Bonnes pratiques <span class="text-red-500">*</span></label>
+                  <button
+                    (click)="toggleBonnesPratiques()"
+                    type="button"
+                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  >
+                    {{ showBonnesPratiques ? 'Masquer' : 'Afficher' }} ({{ bonnesPratiques.length }})
+                  </button>
+                </div>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
@@ -336,7 +353,7 @@
                 </p>
 
                 <!-- Liste des bonnes pratiques ajoutées -->
-                <div *ngIf="bonnesPratiques.length > 0" class="space-y-2">
+                <div *ngIf="showBonnesPratiques && bonnesPratiques.length > 0" class="space-y-2">
                   <div
                     *ngFor="let pratique of bonnesPratiques; let i = index"
                     class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
@@ -364,11 +381,6 @@
                 <!-- Message si aucune bonne pratique -->
                 <p *ngIf="bonnesPratiques.length === 0 && !bonnesPratiquesError" class="mt-1 text-xs text-slate-400 italic">
                   Aucune bonne pratique ajoutée. Au moins une bonne pratique est requise.
-                </p>
-
-                <!-- Compteur -->
-                <p *ngIf="bonnesPratiques.length > 0" class="mt-2 text-xs text-slate-400">
-                  {{ bonnesPratiques.length }} bonne{{ bonnesPratiques.length > 1 ? 's' : '' }} pratique{{ bonnesPratiques.length > 1 ? 's' : '' }} ajoutée{{ bonnesPratiques.length > 1 ? 's' : '' }}
                 </p>
               </div>
 

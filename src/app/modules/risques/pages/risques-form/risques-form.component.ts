@@ -61,6 +61,10 @@ export class RisquesFormComponent implements OnInit {
   consequenceProbableError: string | null = null;
   bonnesPratiquesError: string | null = null;
 
+  showCausesProbables = true;
+  showConsequencesProbables = true;
+  showBonnesPratiques = true;
+
   loadingProcessus = false;
   loadingCartographies = false;
 
@@ -512,5 +516,17 @@ export class RisquesFormComponent implements OnInit {
     }
 
     return d.toISOString().split('T')[0];
+  }
+
+  toggleCausesProbables(): void {
+    this.showCausesProbables = !this.showCausesProbables;
+  }
+
+  toggleConsequencesProbables(): void {
+    this.showConsequencesProbables = !this.showConsequencesProbables;
+  }
+
+  toggleBonnesPratiques(): void {
+    this.showBonnesPratiques = !this.showBonnesPratiques;
   }
 }
