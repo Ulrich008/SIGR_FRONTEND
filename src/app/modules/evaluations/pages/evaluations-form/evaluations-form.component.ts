@@ -15,7 +15,6 @@ import { RisqueResponse } from '../../../../core/models/risque.model';
 import { AgentResponse } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
-// ================= VALIDATEUR DATES =================
 function dateFinSuperieureDateDebut(group: AbstractControl): ValidationErrors | null {
   const dateDebut = group.get('dateDebut')?.value;
   const dateFin   = group.get('dateFin')?.value;
@@ -25,7 +24,6 @@ function dateFinSuperieureDateDebut(group: AbstractControl): ValidationErrors | 
     : { dateFinInvalide: true };
 }
 
-// ================= VALIDATEUR PROTECTION/PREVENTION =================
 function protectionPreventionInferieures(group: AbstractControl): ValidationErrors | null {
   const impactInherent       = Number(group.get('impactInherent')?.value);
   const probabiliteInherente = Number(group.get('probabiliteInherente')?.value);
@@ -119,9 +117,6 @@ export class EvaluationsFormComponent implements OnInit {
       this.code       = codeParam;
       this.loading    = true;
 
-      // ================= CLE DU CORRECTIF =================
-      // On charge les 3 ressources ensemble, puis on patch APRES
-      // que risques et agents soient disponibles dans le DOM
       forkJoin({
         risques:    this.risqueService.getAll(),
         agents:     this.agentService.getAll(),
@@ -131,10 +126,8 @@ export class EvaluationsFormComponent implements OnInit {
           this.risques = data.risques;
           this.agents  = data.agents;
           this.loading = false;
-          this.cdr.detectChanges(); // ← les <option> sont rendus AVANT patchValue
+          this.cdr.detectChanges();
 
-          // setTimeout(0) reporte patchForm après le prochain cycle de rendu
-          // afin que le <select> trouve les <option> correspondantes
           setTimeout(() => {
             this.patchForm(data.evaluation);
             this.cdr.detectChanges();
@@ -150,7 +143,6 @@ export class EvaluationsFormComponent implements OnInit {
       this.loadReferenceData();
     }
 
-    // Écouteur sur le champ codeRisque pour récupérer les bonnes pratiques
     this.form.get('codeRisque')?.valueChanges.subscribe(codeRisque => {
       if (codeRisque) {
         this.loadBonnesPratiquesRisque(codeRisque);
@@ -240,62 +232,126 @@ export class EvaluationsFormComponent implements OnInit {
       return;
     }
 
-    // Afficher le récapitulatif avant la soumission
     this.showRecapitulatif();
   }
 
   showRecapitulatif(): void {
-    const raw = this.form.getRawValue();
+    const raw    = this.form.getRawValue();
     const risque = this.risques.find(r => r.code === raw.codeRisque);
-    const agent = this.agents.find(a => a.matricule === raw.matriculeAgent);
+    const agent  = this.agents.find(a => a.matricule === raw.matriculeAgent);
+
+    const sections = [
+      {
+        title: 'Identification',
+        rows: [
+          { label: 'Risque évalué',       value: risque ? `${risque.code} — ${risque.libelle}` : raw.codeRisque },
+          { label: 'Évaluateur',          value: agent  ? `${agent.matricule} — ${agent.nom} ${agent.prenoms}` : 'Non renseigné' },
+          { label: 'Risque déjà survenu', value: raw.dejaSurvenu ? 'Oui' : 'Non' },
+        ]
+      },
+      {
+        title: 'Période d\'évaluation',
+        rows: [
+          { label: 'Date de début', value: raw.dateDebut || 'Non renseignée' },
+          { label: 'Date de fin',   value: raw.dateFin   || 'Non renseignée' },
+        ]
+      },
+      {
+        title: 'Scores de risque',
+        rows: [
+          { label: 'Impact inhérent',       value: `${raw.impactInherent} / 5 <span style="color:#94a3b8;font-size:12px;">(calculé automatiquement)</span>` },
+          { label: 'Probabilité inhérente', value: `${raw.probabiliteInherente} / 5 <span style="color:#94a3b8;font-size:12px;">(calculée automatiquement)</span>` },
+          { label: 'Niveau de protection',  value: `${raw.protection} / 3` },
+          { label: 'Niveau de prévention',  value: `${raw.prevention} / 3` },
+        ]
+      },
+      {
+        title: 'Contrôles',
+        rows: [
+          { label: 'Contrôles en place',  value: raw.controleExistants   || '<span style="color:#94a3b8;">Non renseignés</span>' },
+          { label: 'Contrôles manquants', value: raw.controleInexistants || '<span style="color:#94a3b8;">Non renseignés</span>' },
+        ]
+      },
+      {
+        title: 'Recommandation',
+        rows: [
+          { label: 'Recommandation', value: raw.recommandation || '<span style="color:#94a3b8;">Aucune</span>' },
+        ]
+      }
+    ];
+
+    const sectionsHTML = sections.map(section => `
+      <div style="margin-bottom: 24px;">
+        <div style="
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.09em;
+          color: #64748b;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #e2e8f0;
+          margin-bottom: 4px;
+        ">${section.title}</div>
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+          <colgroup>
+            <col style="width: 38%;">
+            <col style="width: 62%;">
+          </colgroup>
+          <thead>
+            <tr style="border-bottom: 1px dashed #cbd5e1;">
+              <th style="
+                padding: 8px 12px 8px 0;
+                font-size: 13px;
+                font-weight: 600;
+                color: #334155;
+                text-align: left;
+              ">Paramètre</th>
+              <th style="
+                padding: 8px 0 8px 12px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #334155;
+                text-align: left;
+              ">Détail</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${section.rows.map((row, i) => `
+              <tr style="background-color: ${i % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                <td style="
+                  padding: 11px 12px 11px 0;
+                  font-size: 14px;
+                  font-weight: 500;
+                  color: #475569;
+                  vertical-align: top;
+                  border-bottom: 1px solid #f1f5f9;
+                ">${row.label}</td>
+                <td style="
+                  padding: 11px 0 11px 12px;
+                  font-size: 14px;
+                  color: #0f172a;
+                  vertical-align: top;
+                  word-break: break-word;
+                  white-space: pre-wrap;
+                  border-bottom: 1px solid #f1f5f9;
+                ">${row.value}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `).join('');
 
     const recapitulatifHTML = `
-      <div style="text-align: left; font-size: 14px;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 8px; font-weight: bold; border: 1px solid #e2e8f0;">Champ</td>
-            <td style="padding: 8px; font-weight: bold; border: 1px solid #e2e8f0;">Valeur</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Risque</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${risque ? `${risque.code} - ${risque.libelle}` : raw.codeRisque}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Évaluateur</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${agent ? `${agent.matricule} - ${agent.nom} ${agent.prenoms}` : 'Non renseigné'}</td>
-          </tr>
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Impact inhérent</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.impactInherent} (automatique)</td>
-          </tr>
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Probabilité inhérente</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.probabiliteInherente} (automatique)</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Protection</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.protection}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Prévention</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.prevention}</td>
-          </tr>
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Date de début</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.dateDebut || 'Non renseigné'}</td>
-          </tr>
-          <tr style="background-color: #f8fafc;">
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Date de fin</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.dateFin || 'Non renseigné'}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">Déjà survenu</td>
-            <td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.dejaSurvenu ? 'Oui' : 'Non'}</td>
-          </tr>
-          ${raw.controleExistants ? `<tr><td style="padding: 8px; border: 1px solid #e2e8f0;">Contrôles existants</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.controleExistants}</td></tr>` : ''}
-          ${raw.controleInexistants ? `<tr><td style="padding: 8px; border: 1px solid #e2e8f0;">Contrôles inexistants</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.controleInexistants}</td></tr>` : ''}
-          ${raw.recommandation ? `<tr><td style="padding: 8px; border: 1px solid #e2e8f0;">Recommandation</td><td style="padding: 8px; border: 1px solid #e2e8f0;">${raw.recommandation}</td></tr>` : ''}
-        </table>
+      <div style="
+        text-align: left;
+        max-height: 65vh;
+        overflow-y: auto;
+        padding: 4px 10px 4px 4px;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+      ">
+        ${sectionsHTML}
       </div>
     `;
 
@@ -304,13 +360,13 @@ export class EvaluationsFormComponent implements OnInit {
       html: recapitulatifHTML,
       icon: 'info',
       showCancelButton: true,
-      confirmButtonText: 'Confirmer',
-      cancelButtonText: 'Modifier',
-      width: '600px',
-      customClass: {
-        popup: 'swal-wide'
-      }
-    }).then((result) => {
+      confirmButtonText: '✔ Confirmer',
+      cancelButtonText:  '← Modifier',
+      confirmButtonColor: '#1e40af',
+      cancelButtonColor:  '#64748b',
+      width: '780px',
+      padding: '2rem'
+    }).then(result => {
       if (result.isConfirmed) {
         this.submitEvaluation();
       }
@@ -370,7 +426,6 @@ export class EvaluationsFormComponent implements OnInit {
     this.sections[section] = !this.sections[section];
   }
 
-  // ================= GETTER ERREUR DATE =================
   get dateFinError(): boolean {
     return !!(
       this.form.errors?.['dateFinInvalide'] &&
@@ -379,7 +434,6 @@ export class EvaluationsFormComponent implements OnInit {
     );
   }
 
-  // ================= GETTER ERREUR PROTECTION =================
   get protectionError(): string {
     if (
       this.form.errors?.['protectionTropElevee'] &&
@@ -392,7 +446,6 @@ export class EvaluationsFormComponent implements OnInit {
     return '';
   }
 
-  // ================= GETTER ERREUR PREVENTION =================
   get preventionError(): string {
     if (
       this.form.errors?.['preventionTropElevee'] &&
@@ -422,7 +475,6 @@ export class EvaluationsFormComponent implements OnInit {
     return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
   }
 
-  // ================= GESTION DES BONNES PRATIQUES =================
   toggleBonnesPratiqueSelection(pratique: string): void {
     if (this.selectedBonnesPratiques.has(pratique)) {
       this.selectedBonnesPratiques.delete(pratique);
@@ -436,43 +488,25 @@ export class EvaluationsFormComponent implements OnInit {
   }
 
   addBonnesPratiquesToExistants(): void {
-    const currentExistants = this.form.get('controleExistants')?.value || '';
+    const current            = this.form.get('controleExistants')?.value || '';
     const nouvellesPratiques = Array.from(this.selectedBonnesPratiques).join('\n');
-    
-    if (currentExistants) {
-      this.form.patchValue({
-        controleExistants: currentExistants + '\n' + nouvellesPratiques
-      });
-    } else {
-      this.form.patchValue({
-        controleExistants: nouvellesPratiques
-      });
-    }
-    
-    // Supprimer les bonnes pratiques ajoutées de la liste disponible
+    this.form.patchValue({
+      controleExistants: current ? `${current}\n${nouvellesPratiques}` : nouvellesPratiques
+    });
     this.bonnesPratiquesRisque = this.bonnesPratiquesRisque.filter(
-      pratique => !this.selectedBonnesPratiques.has(pratique)
+      p => !this.selectedBonnesPratiques.has(p)
     );
     this.selectedBonnesPratiques.clear();
   }
 
   addBonnesPratiquesToInexistants(): void {
-    const currentInexistants = this.form.get('controleInexistants')?.value || '';
+    const current            = this.form.get('controleInexistants')?.value || '';
     const nouvellesPratiques = Array.from(this.selectedBonnesPratiques).join('\n');
-    
-    if (currentInexistants) {
-      this.form.patchValue({
-        controleInexistants: currentInexistants + '\n' + nouvellesPratiques
-      });
-    } else {
-      this.form.patchValue({
-        controleInexistants: nouvellesPratiques
-      });
-    }
-    
-    // Supprimer les bonnes pratiques ajoutées de la liste disponible
+    this.form.patchValue({
+      controleInexistants: current ? `${current}\n${nouvellesPratiques}` : nouvellesPratiques
+    });
     this.bonnesPratiquesRisque = this.bonnesPratiquesRisque.filter(
-      pratique => !this.selectedBonnesPratiques.has(pratique)
+      p => !this.selectedBonnesPratiques.has(p)
     );
     this.selectedBonnesPratiques.clear();
   }
