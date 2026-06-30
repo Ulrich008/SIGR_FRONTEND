@@ -5,7 +5,9 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
+import { ActionService } from '../../../../core/services/action.service';
 import { PlanMitigationResponse } from '../../../../core/models/plan-mitigation.model';
+import { ActionResponse } from '../../../../core/models/action.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -16,12 +18,15 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class PlansMitigationDetailComponent implements OnInit {
   plan: PlanMitigationResponse | null = null;
+  actions: ActionResponse[] = [];
   loading = false;
+  loadingActions = false;
   error: string | null = null;
   menuItems: MenuItem[];
 
   constructor(
     private planMitigationService: PlanMitigationService,
+    private actionService: ActionService,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -52,11 +57,28 @@ export class PlansMitigationDetailComponent implements OnInit {
       next: (plan) => {
         this.plan = plan;
         this.loading = false;
+        this.loadActions(code);
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
         this.error = err?.message || 'Impossible de charger le plan';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadActions(planCode: string): void {
+    this.loadingActions = true;
+    this.actionService.getAll().subscribe({
+      next: (allActions) => {
+        this.actions = allActions.filter(a => a.codePlan === planCode);
+        this.loadingActions = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.loadingActions = false;
+        console.error('Erreur chargement actions:', err);
         this.cdr.detectChanges();
       }
     });
@@ -78,6 +100,16 @@ export class PlansMitigationDetailComponent implements OnInit {
       case 'EN_COURS': return 'bg-yellow-100 text-yellow-700';
       case 'TERMINE': return 'bg-green-100 text-green-700';
       case 'ANNULE': return 'bg-red-100 text-red-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  }
+
+  getActionStatutBadgeClass(statut: string): string {
+    switch (statut) {
+      case 'EN_COURS': return 'bg-yellow-100 text-yellow-700';
+      case 'TERMINEE': return 'bg-green-100 text-green-700';
+      case 'EN_RETARD': return 'bg-red-100 text-red-700';
+      case 'ANNULEE': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   }

@@ -102,6 +102,51 @@
           </div>
         </div>
 
+        <!-- Actions associées -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Actions associées</h3>
+            <span class="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+              {{ actions.length }} action(s)
+            </span>
+          </div>
+
+          <div *ngIf="loadingActions" class="rounded-xl bg-slate-50 p-4 text-center">
+            <span class="text-sm text-slate-500">Chargement des actions...</span>
+          </div>
+
+          <div *ngIf="!loadingActions && actions.length === 0" class="rounded-xl bg-slate-50 p-4 text-center">
+            <span class="text-sm text-slate-500">Aucune action associée à ce plan</span>
+          </div>
+
+          <div *ngIf="!loadingActions && actions.length > 0" class="space-y-3">
+            <div *ngFor="let action of actions" class="rounded-xl bg-slate-50 p-4 border border-slate-200">
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="inline-block rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
+                      {{ action.code }}
+                    </span>
+                    <span [class]="'inline-block rounded-full px-2 py-1 text-xs font-medium ' + getActionStatutBadgeClass(action.statut)">
+                      {{ action.statut }}
+                    </span>
+                  </div>
+                  <div class="space-y-1">
+                    <p *ngFor="let libelle of action.libelles" class="text-sm font-medium text-slate-900">
+                      {{ libelle }}
+                    </p>
+                  </div>
+                  <div class="mt-2 text-xs text-slate-500">
+                    <span>Responsable: {{ action.nomResponsable || 'Non assigné' }}</span>
+                    <span class="mx-2">|</span>
+                    <span>{{ formatDate(action.dateDebut) }} - {{ formatDate(action.dateFin) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

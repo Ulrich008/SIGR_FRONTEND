@@ -50,6 +50,7 @@ export interface EvaluationResponse {
 
   codeRisque: string;
   libelleRisque: string;
+  idRisque: string;
 
   matriculeAgent?: string;
   nomAgent?: string;

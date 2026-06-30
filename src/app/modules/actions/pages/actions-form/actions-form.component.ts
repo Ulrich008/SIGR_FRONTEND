@@ -200,24 +200,33 @@ export class ActionsFormComponent implements OnInit {
     // Récupérer toutes les évaluations pour trouver celles du risque
     this.evaluationService.getAll().subscribe({
       next: (evaluations: EvaluationResponse[]) => {
-        const risqueEvaluations = evaluations.filter(e => e.codeRisque === risque.code);
+        // Filtrer par idRisque au lieu de codeRisque
+        const risqueEvaluations = evaluations.filter(e => e.idRisque === risque.id);
+        
         if (risqueEvaluations && risqueEvaluations.length > 0) {
           // Prendre la dernière évaluation
           const lastEvaluation = risqueEvaluations[risqueEvaluations.length - 1];
+          
           // Extraire les bonnes pratiques inexistants
-          const controleInexistants = lastEvaluation.controleInexistants || '';
-          // Diviser par lignes pour obtenir un tableau
-          this.bonnesPratiques = controleInexistants.split('\n').filter((bp: string) => bp.trim() !== '');
+          const controleInexistants = lastEvaluation.controleInexistants;
+          
+          if (controleInexistants && controleInexistants.trim() !== '') {
+            // Diviser par lignes pour obtenir un tableau
+            this.bonnesPratiques = controleInexistants.split('\n').filter((bp: string) => bp.trim() !== '');
+          } else {
+            // Si controleInexistants est null ou vide, afficher un message
+            this.bonnesPratiques = ['Aucune bonne pratique inexistante définie dans l\'évaluation'];
+          }
         } else {
-          // Si pas d'évaluation, récupérer toutes les bonnes pratiques du risque
-          this.bonnesPratiques = risque.bonnesPratiques || [];
+          // Si pas d'évaluation
+          this.bonnesPratiques = ['Aucune évaluation trouvée pour ce risque'];
         }
         this.loadingBonnesPratiques = false;
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        // En cas d'erreur, récupérer toutes les bonnes pratiques du risque
-        this.bonnesPratiques = risque.bonnesPratiques || [];
+        // En cas d'erreur
+        this.bonnesPratiques = ['Erreur lors du chargement des évaluations'];
         this.loadingBonnesPratiques = false;
         this.cdr.detectChanges();
       }
