@@ -1,9 +1,5 @@
-<app-main-layout
-  [menuItems]="menuItems"
-  activeMenu="Évaluations"
-  searchPlaceholder="Rechercher..."
-  organizationName="Ministère de l'Économie et des Finances"
-  userInitials="AD">
+<app-main-layout [menuItems]="menuItems" activeMenu="Évaluations" searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances" userInitials="AD">
   <div class="p-6">
     <div class="max-w-4xl mx-auto space-y-6">
 
@@ -22,14 +18,12 @@
       </div>
 
       <!-- Erreur globale -->
-      <div *ngIf="error"
-        class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
       </div>
 
       <!-- Loader -->
-      <div *ngIf="loading"
-        class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
 
@@ -86,7 +80,7 @@
                   </option>
                 </select>
                 <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
-                   class="mt-1 text-xs text-red-600">{{ getFieldError('codeRisque') }}</p>
+                  class="mt-1 text-xs text-red-600">{{ getFieldError('codeRisque') }}</p>
               </div>
               <!-- Agent -->
               <div>
@@ -107,10 +101,9 @@
             <button type="button" (click)="toggleSection('period')"
               class="flex items-center justify-between w-full text-left">
               <h3 class="text-lg font-semibold text-slate-900">Période d'évaluation</h3>
-              <svg [class.rotate-180]="sections.period"
-                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              <svg [class.rotate-180]="sections.period" class="w-5 h-5 text-slate-500 transition-transform duration-200"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             <div *ngIf="sections.period" class="space-y-3 pt-2">
@@ -118,15 +111,13 @@
                 <!-- Date début -->
                 <div>
                   <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début (optionnel)</label>
-                  <input formControlName="dateDebut" type="date"
-                    [class.border-red-400]="dateFinError"
+                  <input formControlName="dateDebut" type="date" [class.border-red-400]="dateFinError"
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
                 </div>
                 <!-- Date fin -->
                 <div>
                   <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin (optionnel)</label>
-                  <input formControlName="dateFin" type="date"
-                    [class.border-red-400]="dateFinError"
+                  <input formControlName="dateFin" type="date" [class.border-red-400]="dateFinError"
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
                 </div>
               </div>
@@ -135,7 +126,7 @@
                 <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd"
                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clip-rule="evenodd"/>
+                    clip-rule="evenodd" />
                 </svg>
                 La date de fin doit être supérieure à la date de début.
               </p>
@@ -148,9 +139,9 @@
               class="flex items-center justify-between w-full text-left">
               <h3 class="text-lg font-semibold text-slate-900">Risque inhérent</h3>
               <svg [class.rotate-180]="sections.inherent"
-                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             <div *ngIf="sections.inherent" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
@@ -177,9 +168,9 @@
               class="flex items-center justify-between w-full text-left">
               <h3 class="text-lg font-semibold text-slate-900">Bonnes pratiques</h3>
               <svg [class.rotate-180]="sections.additional"
-                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             <div *ngIf="sections.additional" class="grid grid-cols-1 gap-4 pt-2">
@@ -188,25 +179,31 @@
                 <h4 class="text-sm font-semibold text-blue-900 mb-3">Bonnes pratiques du risque sélectionné</h4>
                 <div class="space-y-2 mb-3">
                   <div *ngFor="let pratique of bonnesPratiquesRisque; let i = index" class="flex items-center gap-2">
-                    <input type="checkbox" 
-                           [id]="'pratique-' + i"
-                           [checked]="isBonnesPratiqueSelected(pratique)"
-                           (change)="toggleBonnesPratiqueSelection(pratique)"
-                           class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                    <input type="checkbox" [id]="'pratique-' + i" [checked]="isBonnesPratiqueSelected(pratique)"
+                      (change)="toggleBonnesPratiqueSelection(pratique)"
+                      class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                    <span *ngIf="isPrevention(pratique)"
+                      class="flex-shrink-0 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                      Prévention
+                    </span>
+                    <span *ngIf="isProtection(pratique)"
+                      class="flex-shrink-0 inline-flex items-center rounded-full bg-blue-200 px-2 py-0.5 text-xs font-semibold text-blue-800">
+                      Protection
+                    </span>
                     <label [for]="'pratique-' + i" class="text-sm text-blue-800 cursor-pointer">
-                      {{ pratique }}
+                      {{ cleanPratiqueText(pratique) }}
                     </label>
                   </div>
                 </div>
                 <div class="flex gap-2">
                   <button type="button" (click)="addBonnesPratiquesToExistants()"
-                          [disabled]="selectedBonnesPratiques.size === 0"
-                          class="px-3 py-1.5 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    [disabled]="selectedBonnesPratiques.size === 0"
+                    class="px-3 py-1.5 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
                     Ajouter aux existants
                   </button>
                   <button type="button" (click)="addBonnesPratiquesToInexistants()"
-                          [disabled]="selectedBonnesPratiques.size === 0"
-                          class="px-3 py-1.5 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    [disabled]="selectedBonnesPratiques.size === 0"
+                    class="px-3 py-1.5 text-xs font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
                     Ajouter aux inexistants
                   </button>
                 </div>
@@ -218,7 +215,7 @@
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                   placeholder="Décrivez les bonnes pratiques existants..."></textarea>
                 <p *ngIf="form.get('controleExistants')?.invalid && form.get('controleExistants')?.touched"
-                   class="mt-1 text-xs text-red-600">Ce champ est requis</p>
+                  class="mt-1 text-xs text-red-600">Ce champ est requis</p>
               </div>
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques inexistant *</label>
@@ -226,7 +223,7 @@
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                   placeholder="Décrivez les bonnes pratiques manquants..."></textarea>
                 <p *ngIf="form.get('controleInexistants')?.invalid && form.get('controleInexistants')?.touched"
-                   class="mt-1 text-xs text-red-600">Ce champ est requis</p>
+                  class="mt-1 text-xs text-red-600">Ce champ est requis</p>
               </div>
               <div>
                 <label class="flex items-center gap-3 cursor-pointer">
@@ -244,48 +241,37 @@
               class="flex items-center justify-between w-full text-left">
               <h3 class="text-lg font-semibold text-slate-900">Maturité</h3>
               <svg [class.rotate-180]="sections.controles"
-                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             <div *ngIf="sections.controles" class="space-y-3 pt-2">
+              <!-- Informations sur le calcul automatique -->
+              <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
+                <svg class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <p class="text-xs text-amber-700">
+                  Les scores de <strong>Protection</strong> et <strong>Prévention</strong> sont calculés automatiquement selon les bonnes pratiques existantes sélectionnées. Formule : <em>(n b.p. sélectionnées du type × 3) / n total du type</em>.
+                </p>
+              </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Protection -->
                 <div>
-                  <label class="mb-2 block text-sm font-semibold text-slate-700">Protection (0-3) *</label>
-                  <input formControlName="protection" type="number" min="0" max="3"
-                    [class.border-red-400]="!!protectionError"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="0 à 3" />
-                  <p *ngIf="form.get('protection')?.invalid && form.get('protection')?.touched && !protectionError"
-                     class="mt-1 text-xs text-red-600">{{ getFieldError('protection') }}</p>
-                  <p *ngIf="!!protectionError" class="mt-1 text-xs text-red-600 flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clip-rule="evenodd"/>
-                    </svg>
-                    {{ protectionError }}
-                  </p>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">
+                    Protection (0-3)
+                  </label>
+                  <input formControlName="protection" type="number" min="0" max="3" readonly
+                    class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-600 focus:outline-none cursor-not-allowed" />
                 </div>
                 <!-- Prévention -->
                 <div>
-                  <label class="mb-2 block text-sm font-semibold text-slate-700">Prévention (0-3) *</label>
-                  <input formControlName="prevention" type="number" min="0" max="3"
-                    [class.border-red-400]="!!preventionError"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="0 à 3" />
-                  <p *ngIf="form.get('prevention')?.invalid && form.get('prevention')?.touched && !preventionError"
-                     class="mt-1 text-xs text-red-600">{{ getFieldError('prevention') }}</p>
-                  <p *ngIf="!!preventionError" class="mt-1 text-xs text-red-600 flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clip-rule="evenodd"/>
-                    </svg>
-                    {{ preventionError }}
-                  </p>
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">
+                    Prévention (0-3)
+                  </label>
+                  <input formControlName="prevention" type="number" min="0" max="3" readonly
+                    class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-600 focus:outline-none cursor-not-allowed" />
                 </div>
               </div>
             </div>
@@ -297,19 +283,20 @@
               class="flex items-center justify-between w-full text-left">
               <h3 class="text-lg font-semibold text-slate-900">Recommandation</h3>
               <svg [class.rotate-180]="sections.recommendations"
-                   class="w-5 h-5 text-slate-500 transition-transform duration-200"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             <div *ngIf="sections.recommendations" class="grid grid-cols-1 gap-4 pt-2">
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Recommandation (optionnel, max 1000 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Recommandation (optionnel, max 1000
+                  caractères)</label>
                 <textarea formControlName="recommandation" rows="3"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                   placeholder="Recommandations pour la gestion du risque..."></textarea>
                 <p *ngIf="form.get('recommandation')?.invalid && form.get('recommandation')?.touched"
-                   class="mt-1 text-xs text-red-600">{{ getFieldError('recommandation') }}</p>
+                  class="mt-1 text-xs text-red-600">{{ getFieldError('recommandation') }}</p>
               </div>
             </div>
           </div>

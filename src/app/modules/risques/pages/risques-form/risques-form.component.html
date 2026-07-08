@@ -1,9 +1,5 @@
-<app-main-layout
-  [menuItems]="menuItems"
-  activeMenu="Risques"
-  searchPlaceholder="Rechercher..."
-  organizationName="Ministère de l'Économie et des Finances"
-  userInitials="AD">
+<app-main-layout [menuItems]="menuItems" activeMenu="Risques" searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances" userInitials="AD">
 
   <div class="p-6">
     <div class="max-w-4xl mx-auto space-y-6">
@@ -16,10 +12,8 @@
             {{ isEditMode ? 'Modifier le risque' : 'Nouveau risque' }}
           </h1>
         </div>
-        <button
-          (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
+        <button (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
           Retour
         </button>
       </div>
@@ -47,11 +41,8 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Processus <span class="text-red-500">*</span>
                 </label>
-                <select
-                  formControlName="codeProcessus"
-                  (change)="onProcessusChange()"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
+                <select formControlName="codeProcessus" (change)="onProcessusChange()"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
                   <option value="">Sélectionner un processus</option>
                   <option *ngIf="loadingProcessus" value="" disabled>Chargement...</option>
                   <option *ngFor="let proc of processus" [value]="proc.code">
@@ -59,7 +50,7 @@
                   </option>
                 </select>
                 <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched"
-                   class="mt-1 text-xs text-red-600">
+                  class="mt-1 text-xs text-red-600">
                   {{ getFieldError('codeProcessus') }}
                 </p>
               </div>
@@ -69,17 +60,15 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Type de risque <span class="text-red-500">*</span>
                 </label>
-                <select
-                  formControlName="typeRisque"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
+                <select formControlName="typeRisque"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
                   <option value="">Sélectionner un type</option>
                   <option *ngFor="let option of typeRisqueOptions" [value]="option.value">
                     {{ option.label }}
                   </option>
                 </select>
                 <p *ngIf="form.get('typeRisque')?.invalid && form.get('typeRisque')?.touched"
-                   class="mt-1 text-xs text-red-600">
+                  class="mt-1 text-xs text-red-600">
                   {{ getFieldError('typeRisque') }}
                 </p>
               </div>
@@ -89,10 +78,8 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Cartographie (optionnel)
                 </label>
-                <select
-                  formControlName="codeCartographie"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
+                <select formControlName="codeCartographie"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
                   <option value="">Sélectionner une cartographie</option>
                   <option *ngIf="loadingCartographies" value="" disabled>Chargement...</option>
                   <option *ngFor="let carto of cartographies" [value]="carto.code">
@@ -107,14 +94,11 @@
                   Libellé <span class="text-red-500">*</span>
                   <span class="ml-1 text-xs font-normal text-slate-400">(max 200 caractères)</span>
                 </label>
-                <input
-                  formControlName="libelle"
-                  type="text"
+                <input formControlName="libelle" type="text"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Fraude financière"
-                />
+                  placeholder="Fraude financière" />
                 <p *ngIf="form.get('libelle')?.invalid && form.get('libelle')?.touched"
-                   class="mt-1 text-xs text-red-600">
+                  class="mt-1 text-xs text-red-600">
                   {{ getFieldError('libelle') }}
                 </p>
               </div>
@@ -124,13 +108,10 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Date d'identification <span class="text-red-500">*</span>
                 </label>
-                <input
-                  formControlName="dateIdentification"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <input formControlName="dateIdentification" type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
                 <p *ngIf="form.get('dateIdentification')?.invalid && form.get('dateIdentification')?.touched"
-                   class="mt-1 text-xs text-red-600">
+                  class="mt-1 text-xs text-red-600">
                   {{ getFieldError('dateIdentification') }}
                 </p>
               </div>
@@ -140,17 +121,14 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Statut <span class="text-red-500">*</span>
                 </label>
-                <select
-                  formControlName="statut"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
+                <select formControlName="statut"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
                   <option value="">Sélectionner un statut</option>
                   <option *ngFor="let option of statutOptions" [value]="option.value">
                     {{ option.label }}
                   </option>
                 </select>
-                <p *ngIf="form.get('statut')?.invalid && form.get('statut')?.touched"
-                   class="mt-1 text-xs text-red-600">
+                <p *ngIf="form.get('statut')?.invalid && form.get('statut')?.touched" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('statut') }}
                 </p>
               </div>
@@ -162,8 +140,9 @@
                 </label>
                 <div class="space-y-2">
                   <div *ngFor="let finalite of finalitesProcessus; let i = index"
-                       class="flex items-center gap-3 rounded-lg bg-emerald-50 px-4 py-3">
-                    <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                    class="flex items-center gap-3 rounded-lg bg-emerald-50 px-4 py-3">
+                    <span
+                      class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                       {{ i + 1 }}
                     </span>
                     <span class="text-sm text-slate-700">{{ finalite }}</span>
@@ -177,32 +156,22 @@
               <!-- Cause probable -->
               <div class="md:col-span-2">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="block text-sm font-semibold text-slate-700">Cause probable <span class="text-red-500">*</span></label>
-                  <button
-                    (click)="toggleCausesProbables()"
-                    type="button"
-                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                  >
+                  <label class="block text-sm font-semibold text-slate-700">Cause probable <span
+                      class="text-red-500">*</span></label>
+                  <button (click)="toggleCausesProbables()" type="button"
+                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
                     {{ showCausesProbables ? 'Masquer' : 'Afficher' }} ({{ causesProbables.length }})
                   </button>
                 </div>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
-                  <input
-                    [(ngModel)]="nouvelleCauseProbable"
-                    [ngModelOptions]="{standalone: true}"
-                    (keyup.enter)="ajouterCauseProbable()"
-                    type="text"
-                    maxlength="500"
+                  <input [(ngModel)]="nouvelleCauseProbable" [ngModelOptions]="{standalone: true}"
+                    (keyup.enter)="ajouterCauseProbable()" type="text" maxlength="500"
                     class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="Saisir une cause probable et appuyer sur Entrée ou cliquer sur Ajouter..."
-                  />
-                  <button
-                    (click)="ajouterCauseProbable()"
-                    type="button"
-                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap"
-                  >
+                    placeholder="Saisir une cause probable et appuyer sur Entrée ou cliquer sur Ajouter..." />
+                  <button (click)="ajouterCauseProbable()" type="button"
+                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap">
                     + Ajouter
                   </button>
                 </div>
@@ -214,23 +183,20 @@
 
                 <!-- Liste des causes probables ajoutées -->
                 <div *ngIf="showCausesProbables && causesProbables.length > 0" class="space-y-2">
-                  <div
-                    *ngFor="let cause of causesProbables; let i = index"
-                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
-                  >
+                  <div *ngFor="let cause of causesProbables; let i = index"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                      <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                      <span
+                        class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                         {{ i + 1 }}
                       </span>
                       <span class="text-sm text-slate-700 truncate">{{ cause }}</span>
                     </div>
-                    <button
-                      (click)="supprimerCauseProbable(i)"
-                      type="button"
+                    <button (click)="supprimerCauseProbable(i)" type="button"
                       class="flex-shrink-0 text-slate-400 hover:text-red-600 transition"
-                      title="Supprimer cette cause probable"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      title="Supprimer cette cause probable">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                       </svg>
@@ -239,7 +205,8 @@
                 </div>
 
                 <!-- Message si aucune cause probable -->
-                <p *ngIf="causesProbables.length === 0 && !causeProbableError" class="mt-1 text-xs text-slate-400 italic">
+                <p *ngIf="causesProbables.length === 0 && !causeProbableError"
+                  class="mt-1 text-xs text-slate-400 italic">
                   Aucune cause probable ajoutée. Au moins une cause probable est requise.
                 </p>
               </div>
@@ -247,32 +214,22 @@
               <!-- Conséquence probable -->
               <div class="md:col-span-2">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="block text-sm font-semibold text-slate-700">Conséquence probable <span class="text-red-500">*</span></label>
-                  <button
-                    (click)="toggleConsequencesProbables()"
-                    type="button"
-                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                  >
+                  <label class="block text-sm font-semibold text-slate-700">Conséquence probable <span
+                      class="text-red-500">*</span></label>
+                  <button (click)="toggleConsequencesProbables()" type="button"
+                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
                     {{ showConsequencesProbables ? 'Masquer' : 'Afficher' }} ({{ consequencesProbables.length }})
                   </button>
                 </div>
 
                 <!-- Champ + bouton ajouter -->
                 <div class="flex gap-2 mb-3">
-                  <input
-                    [(ngModel)]="nouvelleConsequenceProbable"
-                    [ngModelOptions]="{standalone: true}"
-                    (keyup.enter)="ajouterConsequenceProbable()"
-                    type="text"
-                    maxlength="500"
+                  <input [(ngModel)]="nouvelleConsequenceProbable" [ngModelOptions]="{standalone: true}"
+                    (keyup.enter)="ajouterConsequenceProbable()" type="text" maxlength="500"
                     class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="Saisir une conséquence probable et appuyer sur Entrée ou cliquer sur Ajouter..."
-                  />
-                  <button
-                    (click)="ajouterConsequenceProbable()"
-                    type="button"
-                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap"
-                  >
+                    placeholder="Saisir une conséquence probable et appuyer sur Entrée ou cliquer sur Ajouter..." />
+                  <button (click)="ajouterConsequenceProbable()" type="button"
+                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap">
                     + Ajouter
                   </button>
                 </div>
@@ -284,23 +241,20 @@
 
                 <!-- Liste des conséquences probables ajoutées -->
                 <div *ngIf="showConsequencesProbables && consequencesProbables.length > 0" class="space-y-2">
-                  <div
-                    *ngFor="let consequence of consequencesProbables; let i = index"
-                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
-                  >
+                  <div *ngFor="let consequence of consequencesProbables; let i = index"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                      <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                      <span
+                        class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                         {{ i + 1 }}
                       </span>
                       <span class="text-sm text-slate-700 truncate">{{ consequence }}</span>
                     </div>
-                    <button
-                      (click)="supprimerConsequenceProbable(i)"
-                      type="button"
+                    <button (click)="supprimerConsequenceProbable(i)" type="button"
                       class="flex-shrink-0 text-slate-400 hover:text-red-600 transition"
-                      title="Supprimer cette conséquence probable"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      title="Supprimer cette conséquence probable">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                       </svg>
@@ -309,7 +263,8 @@
                 </div>
 
                 <!-- Message si aucune conséquence probable -->
-                <p *ngIf="consequencesProbables.length === 0 && !consequenceProbableError" class="mt-1 text-xs text-slate-400 italic">
+                <p *ngIf="consequencesProbables.length === 0 && !consequenceProbableError"
+                  class="mt-1 text-xs text-slate-400 italic">
                   Aucune conséquence probable ajoutée. Au moins une conséquence probable est requise.
                 </p>
               </div>
@@ -317,33 +272,39 @@
               <!-- Bonnes pratiques -->
               <div class="md:col-span-2">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="block text-sm font-semibold text-slate-700">Bonnes pratiques <span class="text-red-500">*</span></label>
-                  <button
-                    (click)="toggleBonnesPratiques()"
-                    type="button"
-                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                  >
+                  <label class="block text-sm font-semibold text-slate-700">Bonnes pratiques <span
+                      class="text-red-500">*</span></label>
+                  <button (click)="toggleBonnesPratiques()" type="button"
+                    class="text-xs text-emerald-600 hover:text-emerald-700 font-medium">
                     {{ showBonnesPratiques ? 'Masquer' : 'Afficher' }} ({{ bonnesPratiques.length }})
                   </button>
                 </div>
 
-                <!-- Champ + bouton ajouter -->
+                <!-- Statistiques des bonnes pratiques -->
+                <div *ngIf="bonnesPratiques.length > 0" class="flex gap-3 mb-3">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    {{ countPrevention }} Prévention{{ countPrevention > 1 ? 's' : '' }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    {{ countProtection }} Protection{{ countProtection > 1 ? 's' : '' }}
+                  </span>
+                </div>
+
+                <!-- Champ + deux boutons ajouter -->
                 <div class="flex gap-2 mb-3">
-                  <input
-                    [(ngModel)]="nouvelleBonnePratique"
-                    [ngModelOptions]="{standalone: true}"
-                    (keyup.enter)="ajouterBonnesPratiques()"
-                    type="text"
-                    maxlength="500"
+                  <input [(ngModel)]="nouvelleBonnePratique" [ngModelOptions]="{standalone: true}"
+                    type="text" maxlength="500"
                     class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    placeholder="Saisir une bonne pratique et appuyer sur Entrée ou cliquer sur Ajouter..."
-                  />
-                  <button
-                    (click)="ajouterBonnesPratiques()"
-                    type="button"
-                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap"
-                  >
-                    + Ajouter
+                    placeholder="Saisir une bonne pratique..." />
+                  <button (click)="ajouterBonnesPratiqueTypee('prevention')" type="button"
+                    class="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 whitespace-nowrap">
+                    + Prévention
+                  </button>
+                  <button (click)="ajouterBonnesPratiqueTypee('protection')" type="button"
+                    class="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 whitespace-nowrap">
+                    + Protection
                   </button>
                 </div>
 
@@ -354,23 +315,33 @@
 
                 <!-- Liste des bonnes pratiques ajoutées -->
                 <div *ngIf="showBonnesPratiques && bonnesPratiques.length > 0" class="space-y-2">
-                  <div
-                    *ngFor="let pratique of bonnesPratiques; let i = index"
-                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3"
-                  >
+                  <div *ngFor="let pratique of bonnesPratiques; let i = index"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3">
                     <div class="flex items-center gap-3 min-w-0">
-                      <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                      <span
+                        class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                         {{ i + 1 }}
                       </span>
-                      <span class="text-sm text-slate-700 truncate">{{ pratique }}</span>
+                      <!-- Badge type -->
+                      <span *ngIf="isPrevention(pratique)"
+                        class="flex-shrink-0 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                        Prévention
+                      </span>
+                      <span *ngIf="isProtection(pratique)"
+                        class="flex-shrink-0 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                        Protection
+                      </span>
+                      <span *ngIf="!isPrevention(pratique) && !isProtection(pratique)"
+                        class="flex-shrink-0 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
+                        Non typé
+                      </span>
+                      <span class="text-sm text-slate-700 truncate">{{ cleanPratiqueText(pratique) }}</span>
                     </div>
-                    <button
-                      (click)="supprimerBonnesPratiques(i)"
-                      type="button"
+                    <button (click)="supprimerBonnesPratiques(i)" type="button"
                       class="flex-shrink-0 text-slate-400 hover:text-red-600 transition"
-                      title="Supprimer cette bonne pratique"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      title="Supprimer cette bonne pratique">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                       </svg>
@@ -379,28 +350,24 @@
                 </div>
 
                 <!-- Message si aucune bonne pratique -->
-                <p *ngIf="bonnesPratiques.length === 0 && !bonnesPratiquesError" class="mt-1 text-xs text-slate-400 italic">
+                <p *ngIf="bonnesPratiques.length === 0 && !bonnesPratiquesError"
+                  class="mt-1 text-xs text-slate-400 italic">
                   Aucune bonne pratique ajoutée. Au moins une bonne pratique est requise.
                 </p>
               </div>
+
 
             </div>
           </div>
 
           <!-- Actions -->
           <div class="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              (click)="cancel()"
-              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
+            <button type="button" (click)="cancel()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
               Annuler
             </button>
-            <button
-              type="submit"
-              [disabled]="loading"
-              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
-            >
+            <button type="submit" [disabled]="loading"
+              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
               {{ isEditMode ? 'Modifier' : 'Créer' }}
             </button>
           </div>

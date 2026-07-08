@@ -365,4 +365,11 @@ export class ActionsFormComponent implements OnInit {
     if (isNaN(d.getTime())) return '';
     return d.toISOString().split('T')[0];
   }
+
+  // ========== Helpers pour les bonnes pratiques typées ==========
+
+  cleanPratiqueText(pratique: string): string {
+    return pratique.replace(/^\[(Prévention|Protection)\]\s*/, '');
+  }
 }
+

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -15,10 +15,22 @@ export class HeaderComponent {
   @Input() userInitials: string = 'AD';
   @Input() notificationCount: number = 0; // Nombre de notifications non lues
 
+  @Output() search = new EventEmitter<string>();
+
+  isMobileSearchOpen = false;
+
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
+
+  onSearchInput(value: string): void {
+    this.search.emit(value.trim());
+  }
+
+  toggleMobileSearch(): void {
+    this.isMobileSearchOpen = !this.isMobileSearchOpen;
+  }
 
   confirmLogout(): void {
     Swal.fire({

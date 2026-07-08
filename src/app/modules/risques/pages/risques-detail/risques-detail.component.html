@@ -1,9 +1,5 @@
-<app-main-layout
-  [menuItems]="menuItems"
-  activeMenu="Risques"
-  searchPlaceholder="Rechercher..."
-  organizationName="Ministère de l'Économie et des Finances"
-  userInitials="AD">
+<app-main-layout [menuItems]="menuItems" activeMenu="Risques" searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances" userInitials="AD">
 
   <div class="p-6">
     <div class="max-w-4xl mx-auto space-y-6">
@@ -12,10 +8,8 @@
           <p class="text-sm text-gray-500">Gestion des risques</p>
           <h1 class="text-2xl font-semibold text-slate-900">Détails du risque</h1>
         </div>
-        <button
-          (click)="goBack()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
+        <button (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
           Retour
         </button>
       </div>
@@ -36,19 +30,19 @@
               <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">
                 {{ risque.code }}
               </span>
-              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getStatutBadgeClass(risque.statut)">
+              <span
+                [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getStatutBadgeClass(risque.statut)">
                 {{ getStatutLabel(risque.statut) }}
               </span>
-              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getTypeBadgeClass(risque.typeRisque)">
+              <span
+                [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getTypeBadgeClass(risque.typeRisque)">
                 {{ getTypeLabel(risque.typeRisque) }}
               </span>
             </div>
             <h2 class="text-xl font-semibold text-slate-900">{{ risque.libelle }}</h2>
           </div>
-          <button
-            (click)="editRisque()"
-            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
-          >
+          <button (click)="editRisque()"
+            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
             Modifier
           </button>
         </div>
@@ -105,13 +99,26 @@
             <p *ngIf="!risque.bonnesPratiques || risque.bonnesPratiques.length === 0" class="text-slate-500">
               Non renseignées
             </p>
-            <div *ngIf="risque.bonnesPratiques && risque.bonnesPratiques.length > 0" class="space-y-1">
-              <p *ngFor="let pratique of risque.bonnesPratiques" class="text-slate-700 text-sm">
-                • {{ pratique }}
-              </p>
+            <div *ngIf="risque.bonnesPratiques && risque.bonnesPratiques.length > 0" class="space-y-2">
+              <div *ngFor="let pratique of risque.bonnesPratiques" class="flex items-start gap-2">
+                <span *ngIf="isPrevention(pratique)"
+                  class="flex-shrink-0 mt-0.5 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                  Prévention
+                </span>
+                <span *ngIf="isProtection(pratique)"
+                  class="flex-shrink-0 mt-0.5 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                  Protection
+                </span>
+                <span *ngIf="!isPrevention(pratique) && !isProtection(pratique)"
+                  class="flex-shrink-0 mt-0.5 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
+                  —
+                </span>
+                <p class="text-slate-700 text-sm">{{ cleanPratiqueText(pratique) }}</p>
+              </div>
             </div>
           </div>
         </div>
+
 
         <!-- Risques résiduels -->
         <div class="space-y-2">

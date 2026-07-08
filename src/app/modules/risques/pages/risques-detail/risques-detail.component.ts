@@ -228,4 +228,18 @@ export class RisquesDetailComponent implements OnInit {
         return type;
     }
   }
+
+  // ========== Helpers pour les bonnes pratiques typées ==========
+
+  cleanPratiqueText(pratique: string): string {
+    return pratique.replace(/^\[(Prévention|Protection)\]\s*/, '');
+  }
+
+  isPrevention(pratique: string): boolean {
+    return pratique.startsWith('[Prévention]');
+  }
+
+  isProtection(pratique: string): boolean {
+    return pratique.startsWith('[Protection]');
+  }
 }

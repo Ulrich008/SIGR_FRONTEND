@@ -26,6 +26,13 @@ export enum StrategieRisque {
   TERMINER = 'TERMINER'
 }
 
+export enum AvisRisque {
+  VALIDE = 'VALIDE',
+  DIFFERE = 'DIFFERE',
+  REJETE = 'REJETE',
+  EN_ATTENTE = 'EN_ATTENTE'
+}
+
 export interface RisqueRequest {
   code?: string;
   libelle: string;
@@ -38,6 +45,9 @@ export interface RisqueRequest {
   codeProcessus: string;
   codeCartographie?: string;
   typeRisque: TypeRisque;
+  avis?: AvisRisque;
+  motif?: string;
+  transmis?: boolean;
 }
 
 export interface RisqueResponse {
@@ -55,4 +65,7 @@ export interface RisqueResponse {
   idCartographie: string;
   typeRisque: TypeRisque;
   risquesResiduelsIds: string[];
+  avis?: AvisRisque;
+  motif?: string;
+  transmis?: boolean;
 }

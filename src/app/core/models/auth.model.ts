@@ -10,6 +10,8 @@ export interface LoginResponse {
   nom: string;
   prenoms: string;
   role: string;
+  codeProfil?: string;      // ← ajouté
+  libelleProfil?: string;   // ← ajouté
   codeUnite?: string;
-  codeMinistere?: string;  // ← ajouté pour multi-ministères
+  codeMinistere?: string;
 }

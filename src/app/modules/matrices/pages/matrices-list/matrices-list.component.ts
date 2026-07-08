@@ -20,6 +20,9 @@ export class MatricesListComponent implements OnInit {
   error: string | null = null;
   menuItems: MenuItem[];
 
+  readonly impactLevels = [5, 4, 3, 2, 1];
+  readonly probLevels = [1, 2, 3, 4, 5];
+
   constructor(
     private evaluationService: EvaluationService,
     private router: Router,
@@ -94,5 +97,13 @@ export class MatricesListComponent implements OnInit {
     if (evals.length > 0) {
       this.viewEvaluation(evals[0].code);
     }
+  }
+
+  hasEvaluationsForImpact(impact: number): boolean {
+    return this.probLevels.some(prob => this.getEvaluationsForCell(impact, prob).length > 0);
+  }
+
+  hasAnyEvaluation(): boolean {
+    return this.impactLevels.some(impact => this.hasEvaluationsForImpact(impact));
   }
 }
