@@ -1,60 +1,103 @@
 <!-- Top bar -->
-<div class="bg-white border-b-2 border-gray-200 px-3 md:px-6 py-3 flex items-center justify-between flex-shrink-0">
-  
-  <!-- Barre de recherche : cachée sur mobile, visible à partir de md -->
-  <div class="relative hidden md:block">
-    <i class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400">🔍</i>
+<div class="sigr-header bg-white border-b border-gray-200 px-3 md:px-6 py-3 flex flex-col flex-shrink-0">
+  <div class="flex items-center justify-between">
+
+    <!-- Barre de recherche : cachée sur mobile, visible à partir de md -->
+    <div class="relative hidden md:block">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+      </svg>
+      <input
+        type="text"
+        [placeholder]="searchPlaceholder"
+        (input)="onSearchInput($any($event.target).value)"
+        class="pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 w-64 lg:w-96 transition-colors focus:outline-none focus:bg-white focus:border-[var(--sigr-700)] focus:ring-2 focus:ring-[var(--sigr-100)] placeholder-gray-400"
+        style="font-family: 'Inter', system-ui, sans-serif;"
+      />
+    </div>
+
+    <!-- Sur mobile : icône loupe seule -->
+    <button type="button"
+            (click)="toggleMobileSearch()"
+            [attr.aria-label]="isMobileSearchOpen ? 'Fermer la recherche' : 'Ouvrir la recherche'"
+            [attr.aria-expanded]="isMobileSearchOpen"
+            class="md:hidden p-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]"
+            [ngClass]="isMobileSearchOpen ? 'text-[var(--sigr-900)] bg-[var(--sigr-100)]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+      </svg>
+    </button>
+
+    <div class="flex items-center">
+      <!-- Notification -->
+      <button
+        type="button"
+        (click)="openNotifications()"
+        aria-label="Notifications"
+        class="relative p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        <span
+          *ngIf="notificationCount > 0"
+          class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center font-bold ring-2 ring-white">
+          {{ notificationCount > 99 ? '99+' : notificationCount }}
+        </span>
+      </button>
+
+      <!-- Déconnexion : icône seule sur mobile, texte + icône sur md+ -->
+      <button
+        type="button"
+        (click)="confirmLogout()"
+        aria-label="Déconnexion"
+        class="ml-1 md:ml-2 inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-2 py-2 md:px-4 md:py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 hover:border-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        <span class="hidden md:inline">Déconnexion</span>
+      </button>
+
+      <!-- Séparateur -->
+      <div class="w-px h-6 bg-gray-200 mx-2 md:mx-3"></div>
+
+      <!-- Avatar -->
+      <button type="button"
+              class="flex items-center gap-1.5 rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)] hover:bg-gray-50 transition-colors"
+              aria-label="Menu du compte">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+             style="background: var(--sigr-900);">
+          {{ userInitials }}
+        </div>
+        <i class="fas fa-chevron-down hidden md:block text-[10px] text-gray-400"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Recherche mobile en overlay -->
+  <div *ngIf="isMobileSearchOpen" class="md:hidden mt-3 relative">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+    </svg>
     <input
       type="text"
       [placeholder]="searchPlaceholder"
-      class="pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 w-64 lg:w-96 focus:outline-none focus:border-green-400 placeholder-gray-400"
-      style="font-family: 'Inter', system-ui, sans-serif;"
+      (input)="onSearchInput($any($event.target).value)"
+      autofocus
+      class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:bg-white focus:border-[var(--sigr-700)] focus:ring-2 focus:ring-[var(--sigr-100)] placeholder-gray-400"
     />
   </div>
-
-  <!-- Sur mobile : icône loupe seule -->
-  <button class="md:hidden p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
-    </svg>
-  </button>
-
-  <div class="flex items-center gap-2 md:gap-3">
-
-    <!-- Notification -->
-    <button
-      type="button"
-      (click)="openNotifications()"
-      class="relative p-2 text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-      </svg>
-      <span
-        *ngIf="notificationCount > 0"
-        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-        {{ notificationCount > 99 ? '99+' : notificationCount }}
-      </span>
-    </button>
-
-    <!-- Déconnexion : icône seule sur mobile, texte + icône sur md+ -->
-    <button
-      type="button"
-      (click)="confirmLogout()"
-      class="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-2 py-2 md:px-4 md:py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 hover:border-red-300"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-      </svg>
-      <span class="hidden md:inline">Déconnexion</span>
-    </button>
-
-    <!-- Avatar -->
-    <div class="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-      {{ userInitials }}
-    </div>
-
-  </div>
 </div>
+
+<style>
+.sigr-header {
+  --sigr-900: #1a4731;
+  --sigr-700: #22703f;
+  --sigr-100: #eaf5ee;
+}
+</style>

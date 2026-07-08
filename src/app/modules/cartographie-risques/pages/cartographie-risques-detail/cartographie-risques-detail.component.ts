@@ -68,6 +68,29 @@ export class CartographieRisquesDetailComponent implements OnInit {
     }
   }
 
+  genererCartographieDefinitive(): void {
+    this.loading = true;
+    this.cartographieService.exportExcel().subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cartographie-${this.cartographie?.code || 'risques'}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.message || 'Impossible de générer la cartographie définitive';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   goBack(): void {
     this.router.navigate(['/cartographie-risques']);
   }

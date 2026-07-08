@@ -224,6 +224,17 @@ export class EvaluationsListComponent implements OnInit {
   getControlesInexistants(evaluation: EvaluationResponse): string {
     return evaluation.controleInexistants || 'Aucun';
   }
+getPreventionLabel(evaluation: EvaluationResponse): string {
+  return evaluation.prevention !== null && evaluation.prevention !== undefined
+    ? String(evaluation.prevention)
+    : 'Aucune';
+}
+
+getProtectionLabel(evaluation: EvaluationResponse): string {
+  return evaluation.protection !== null && evaluation.protection !== undefined
+    ? String(evaluation.protection)
+    : 'Aucune';
+}
 
   getDejaSurvenuLabel(evaluation: EvaluationResponse): string {
     return evaluation.dejaSurvenu ? 'Oui' : 'Non';

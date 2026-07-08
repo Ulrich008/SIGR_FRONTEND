@@ -32,9 +32,15 @@ export class CartographieRisquesService {
     return this.http.delete<void>(`${this.apiUrl}/${code}`);
   }
 
- exportExcel(): Observable<Blob> {
-  return this.http.get(`${this.apiUrl}/export/excel`, {
-    responseType: 'blob'
-  });
-}
+  exportExcel(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/excel`, {
+      responseType: 'blob'
+    });
+  }
+
+  exportExcelByUnite(codeUnite: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/excel/unite/${codeUnite}`, {
+      responseType: 'blob'
+    });
+  }
 }

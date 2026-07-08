@@ -56,6 +56,7 @@ export class RisquesFormComponent implements OnInit {
   nouvelleCauseProbable: string = '';
   nouvelleConsequenceProbable: string = '';
   nouvelleBonnePratique: string = '';
+  nouvelleBonnePratiqueType: 'prevention' | 'protection' = 'prevention';
 
   causeProbableError: string | null = null;
   consequenceProbableError: string | null = null;
@@ -449,7 +450,30 @@ export class RisquesFormComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  ajouterBonnesPratiques(): void {
+  // ========== Helpers pour les bonnes pratiques typées ==========
+
+  /** Retire le préfixe [Prévention] ou [Protection] pour l'affichage */
+  cleanPratiqueText(pratique: string): string {
+    return pratique.replace(/^\[(Prévention|Protection)\]\s*/, '');
+  }
+
+  isPrevention(pratique: string): boolean {
+    return pratique.startsWith('[Prévention]');
+  }
+
+  isProtection(pratique: string): boolean {
+    return pratique.startsWith('[Protection]');
+  }
+
+  get countPrevention(): number {
+    return this.bonnesPratiques.filter(b => this.isPrevention(b)).length;
+  }
+
+  get countProtection(): number {
+    return this.bonnesPratiques.filter(b => this.isProtection(b)).length;
+  }
+
+  ajouterBonnesPratiqueTypee(type: 'prevention' | 'protection'): void {
     const trimmed = this.nouvelleBonnePratique.trim();
 
     if (!trimmed) {
@@ -461,16 +485,25 @@ export class RisquesFormComponent implements OnInit {
       return;
     }
 
-    // Vérifier les doublons
-    if (this.bonnesPratiques.some(b => b.toLowerCase() === trimmed.toLowerCase())) {
+    const prefix = type === 'prevention' ? '[Prévention]' : '[Protection]';
+    const withPrefix = `${prefix} ${trimmed}`;
+
+    // Vérifier les doublons (sur le texte brut, sans préfixe)
+    if (this.bonnesPratiques.some(b => this.cleanPratiqueText(b).toLowerCase() === trimmed.toLowerCase())) {
       this.error = 'Cette bonne pratique existe déjà';
       return;
     }
 
-    this.bonnesPratiques.push(trimmed);
+    this.bonnesPratiques.push(withPrefix);
     this.nouvelleBonnePratique = '';
+    this.bonnesPratiquesError = null;
     this.error = null;
     this.cdr.detectChanges();
+  }
+
+  /** Conservé pour rétrocompatibilité (utilise le type par défaut) */
+  ajouterBonnesPratiques(): void {
+    this.ajouterBonnesPratiqueTypee(this.nouvelleBonnePratiqueType);
   }
 
   supprimerBonnesPratiques(index: number): void {

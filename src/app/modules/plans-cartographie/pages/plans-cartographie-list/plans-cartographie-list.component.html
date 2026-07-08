@@ -1,0 +1,300 @@
+<app-main-layout [menuItems]="menuItems" activeMenu="Cartographie des risques" searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances" userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-7xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des risques</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Projet de cartographie de risques</h1>
+        </div>
+        <button (click)="transmettreRisques()" [disabled]="selectedRisques.size === 0 || loading"
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          Transmettre ({{ selectedRisques.size }})
+        </button>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des risques...</span>
+      </div>
+
+      <!-- Liste des risques -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <div *ngIf="risques.length === 0" class="text-center py-10 text-slate-500">
+          Aucun risque disponible pour la cartographie.
+        </div>
+
+        <div *ngIf="risques.length > 0" class="space-y-4">
+          <!-- Tableau des risques -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-slate-200">
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-12">
+                    <input type="checkbox" [checked]="selectedRisques.size === risques.length && risques.length > 0"
+                      (change)="selectedRisques.size === risques.length ? selectedRisques.clear() : risques.forEach(r => selectedRisques.add(r.code))"
+                      class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Code
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Libellé
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Processus</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Type
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Statut
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Avis
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr *ngFor="let risque of risques" class="hover:bg-slate-50 transition">
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <input type="checkbox" [checked]="isRisqueSelected(risque.code)"
+                      (change)="toggleRisqueSelection(risque.code)"
+                      class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                    {{ risque.code }}
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-700 max-w-xs truncate">
+                    {{ risque.libelle }}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-600">
+                    {{ risque.nomProcessus }}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-600">
+                    {{ risque.typeRisque }}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <span
+                      [class]="'inline-block rounded-full px-3 py-1 text-xs font-semibold ' + getStatutBadgeClass(risque.statut)">
+                      {{ risque.statut }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <span
+                      [class]="'inline-block rounded-full px-3 py-1 text-xs font-medium ' + getAvisBadgeClass(risque.avis)">
+                      {{ getAvisLabel(risque.avis) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm">
+                    <button (click)="voirDetails(risque)" class="text-emerald-600 hover:text-emerald-700 font-medium">
+                      Voir détails
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Avis sur le risque -->
+  <div *ngIf="showAvisModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-slate-900">Détails et avis sur le risque</h2>
+          <button (click)="fermerModal()" class="text-slate-400 hover:text-slate-600 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Détails du risque -->
+        <div *ngIf="selectedRisque" class="space-y-4 mb-6">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Code</label>
+              <p class="text-sm text-slate-900">{{ selectedRisque.code }}</p>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Type</label>
+              <p class="text-sm text-slate-900">{{ selectedRisque.typeRisque }}</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Libellé</label>
+            <p class="text-sm text-slate-900">{{ selectedRisque.libelle }}</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Processus</label>
+            <p class="text-sm text-slate-900">{{ selectedRisque.nomProcessus }}</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Causes probables</label>
+            <div *ngIf="selectedRisque.causeProbable && selectedRisque.causeProbable.length > 0" class="space-y-1">
+              <p *ngFor="let cause of selectedRisque.causeProbable" class="text-sm text-slate-700">• {{ cause }}</p>
+            </div>
+            <p *ngIf="!selectedRisque.causeProbable || selectedRisque.causeProbable.length === 0"
+              class="text-sm text-slate-400 italic">
+              Aucune cause probable
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Conséquences probables</label>
+            <div *ngIf="selectedRisque.consequenceProbable && selectedRisque.consequenceProbable.length > 0"
+              class="space-y-1">
+              <p *ngFor="let consequence of selectedRisque.consequenceProbable" class="text-sm text-slate-700">• {{
+                consequence }}</p>
+            </div>
+            <p *ngIf="!selectedRisque.consequenceProbable || selectedRisque.consequenceProbable.length === 0"
+              class="text-sm text-slate-400 italic">
+              Aucune conséquence probable
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Bonnes pratiques</label>
+            <div *ngIf="selectedRisque.bonnesPratiques && selectedRisque.bonnesPratiques.length > 0" class="space-y-1.5">
+              <div *ngFor="let pratique of selectedRisque.bonnesPratiques" class="flex items-start gap-2">
+                <span *ngIf="isPrevention(pratique)"
+                  class="flex-shrink-0 mt-0.5 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                  Prévention
+                </span>
+                <span *ngIf="isProtection(pratique)"
+                  class="flex-shrink-0 mt-0.5 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                  Protection
+                </span>
+                <span *ngIf="!isPrevention(pratique) && !isProtection(pratique)"
+                  class="flex-shrink-0 mt-0.5 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
+                  —
+                </span>
+                <p class="text-sm text-slate-700">{{ cleanPratiqueText(pratique) }}</p>
+              </div>
+            </div>
+            <p *ngIf="!selectedRisque.bonnesPratiques || selectedRisque.bonnesPratiques.length === 0"
+              class="text-sm text-slate-400 italic">
+              Aucune bonne pratique
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Formulaire d'avis -->
+        <div class="border-t border-slate-200 pt-6">
+          <h3 class="text-lg font-semibold text-slate-900 mb-4">Donner votre avis</h3>
+
+          <div class="space-y-4">
+            <div>
+              <label class="mb-3 block text-sm font-semibold text-slate-700">Avis <span
+                  class="text-red-500">*</span></label>
+              <div class="grid grid-cols-2 gap-3">
+                <button type="button" (click)="avisSelectionne = AvisRisque.VALIDE"
+                  [class.bg-green-100]="avisSelectionne === AvisRisque.VALIDE"
+                  [class.border-green-400]="avisSelectionne === AvisRisque.VALIDE"
+                  [class.text-green-700]="avisSelectionne === AvisRisque.VALIDE"
+                  [class.bg-slate-50]="avisSelectionne !== AvisRisque.VALIDE"
+                  [class.border-slate-200]="avisSelectionne !== AvisRisque.VALIDE"
+                  [class.text-slate-700]="avisSelectionne !== AvisRisque.VALIDE"
+                  class="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition hover:bg-green-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  Validé
+                </button>
+                <button type="button" (click)="avisSelectionne = AvisRisque.DIFFERE"
+                  [class.bg-yellow-100]="avisSelectionne === AvisRisque.DIFFERE"
+                  [class.border-yellow-400]="avisSelectionne === AvisRisque.DIFFERE"
+                  [class.text-yellow-700]="avisSelectionne === AvisRisque.DIFFERE"
+                  [class.bg-slate-50]="avisSelectionne !== AvisRisque.DIFFERE"
+                  [class.border-slate-200]="avisSelectionne !== AvisRisque.DIFFERE"
+                  [class.text-slate-700]="avisSelectionne !== AvisRisque.DIFFERE"
+                  class="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition hover:bg-yellow-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  Différé
+                </button>
+                <button type="button" (click)="avisSelectionne = AvisRisque.REJETE"
+                  [class.bg-red-100]="avisSelectionne === AvisRisque.REJETE"
+                  [class.border-red-400]="avisSelectionne === AvisRisque.REJETE"
+                  [class.text-red-700]="avisSelectionne === AvisRisque.REJETE"
+                  [class.bg-slate-50]="avisSelectionne !== AvisRisque.REJETE"
+                  [class.border-slate-200]="avisSelectionne !== AvisRisque.REJETE"
+                  [class.text-slate-700]="avisSelectionne !== AvisRisque.REJETE"
+                  class="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition hover:bg-red-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                  </svg>
+                  Rejeté
+                </button>
+                <button type="button" (click)="avisSelectionne = AvisRisque.EN_ATTENTE"
+                  [class.bg-gray-100]="avisSelectionne === AvisRisque.EN_ATTENTE"
+                  [class.border-gray-400]="avisSelectionne === AvisRisque.EN_ATTENTE"
+                  [class.text-gray-700]="avisSelectionne === AvisRisque.EN_ATTENTE"
+                  [class.bg-slate-50]="avisSelectionne !== AvisRisque.EN_ATTENTE"
+                  [class.border-slate-200]="avisSelectionne !== AvisRisque.EN_ATTENTE"
+                  [class.text-slate-700]="avisSelectionne !== AvisRisque.EN_ATTENTE"
+                  class="flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition hover:bg-gray-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  En attente
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="avisSelectionne === AvisRisque.DIFFERE || avisSelectionne === AvisRisque.REJETE">
+              <label class="mb-2 block text-sm font-semibold text-slate-700">Motif <span
+                  class="text-red-500">*</span></label>
+              <textarea [(ngModel)]="motif" rows="3"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                placeholder="Expliquez pourquoi vous différez ou rejetez ce risque..."></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+              <button (click)="fermerModal()" type="button"
+                class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                Annuler
+              </button>
+              <button (click)="enregistrerAvis()" type="button"
+                class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600">
+                Enregistrer l'avis
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>

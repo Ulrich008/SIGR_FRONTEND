@@ -17,7 +17,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 
 function dateFinSuperieureDateDebut(group: AbstractControl): ValidationErrors | null {
   const dateDebut = group.get('dateDebut')?.value;
-  const dateFin   = group.get('dateFin')?.value;
+  const dateFin = group.get('dateFin')?.value;
   if (!dateDebut || !dateFin) return null;
   return new Date(dateFin) > new Date(dateDebut)
     ? null
@@ -25,10 +25,10 @@ function dateFinSuperieureDateDebut(group: AbstractControl): ValidationErrors | 
 }
 
 function protectionPreventionInferieures(group: AbstractControl): ValidationErrors | null {
-  const impactInherent       = Number(group.get('impactInherent')?.value);
+  const impactInherent = Number(group.get('impactInherent')?.value);
   const probabiliteInherente = Number(group.get('probabiliteInherente')?.value);
-  const protection           = Number(group.get('protection')?.value);
-  const prevention           = Number(group.get('prevention')?.value);
+  const protection = Number(group.get('protection')?.value);
+  const prevention = Number(group.get('prevention')?.value);
 
   if (!impactInherent || !probabiliteInherente || !protection || !prevention) return null;
 
@@ -58,15 +58,18 @@ export class EvaluationsFormComponent implements OnInit {
   error: string | null = null;
   menuItems: MenuItem[];
   risques: RisqueResponse[] = [];
-  agents: AgentResponse[]   = [];
+  agents: AgentResponse[] = [];
   bonnesPratiquesRisque: string[] = [];
   selectedBonnesPratiques: Set<string> = new Set();
 
+  /** Risque actuellement sélectionné (pour les calculs automatiques) */
+  private currentRisque: RisqueResponse | null = null;
+
   sections = {
-    period:          true,
-    inherent:        true,
-    controles:       true,
-    additional:      true,
+    period: true,
+    inherent: true,
+    controles: true,
+    additional: true,
     recommendations: true
   };
 
@@ -83,23 +86,22 @@ export class EvaluationsFormComponent implements OnInit {
   ) {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
-      code:                 [{ value: '', disabled: true }],
-      impactInherent:       [{ value: 5, disabled: true }, [Validators.required, Validators.min(1), Validators.max(5)]],
+      code: [{ value: '', disabled: true }],
+      impactInherent: [{ value: 5, disabled: true }, [Validators.required, Validators.min(1), Validators.max(5)]],
       probabiliteInherente: [{ value: 5, disabled: true }, [Validators.required, Validators.min(1), Validators.max(5)]],
-      protection:           ['', [Validators.required, Validators.min(0), Validators.max(3)]],
-      prevention:           ['', [Validators.required, Validators.min(0), Validators.max(3)]],
-      controleExistants:    ['', [Validators.required]],
-      controleInexistants:  ['', [Validators.required]],
-      dejaSurvenu:          [false],
-      dateDebut:            ['', [Validators.required]],
-      dateFin:              ['', [Validators.required]],
-      recommandation:       ['', [Validators.maxLength(1000)]],
-      codeRisque:           ['', [Validators.required]],
-      matriculeAgent:       ['']
+      protection: [{ value: '', disabled: true }, [Validators.required, Validators.min(0), Validators.max(3)]],
+      prevention: [{ value: '', disabled: true }, [Validators.required, Validators.min(0), Validators.max(3)]],
+      controleExistants: ['', [Validators.required]],
+      controleInexistants: ['', [Validators.required]],
+      dejaSurvenu: [false],
+      dateDebut: ['', [Validators.required]],
+      dateFin: ['', [Validators.required]],
+      recommandation: ['', [Validators.maxLength(1000)]],
+      codeRisque: ['', [Validators.required]],
+      matriculeAgent: ['']
     }, {
       validators: [
-        dateFinSuperieureDateDebut,
-        protectionPreventionInferieures
+        dateFinSuperieureDateDebut
       ]
     });
   }
@@ -114,17 +116,17 @@ export class EvaluationsFormComponent implements OnInit {
 
     if (codeParam) {
       this.isEditMode = true;
-      this.code       = codeParam;
-      this.loading    = true;
+      this.code = codeParam;
+      this.loading = true;
 
       forkJoin({
-        risques:    this.risqueService.getAll(),
-        agents:     this.agentService.getAll(),
+        risques: this.risqueService.getAll(),
+        agents: this.agentService.getAll(),
         evaluation: this.evaluationService.getByCode(codeParam)
       }).subscribe({
         next: (data) => {
           this.risques = data.risques;
-          this.agents  = data.agents;
+          this.agents = data.agents;
           this.loading = false;
           this.cdr.detectChanges();
 
@@ -135,7 +137,7 @@ export class EvaluationsFormComponent implements OnInit {
         },
         error: (err) => {
           this.loading = false;
-          this.error   = err?.message || 'Impossible de charger les données';
+          this.error = err?.message || 'Impossible de charger les données';
           this.cdr.detectChanges();
         }
       });
@@ -149,25 +151,33 @@ export class EvaluationsFormComponent implements OnInit {
       } else {
         this.bonnesPratiquesRisque = [];
         this.selectedBonnesPratiques.clear();
+        this.currentRisque = null;
+        this.form.patchValue({ protection: 0, prevention: 0 }, { emitEvent: false });
       }
     });
+
+    // Recalculer automatiquement prévention/protection quand les bonnes pratiques existants changent
+    this.form.get('controleExistants')?.valueChanges.subscribe(() => {
+      this.calculateScoresFromExistants();
+    });
+
   }
 
   loadReferenceData(): void {
     this.loading = true;
     forkJoin({
       risques: this.risqueService.getAll(),
-      agents:  this.agentService.getAll()
+      agents: this.agentService.getAll()
     }).subscribe({
       next: (data) => {
         this.risques = data.risques;
-        this.agents  = data.agents;
+        this.agents = data.agents;
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
-        this.error   = err?.message || 'Impossible de charger les données';
+        this.error = err?.message || 'Impossible de charger les données';
         this.cdr.detectChanges();
       }
     });
@@ -178,27 +188,90 @@ export class EvaluationsFormComponent implements OnInit {
     if (risque && risque.bonnesPratiques) {
       this.bonnesPratiquesRisque = risque.bonnesPratiques;
       this.selectedBonnesPratiques.clear();
+      this.currentRisque = risque;
     } else {
       this.bonnesPratiquesRisque = [];
       this.selectedBonnesPratiques.clear();
+      this.currentRisque = null;
     }
+    // Recalculer après chargement du risque
+    this.calculateScoresFromExistants();
+  }
+
+  // ========== Helpers pour les bonnes pratiques typées ==========
+
+  cleanPratiqueText(pratique: string): string {
+    return pratique.replace(/^\[(Prévention|Protection)\]\s*/, '');
+  }
+
+  isPrevention(pratique: string): boolean {
+    return pratique.startsWith('[Prévention]');
+  }
+
+  isProtection(pratique: string): boolean {
+    return pratique.startsWith('[Protection]');
+  }
+
+  /**
+   * Calcule automatiquement les scores de prévention et protection.
+   * Formule prévention : (nbre pratiques de prévention du risque présentes dans controleExistants * 3) / nbre total de prévention du risque
+   * Formule protection : (nbre pratiques de protection du risque présentes dans controleExistants * 3) / nbre total de protection du risque
+   */
+  calculateScoresFromExistants(): void {
+    if (!this.currentRisque || !this.currentRisque.bonnesPratiques) {
+      return;
+    }
+
+    const existantsText = (this.form.get('controleExistants')?.value || '') as string;
+    const allPratiques = this.currentRisque.bonnesPratiques;
+
+    // Séparer les pratiques du risque par type
+    const pratiquesPreventionRisque = allPratiques.filter(p => this.isPrevention(p));
+    const pratiquesProtectionRisque = allPratiques.filter(p => this.isProtection(p));
+
+    // Compter combien de pratiques de prévention sont présentes dans controleExistants
+    const nbPreventionPresentes = pratiquesPreventionRisque.filter(p => {
+      const cleaned = this.cleanPratiqueText(p);
+      return existantsText.toLowerCase().includes(cleaned.toLowerCase());
+    }).length;
+
+    // Compter combien de pratiques de protection sont présentes dans controleExistants
+    const nbProtectionPresentes = pratiquesProtectionRisque.filter(p => {
+      const cleaned = this.cleanPratiqueText(p);
+      return existantsText.toLowerCase().includes(cleaned.toLowerCase());
+    }).length;
+
+    // Calculer les scores : (nbre_present * 3 / nbre_total), arrondi, plafonné à 3
+    let prevention = 0;
+    if (pratiquesPreventionRisque.length > 0) {
+      prevention = Math.min(3, Math.round((nbPreventionPresentes * 3) / pratiquesPreventionRisque.length));
+    }
+
+    let protection = 0;
+    if (pratiquesProtectionRisque.length > 0) {
+      protection = Math.min(3, Math.round((nbProtectionPresentes * 3) / pratiquesProtectionRisque.length));
+    }
+
+    // Mettre à jour les champs du formulaire sans émettre d'évènements pour éviter les boucles
+    this.form.patchValue({ prevention, protection }, { emitEvent: false });
+    this.cdr.detectChanges();
   }
 
   patchForm(evaluation: EvaluationResponse): void {
     this.form.patchValue({
-      code:                 evaluation.code,
-      impactInherent:       evaluation.impactInherent,
+      code: evaluation.code,
+      impactInherent: evaluation.impactInherent,
       probabiliteInherente: evaluation.probabiliteInherente,
-      protection:           evaluation.protection,
-      prevention:           evaluation.prevention,
-      controleExistants:    evaluation.controleExistants,
-      controleInexistants:  evaluation.controleInexistants,
-      dejaSurvenu:          evaluation.dejaSurvenu,
-      dateDebut:            this.formatDateForInput(evaluation.dateDebut),
-      dateFin:              this.formatDateForInput(evaluation.dateFin),
-      recommandation:       evaluation.recommandation,
-      codeRisque:           evaluation.codeRisque,
-      matriculeAgent:       evaluation.matriculeAgent ?? ''
+      protection: evaluation.protection,
+      prevention: evaluation.prevention,
+      controleExistants: evaluation.controleExistants,
+      controleInexistants: evaluation.controleInexistants,
+      dejaSurvenu: evaluation.dejaSurvenu,
+      dateDebut: this.formatDateForInput(evaluation.dateDebut),
+      dateFin: this.formatDateForInput(evaluation.dateFin),
+      recommandation: evaluation.recommandation,
+      codeRisque: evaluation.codeRisque,
+      matriculeAgent: evaluation.matriculeAgent ?? ''
     });
   }
 
@@ -216,19 +289,6 @@ export class EvaluationsFormComponent implements OnInit {
         return;
       }
 
-      if (
-        this.form.errors?.['protectionTropElevee'] ||
-        this.form.errors?.['preventionTropElevee']
-      ) {
-        Swal.fire({
-          title: 'Valeurs invalides',
-          text: 'La protection et la prévention doivent être strictement inférieures à l\'impact inhérent et à la probabilité inhérente.',
-          icon: 'warning',
-          confirmButtonText: 'OK'
-        });
-        return;
-      }
-
       return;
     }
 
@@ -236,16 +296,16 @@ export class EvaluationsFormComponent implements OnInit {
   }
 
   showRecapitulatif(): void {
-    const raw    = this.form.getRawValue();
+    const raw = this.form.getRawValue();
     const risque = this.risques.find(r => r.code === raw.codeRisque);
-    const agent  = this.agents.find(a => a.matricule === raw.matriculeAgent);
+    const agent = this.agents.find(a => a.matricule === raw.matriculeAgent);
 
     const sections = [
       {
         title: 'Identification',
         rows: [
-          { label: 'Risque évalué',       value: risque ? `${risque.code} — ${risque.libelle}` : raw.codeRisque },
-          { label: 'Évaluateur',          value: agent  ? `${agent.matricule} — ${agent.nom} ${agent.prenoms}` : 'Non renseigné' },
+          { label: 'Risque évalué', value: risque ? `${risque.code} — ${risque.libelle}` : raw.codeRisque },
+          { label: 'Évaluateur', value: agent ? `${agent.matricule} — ${agent.nom} ${agent.prenoms}` : 'Non renseigné' },
           { label: 'Risque déjà survenu', value: raw.dejaSurvenu ? 'Oui' : 'Non' },
         ]
       },
@@ -253,22 +313,22 @@ export class EvaluationsFormComponent implements OnInit {
         title: 'Période d\'évaluation',
         rows: [
           { label: 'Date de début', value: raw.dateDebut || 'Non renseignée' },
-          { label: 'Date de fin',   value: raw.dateFin   || 'Non renseignée' },
+          { label: 'Date de fin', value: raw.dateFin || 'Non renseignée' },
         ]
       },
       {
         title: 'Scores de risque',
         rows: [
-          { label: 'Impact inhérent',       value: `${raw.impactInherent} / 5 <span style="color:#94a3b8;font-size:12px;">(calculé automatiquement)</span>` },
+          { label: 'Impact inhérent', value: `${raw.impactInherent} / 5 <span style="color:#94a3b8;font-size:12px;">(calculé automatiquement)</span>` },
           { label: 'Probabilité inhérente', value: `${raw.probabiliteInherente} / 5 <span style="color:#94a3b8;font-size:12px;">(calculée automatiquement)</span>` },
-          { label: 'Niveau de protection',  value: `${raw.protection} / 3` },
-          { label: 'Niveau de prévention',  value: `${raw.prevention} / 3` },
+          { label: 'Niveau de protection', value: `${raw.protection} / 3` },
+          { label: 'Niveau de prévention', value: `${raw.prevention} / 3` },
         ]
       },
       {
         title: 'Contrôles',
         rows: [
-          { label: 'Contrôles en place',  value: raw.controleExistants   || '<span style="color:#94a3b8;">Non renseignés</span>' },
+          { label: 'Contrôles en place', value: raw.controleExistants || '<span style="color:#94a3b8;">Non renseignés</span>' },
           { label: 'Contrôles manquants', value: raw.controleInexistants || '<span style="color:#94a3b8;">Non renseignés</span>' },
         ]
       },
@@ -361,9 +421,9 @@ export class EvaluationsFormComponent implements OnInit {
       icon: 'info',
       showCancelButton: true,
       confirmButtonText: '✔ Confirmer',
-      cancelButtonText:  '← Modifier',
+      cancelButtonText: '← Modifier',
       confirmButtonColor: '#1e40af',
-      cancelButtonColor:  '#64748b',
+      cancelButtonColor: '#64748b',
       width: '780px',
       padding: '2rem'
     }).then(result => {
@@ -375,22 +435,22 @@ export class EvaluationsFormComponent implements OnInit {
 
   submitEvaluation(): void {
     this.loading = true;
-    this.error   = null;
+    this.error = null;
 
     const raw = this.form.getRawValue();
     const request: EvaluationRequest = {
-      impactInherent:       raw.impactInherent,
+      impactInherent: raw.impactInherent,
       probabiliteInherente: raw.probabiliteInherente,
-      protection:           raw.protection,
-      prevention:           raw.prevention,
-      controleExistants:    raw.controleExistants   || undefined,
-      controleInexistants:  raw.controleInexistants || undefined,
-      dejaSurvenu:          raw.dejaSurvenu         || false,
-      dateDebut:            raw.dateDebut           || undefined,
-      dateFin:              raw.dateFin             || undefined,
-      recommandation:       raw.recommandation      || undefined,
-      codeRisque:           raw.codeRisque,
-      matriculeAgent:       raw.matriculeAgent      || undefined
+      protection: raw.protection,
+      prevention: raw.prevention,
+      controleExistants: raw.controleExistants || undefined,
+      controleInexistants: raw.controleInexistants || undefined,
+      dejaSurvenu: raw.dejaSurvenu || false,
+      dateDebut: raw.dateDebut || undefined,
+      dateFin: raw.dateFin || undefined,
+      recommandation: raw.recommandation || undefined,
+      codeRisque: raw.codeRisque,
+      matriculeAgent: raw.matriculeAgent || undefined
     };
 
     const action$ = this.isEditMode && this.code
@@ -412,7 +472,7 @@ export class EvaluationsFormComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.error   = err?.message || `Impossible de ${this.isEditMode ? 'modifier' : 'créer'} l'évaluation`;
+        this.error = err?.message || `Impossible de ${this.isEditMode ? 'modifier' : 'créer'} l'évaluation`;
         this.cdr.detectChanges();
       }
     });
@@ -462,9 +522,9 @@ export class EvaluationsFormComponent implements OnInit {
     const field = this.form.get(fieldName);
     if (!field || !field.errors || !field.touched) return '';
     const errors = field.errors;
-    if (errors['required'])  return 'Ce champ est requis';
-    if (errors['min'])       return `Minimum ${errors['min'].min}`;
-    if (errors['max'])       return `Maximum ${errors['max'].max}`;
+    if (errors['required']) return 'Ce champ est requis';
+    if (errors['min']) return `Minimum ${errors['min'].min}`;
+    if (errors['max']) return `Maximum ${errors['max'].max}`;
     if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
     return 'Champ invalide';
   }
@@ -488,7 +548,7 @@ export class EvaluationsFormComponent implements OnInit {
   }
 
   addBonnesPratiquesToExistants(): void {
-    const current            = this.form.get('controleExistants')?.value || '';
+    const current = this.form.get('controleExistants')?.value || '';
     const nouvellesPratiques = Array.from(this.selectedBonnesPratiques).join('\n');
     this.form.patchValue({
       controleExistants: current ? `${current}\n${nouvellesPratiques}` : nouvellesPratiques
@@ -500,7 +560,7 @@ export class EvaluationsFormComponent implements OnInit {
   }
 
   addBonnesPratiquesToInexistants(): void {
-    const current            = this.form.get('controleInexistants')?.value || '';
+    const current = this.form.get('controleInexistants')?.value || '';
     const nouvellesPratiques = Array.from(this.selectedBonnesPratiques).join('\n');
     this.form.patchValue({
       controleInexistants: current ? `${current}\n${nouvellesPratiques}` : nouvellesPratiques

@@ -93,7 +93,7 @@
                   <option value="">Sélectionner une bonne pratique</option>
                   <option *ngIf="loadingBonnesPratiques" value="" disabled>Chargement...</option>
                   <option *ngFor="let pratique of bonnesPratiques" [value]="pratique">
-                    {{ pratique }}
+                    {{ cleanPratiqueText(pratique) }}
                   </option>
                 </select>
                 <p *ngIf="form.get('bonnePratique')?.invalid && form.get('bonnePratique')?.touched"

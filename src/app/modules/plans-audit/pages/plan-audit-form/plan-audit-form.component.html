@@ -1,0 +1,256 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Plan d'audit"
+  searchPlaceholder="Rechercher un plan d'audit..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Gestion des plans d'audit</p>
+          <h1 class="text-2xl font-semibold text-slate-900">{{ isEditMode ? 'Modifier le plan d\'audit' : 'Nouveau plan d\'audit' }}</h1>
+        </div>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 overflow-visible">
+
+        <!-- Section 1: Informations générales -->
+        <div class="rounded-3xl bg-white shadow-sm border border-slate-100 overflow-visible relative z-40">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <h2 class="text-lg font-semibold text-slate-900">Informations générales</h2>
+            <button
+              type="button"
+              (click)="toggleSection('informationsGenerales')"
+              class="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+            >
+              {{ sections.informationsGenerales ? 'Masquer' : 'Afficher' }}
+            </button>
+          </div>
+
+          <div *ngIf="sections.informationsGenerales" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Libellé -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé du plan d'audit <span class="text-red-500">*</span></label>
+                <input
+                  formControlName="libelle"
+                  type="text"
+                  maxlength="200"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Saisir le libellé du plan d'audit"
+                />
+                <p *ngIf="getFieldError('libelle')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('libelle') }}
+                </p>
+              </div>
+
+              <!-- Date de création -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de création <span class="text-red-500">*</span></label>
+                <input
+                  formControlName="dateCreation"
+                  type="date"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                />
+                <p *ngIf="getFieldError('dateCreation')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('dateCreation') }}
+                </p>
+              </div>
+
+              <!-- Unité administrative -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative (Code) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <input
+                    #uniteInput
+                    formControlName="codeUniteAdministrative"
+                    type="text"
+                    placeholder="Rechercher par code ou libellé..."
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    (input)="onUniteSearch($event)"
+                    (focus)="onUniteFocus()"
+                    autocomplete="off"
+                  />
+                  <div *ngIf="showUniteDropdown" 
+                       class="fixed bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                       [style.width.px]="uniteInput.offsetWidth"
+                       [style.top.px]="getUniteDropdownTop(uniteInput)"
+                       [style.left.px]="getUniteDropdownLeft(uniteInput)"
+                       [style.background-color]="'#ffffff'"
+                       style="z-index: 10000;">
+                    <div
+                      *ngFor="let unite of filteredUnites"
+                      (click)="selectUnite(unite)"
+                      class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
+                    >
+                      <div class="font-medium text-slate-900">{{ unite.code }}</div>
+                      <div class="text-xs text-slate-500">{{ unite.libelle }}</div>
+                    </div>
+                    <div *ngIf="filteredUnites.length === 0" class="px-4 py-3 text-sm text-slate-500">
+                      Aucun résultat trouvé
+                    </div>
+                  </div>
+                </div>
+                <p *ngIf="getFieldError('codeUniteAdministrative')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeUniteAdministrative') }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Pré-planification d'audit -->
+        <div class="rounded-3xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <h2 class="text-lg font-semibold text-slate-900">Pré-planification d'audit</h2>
+            <button
+              type="button"
+              (click)="toggleSection('prePlanification')"
+              class="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+            >
+              {{ sections.prePlanification ? 'Masquer' : 'Afficher' }}
+            </button>
+          </div>
+
+          <div *ngIf="sections.prePlanification" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Processus -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Processus <span class="text-red-500">*</span></label>
+                <select
+                  formControlName="codeProcessus"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  [disabled]="!form.get('codeUniteAdministrative')?.value"
+                >
+                  <option value="">Sélectionner un processus</option>
+                  <option *ngFor="let proc of processus" [value]="proc.code">
+                    {{ proc.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="!form.get('codeUniteAdministrative')?.value" class="mt-1 text-xs text-slate-400 italic">
+                  Sélectionnez d'abord une unité administrative
+                </p>
+                <p *ngIf="getFieldError('codeProcessus')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeProcessus') }}
+                </p>
+              </div>
+
+              <!-- Risque inhérent -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque inhérent</label>
+                <select
+                  formControlName="codeRisque"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  [disabled]="!form.get('codeProcessus')?.value"
+                >
+                  <option value="">Sélectionner un risque</option>
+                  <option *ngFor="let risque of risques" [value]="risque.code">
+                    {{ risque.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="!form.get('codeProcessus')?.value" class="mt-1 text-xs text-slate-400 italic">
+                  Sélectionnez d'abord un processus
+                </p>
+              </div>
+
+              <!-- Audit proposé -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Audit proposé <span class="text-red-500">*</span></label>
+                <select
+                  formControlName="auditPropose"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner le type d'audit</option>
+                  <option *ngFor="let option of auditProposeOptions" [value]="option">
+                    {{ option }}
+                  </option>
+                </select>
+                <p *ngIf="getFieldError('auditPropose')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('auditPropose') }}
+                </p>
+              </div>
+
+              <!-- Type de revue -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Type de revue <span class="text-red-500">*</span></label>
+                <select
+                  formControlName="typeRevue"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                >
+                  <option value="">Sélectionner le type de revue</option>
+                  <option *ngFor="let option of typeRevueOptions" [value]="option">
+                    {{ option }}
+                  </option>
+                </select>
+                <p *ngIf="getFieldError('typeRevue')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('typeRevue') }}
+                </p>
+              </div>
+
+              <!-- Objectif d'audit -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Objectif d'audit</label>
+                <textarea
+                  formControlName="objectifAudit"
+                  rows="3"
+                  maxlength="1000"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Décrire l'objectif de l'audit..."
+                ></textarea>
+                <p *ngIf="getFieldError('objectifAudit')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('objectifAudit') }}
+                </p>
+              </div>
+
+              <!-- Effet d'audit indicatif -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Effet d'audit indicatif</label>
+                <textarea
+                  formControlName="effetAuditIndicatif"
+                  rows="3"
+                  maxlength="1000"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Décrire l'effet indicatif de l'audit..."
+                ></textarea>
+                <p *ngIf="getFieldError('effetAuditIndicatif')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('effetAuditIndicatif') }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="cancel()"
+            class="px-6 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-sm transition hover:bg-slate-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            [disabled]="loading"
+            class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-semibold text-sm transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ loading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</app-main-layout>

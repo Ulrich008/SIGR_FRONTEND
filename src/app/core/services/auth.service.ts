@@ -95,11 +95,11 @@ export class AuthService {
     return !!user && user.role === role;
   }
 
-  hasAnyRole(roles: string[]): boolean {
-    const user = this.getCurrentUser();
-    if (!user || !roles || roles.length === 0) return true;
-    return roles.includes(user.role);
-  }
+ hasAnyRole(roles: string[]): boolean {
+  const user = this.getCurrentUser();
+  if (!user || !roles || roles.length === 0) return true;
+  return roles.includes(user.role) || (!!user.codeProfil && roles.includes(user.codeProfil));
+}
 
   // ================= HEADERS =================
   getAuthHeaders(): { [header: string]: string } {

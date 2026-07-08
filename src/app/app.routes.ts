@@ -26,6 +26,10 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/processus/processus.module').then(m => m.ProcessusModule)
   },
   {
+    path: 'plans-cartographie',
+    loadComponent: () => import('./modules/plans-cartographie/pages/plans-cartographie-list/plans-cartographie-list.component').then(c => c.PlansCartographieListComponent)
+  },
+  {
     path: 'cartographie-risques',
     loadChildren: () => import('./modules/cartographie-risques/cartographie-risques.module').then(m => m.CartographieRisquesModule)
   },
@@ -83,6 +87,18 @@ export const routes: Routes = [
     path: 'alertes',
     loadChildren: () => import('./modules/alertes/alertes.module').then(m => m.AlertesModule)
 },
+  {
+    path: 'plans-audit',
+    loadComponent: () => import('./modules/plans-audit/pages/plan-audit-list/plan-audit-list.component').then(c => c.PlanAuditListComponent)
+  },
+  {
+    path: 'plans-audit/new',
+    loadComponent: () => import('./modules/plans-audit/pages/plan-audit-form/plan-audit-form.component').then(c => c.PlanAuditFormComponent)
+  },
+  {
+    path: 'plans-audit/:code',
+    loadComponent: () => import('./modules/plans-audit/pages/plan-audit-form/plan-audit-form.component').then(c => c.PlanAuditFormComponent)
+  },
   {
     path: 'ministere',
     redirectTo: '/ministeres',
