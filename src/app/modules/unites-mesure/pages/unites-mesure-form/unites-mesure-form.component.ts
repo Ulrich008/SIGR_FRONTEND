@@ -103,6 +103,7 @@ export class UnitesMesureFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier l\'unité de mesure';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -121,6 +122,7 @@ export class UnitesMesureFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de créer l\'unité de mesure';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });

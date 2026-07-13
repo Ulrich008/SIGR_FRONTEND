@@ -81,9 +81,9 @@ export class PlanAuditFormComponent implements OnInit {
 
       typeRevue: ['', [Validators.required]],
 
-      objectifAudit: ['', [Validators.maxLength(1000)]],
+      objectifAudit: ['', [Validators.required, Validators.maxLength(1000)]],
 
-      effetAuditIndicatif: ['', [Validators.maxLength(1000)]]
+      effetAuditIndicatif: ['', [Validators.required, Validators.maxLength(1000)]]
     });
   }
 
@@ -287,6 +287,7 @@ export class PlanAuditFormComponent implements OnInit {
 
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier le plan d\'audit';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
 
           this.cdr.detectChanges();
         }
@@ -313,6 +314,7 @@ export class PlanAuditFormComponent implements OnInit {
 
           this.loading = false;
           this.error = err?.message || 'Impossible de créer le plan d\'audit';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
 
           this.cdr.detectChanges();
         }

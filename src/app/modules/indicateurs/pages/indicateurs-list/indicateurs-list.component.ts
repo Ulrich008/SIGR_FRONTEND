@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef, ViewChild, ElementRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import {
@@ -32,13 +33,15 @@ Chart.register(
 @Component({
   standalone: true,
   selector: 'app-indicateurs-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './indicateurs-list.component.html'
 })
 export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   indicateurs: IndicateurPerformanceResponse[] = [];
   allIndicateurs: IndicateurPerformanceResponse[] = [];
+  filteredIndicateurs: IndicateurPerformanceResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -107,8 +110,8 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
           const dateB = b.dateFin ? new Date(b.dateFin).getTime() : 0;
           return dateB - dateA;
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.dataReady = true;
         this.cdr.detectChanges();
@@ -127,11 +130,28 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredIndicateurs = !terme
+      ? this.allIndicateurs
+      : this.allIndicateurs.filter(i =>
+          i.code.toLowerCase().includes(terme) ||
+          i.libelle?.toLowerCase().includes(terme) ||
+          i.nomProcessus?.toLowerCase().includes(terme) ||
+          i.statut?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+    if (this.viewReady && this.dataReady) {
+      this.buildAllCharts();
+    }
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allIndicateurs.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredIndicateurs.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.indicateurs = this.allIndicateurs.slice(startIndex, endIndex);
+    this.indicateurs = this.filteredIndicateurs.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -163,7 +183,7 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
 
   getDisplayedRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allIndicateurs.length);
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredIndicateurs.length);
     return { start, end };
   }
 
@@ -479,11 +499,23 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     return this.indicateurs.some(i => i.typeUniteMesure === 'DATE');
   }
 
+  get canCreateOrDelete(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+  }
+
+  get canEdit(): boolean {
+    // AUDITEUR peut valider les indicateurs : seule exception à son
+    // accès normalement en lecture seule sur ce module.
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR']);
+  }
+
   createIndicateur(): void {
+    if (!this.canCreateOrDelete) return;
     this.router.navigate(['/indicateurs/nouveau']);
   }
 
   editIndicateur(code: string): void {
+    if (!this.canEdit) return;
     this.router.navigate(['/indicateurs', code, 'edit']);
   }
 
@@ -492,6 +524,7 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   deleteIndicateur(code: string): void {
+    if (!this.canCreateOrDelete) return;
     Swal.fire({
       title: 'Supprimer cet indicateur ?',
       text: 'Cette action est irréversible.',

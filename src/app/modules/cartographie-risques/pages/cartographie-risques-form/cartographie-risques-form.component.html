@@ -58,6 +58,26 @@
                 </p>
               </div>
 
+              <!-- Unité administrative -->
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative</label>
+                <select
+                  formControlName="codeUniteAdministrative"
+                  class="w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition
+                    disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed
+                    enabled:border-slate-200 enabled:bg-slate-50 enabled:focus:border-green-400"
+                >
+                  <option value="">{{ loadingUnites ? 'Chargement...' : 'Sélectionner une unité administrative' }}</option>
+                  <option *ngFor="let unite of unitesAdministratives" [value]="unite.code">
+                    {{ unite.code }} - {{ unite.libelle }}
+                  </option>
+                </select>
+                <p *ngIf="form.get('codeUniteAdministrative')?.invalid && form.get('codeUniteAdministrative')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('codeUniteAdministrative') }}
+                </p>
+              </div>
+
               <!-- Période -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Période</label>

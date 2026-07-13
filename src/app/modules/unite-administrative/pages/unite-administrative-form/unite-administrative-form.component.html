@@ -33,9 +33,9 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-              <!-- Code -->
+              <!-- Sigle -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Code (max 50 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Sigle (max 50 caractères)</label>
                 <input
                   formControlName="code"
                   type="text"
@@ -85,7 +85,7 @@
                 <select
                   formControlName="codeMinistere"
                   [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
-                    (isEditMode
+                    ((isEditMode || !isSuperAdmin)
                       ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
                       : 'border-slate-200 bg-slate-50 focus:border-green-400')"
                 >

@@ -91,8 +91,8 @@
                 <select formControlName="role"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
                   <option value="AGENT">Agent</option>
-                  <option value="MANAGER">Manager</option>
                   <option value="ADMIN">Administrateur</option>
+                  <option *ngIf="isSuperAdmin" value="SUPER_ADMIN">Super administrateur</option>
                 </select>
               </div>
 
@@ -127,6 +127,10 @@
               </svg>
               Affectation
             </h3>
+            <div *ngIf="!uniteRequise" class="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800">
+              Seul un Agent doit être rattaché à une unité administrative précise. Un Administrateur gère l'ensemble de son ministère (il pourra créer ses propres unités et y affecter des agents ensuite) ; un Super administrateur a un accès global.
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
               <!-- Ministère -->
@@ -135,7 +139,10 @@
                   Ministère <span class="text-red-500">*</span>
                 </label>
                 <select formControlName="codeMinistere"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
+                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition-colors ' +
+                    (!isSuperAdmin
+                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : 'border-slate-200 bg-slate-50 focus:border-green-400 focus:ring-1 focus:ring-green-400')">
                   <option value="">Sélectionner un ministère</option>
                   <option *ngIf="loadingMinisteres" value="" disabled>Chargement...</option>
                   <option *ngFor="let ministere of ministeres" [value]="ministere.code">
@@ -148,7 +155,7 @@
               </div>
 
               <!-- Unité administrative -->
-              <div>
+              <div *ngIf="uniteRequise">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Unité administrative <span class="text-red-500">*</span>
                 </label>
@@ -165,8 +172,8 @@
                 </p>
               </div>
 
-              <!-- ★ Profil métier -->
-              <div>
+              <!-- ★ Profil métier (uniquement pour le rôle Agent) -->
+              <div *ngIf="profilRequis">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Profil métier <span class="text-red-500">*</span>
                 </label>

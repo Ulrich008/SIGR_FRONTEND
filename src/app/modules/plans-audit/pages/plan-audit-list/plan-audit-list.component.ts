@@ -7,6 +7,7 @@ import { PlanAuditResponse, AuditPropose, TypeRevue } from '../../../../core/mod
 import { MenuService } from '../../../../core/services/menu.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-plan-audit-list',
@@ -22,9 +23,6 @@ export class PlanAuditListComponent implements OnInit {
   loading = false;
   error: string | null = null;
   search = '';
-  selectedUnite = '';
-  selectedAuditPropose = '';
-  selectedTypeRevue = '';
 
   menuItems: any[];
 
@@ -35,9 +33,14 @@ export class PlanAuditListComponent implements OnInit {
     private planAuditService: PlanAuditService,
     private router: Router,
     private menuService: MenuService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {
     this.menuItems = this.menuService.items;
+  }
+
+  get canWrite(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'AUDITEUR']);
   }
 
   ngOnInit(): void {
@@ -64,35 +67,22 @@ export class PlanAuditListComponent implements OnInit {
   }
 
   applyFilters(): void {
-    this.plansAudit = this.allPlansAudit.filter(plan => {
-      const matchesSearch = !this.search || 
-        plan.libelle.toLowerCase().includes(this.search.toLowerCase()) ||
-        plan.code.toLowerCase().includes(this.search.toLowerCase()) ||
-        (plan.nomUniteAdministrative && plan.nomUniteAdministrative.toLowerCase().includes(this.search.toLowerCase())) ||
-        (plan.nomProcessus && plan.nomProcessus.toLowerCase().includes(this.search.toLowerCase()));
-
-      const matchesUnite = !this.selectedUnite || plan.codeUniteAdministrative === this.selectedUnite;
-      const matchesAuditPropose = !this.selectedAuditPropose || plan.auditPropose === this.selectedAuditPropose;
-      const matchesTypeRevue = !this.selectedTypeRevue || plan.typeRevue === this.selectedTypeRevue;
-
-      return matchesSearch && matchesUnite && matchesAuditPropose && matchesTypeRevue;
-    });
+    const terme = this.search.trim().toLowerCase();
+    this.plansAudit = !terme
+      ? this.allPlansAudit
+      : this.allPlansAudit.filter(plan =>
+          plan.libelle.toLowerCase().includes(terme) ||
+          plan.code.toLowerCase().includes(terme) ||
+          plan.nomUniteAdministrative?.toLowerCase().includes(terme) ||
+          plan.nomProcessus?.toLowerCase().includes(terme) ||
+          plan.libelleRisque?.toLowerCase().includes(terme) ||
+          this.getAuditProposeLabel(plan.auditPropose).toLowerCase().includes(terme) ||
+          this.getTypeRevueLabel(plan.typeRevue).toLowerCase().includes(terme)
+        );
     this.currentPage = 1;
   }
 
   onSearchChange(): void {
-    this.applyFilters();
-  }
-
-  onUniteChange(): void {
-    this.applyFilters();
-  }
-
-  onAuditProposeChange(): void {
-    this.applyFilters();
-  }
-
-  onTypeRevueChange(): void {
     this.applyFilters();
   }
 
@@ -133,6 +123,7 @@ export class PlanAuditListComponent implements OnInit {
   }
 
   createPlanAudit(): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/plans-audit/new']);
   }
 
@@ -141,10 +132,12 @@ export class PlanAuditListComponent implements OnInit {
   }
 
   editPlanAudit(code: string): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/plans-audit', code]);
   }
 
   deletePlanAudit(code: string): void {
+    if (!this.canWrite) return;
     if (confirm('Êtes-vous sûr de vouloir supprimer ce plan d\'audit ?')) {
       this.loading = true;
       this.planAuditService.deleteByCode(code).subscribe({
@@ -202,11 +195,6 @@ export class PlanAuditListComponent implements OnInit {
     if (!date) return '';
     const d = new Date(date);
     return d.toLocaleDateString('fr-FR');
-  }
-
-  getUniqueUnites(): string[] {
-    const unites = new Set(this.allPlansAudit.map(p => p.codeUniteAdministrative));
-    return Array.from(unites);
   }
 
   countByAuditPropose(auditPropose: string): number {

@@ -28,6 +28,18 @@
         -->
       </div>
 
+      <!-- Filtre dynamique -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
+        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilter()"
+          placeholder="Rechercher par code, libellé, symbole..."
+          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+        />
+      </div>
+
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
@@ -94,9 +106,9 @@
       </div>
 
       <!-- Contrôles de pagination -->
-      <div *ngIf="!loading && allUnitesMesure.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
+      <div *ngIf="!loading && filteredUnitesMesure.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
         <div class="text-sm text-slate-500">
-          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ allUnitesMesure.length }} unités de mesure
+          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ filteredUnitesMesure.length }} unités de mesure
         </div>
         <div class="flex items-center gap-2">
           <button (click)="previousPage()" [disabled]="currentPage === 1"

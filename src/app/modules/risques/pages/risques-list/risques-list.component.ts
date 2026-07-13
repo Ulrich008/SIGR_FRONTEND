@@ -7,9 +7,7 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
-import { ProcessusService } from '../../../../core/services/processus.service';
 import { RisqueResponse, StatutRisque, TypeRisque } from '../../../../core/models/risque.model';
-import { ProcessusResponse } from '../../../../core/models/processus.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -22,10 +20,8 @@ export class RisquesListComponent implements OnInit {
   risques: RisqueResponse[] = [];
   allRisques: RisqueResponse[] = [];
   filteredRisques: RisqueResponse[] = [];
-  processus: ProcessusResponse[] = [];
-  selectedProcessus: string = '';
+  searchTerm: string = '';
   loading = false;
-  loadingProcessus = false;
   error: string | null = null;
   menuItems: MenuItem[];
 
@@ -39,7 +35,6 @@ export class RisquesListComponent implements OnInit {
 
   constructor(
     private risqueService: RisqueService,
-    private processusService: ProcessusService,
     private router: Router,
     private authService: AuthService,
     private menuService: MenuService,
@@ -53,24 +48,7 @@ export class RisquesListComponent implements OnInit {
       this.router.navigate(['/auth/login']);
       return;
     }
-    this.loadProcessus();
     this.loadRisques();
-  }
-
-  loadProcessus(): void {
-    this.loadingProcessus = true;
-    this.processusService.getAll().subscribe({
-      next: (processus) => {
-        this.processus = processus;
-        this.loadingProcessus = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.loadingProcessus = false;
-        this.error = err?.message || 'Impossible de charger les processus';
-        this.cdr.detectChanges();
-      }
-    });
   }
 
   loadRisques(): void {
@@ -85,8 +63,8 @@ export class RisquesListComponent implements OnInit {
           const dateB = b.dateIdentification ? new Date(b.dateIdentification).getTime() : 0;
           return dateB - dateA;
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -98,22 +76,23 @@ export class RisquesListComponent implements OnInit {
     });
   }
 
-  onProcessusFilterChange(): void {
-    if (!this.selectedProcessus) {
-      this.filteredRisques = this.allRisques;
-    } else {
-      this.filteredRisques = this.allRisques.filter(r => r.codeProcessus === this.selectedProcessus);
-    }
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredRisques = !terme
+      ? this.allRisques
+      : this.allRisques.filter(r =>
+          r.code.toLowerCase().includes(terme) ||
+          r.libelle?.toLowerCase().includes(terme) ||
+          r.nomProcessus?.toLowerCase().includes(terme) ||
+          this.getStatutLabel(r.statut).toLowerCase().includes(terme) ||
+          this.getTypeLabel(r.typeRisque).toLowerCase().includes(terme)
+        );
     this.currentPage = 1;
     this.updatePagination();
     this.cdr.detectChanges();
   }
 
   updatePagination(): void {
-    this.filteredRisques = this.selectedProcessus 
-      ? this.allRisques.filter(r => r.codeProcessus === this.selectedProcessus)
-      : this.allRisques;
-    
     this.totalPages = Math.ceil(this.filteredRisques.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -327,14 +306,14 @@ export class RisquesListComponent implements OnInit {
   }
 
   canCreate(): boolean {
-    return this.authService.hasAnyRole(['ADMIN', 'MANAGER']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
   }
 
   canEdit(): boolean {
-    return this.authService.hasAnyRole(['ADMIN', 'MANAGER']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
   }
 
   canDelete(): boolean {
-    return this.authService.hasRole('ADMIN');
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
   }
 }

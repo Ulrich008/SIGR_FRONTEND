@@ -1,31 +1,43 @@
 <!-- Sidebar unique -->
 <aside
-  class="sigr-sidebar flex flex-col shadow-sm border-r border-gray-200 z-30 transition-all duration-300 flex-shrink-0"
+  class="sigr-sidebar relative flex flex-col shadow-sm border-r border-gray-200 z-30 transition-[width] duration-300 ease-in-out flex-shrink-0"
   [ngClass]="getSidebarClasses()"
   style="background: var(--sigr-50);"
   (mouseenter)="onMouseEnter()"
   (mouseleave)="onMouseLeave()">
 
+  <!-- Bouton réduire / déplier (desktop uniquement) -->
+  <button *ngIf="isLgScreen"
+          type="button"
+          (click)="toggleCollapse()"
+          [attr.aria-label]="isCollapsed ? 'Déplier le menu' : 'Réduire le menu'"
+          class="absolute -right-3 top-9 z-10 w-6 h-6 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow-sm text-gray-400 transition-colors hover:text-[var(--sigr-800)] hover:border-[var(--sigr-600)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+    <i class="fas fa-chevron-left text-[10px] transition-transform duration-300" [class.rotate-180]="isCollapsed"></i>
+  </button>
+
   <!-- Logo -->
-  <div class="px-6 pt-7 pb-5 border-b border-gray-100 flex flex-col items-center">
-    <p class="text-2xl font-extrabold text-center tracking-tight transition-all duration-300 whitespace-nowrap"
-       style="color: var(--sigr-900);">
-      SIGR
-    </p>
-    <p class="text-[11px] font-medium text-gray-400 mt-1 text-center tracking-wide"
-       *ngIf="showLabels">
-      GESTION DES RISQUES
-    </p>
+  <div class="px-4 pt-6 pb-5 border-b border-gray-100 flex items-center gap-3 transition-all duration-300"
+       [class.justify-center]="!showLabels">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-base flex-shrink-0 shadow-sm"
+         style="background: linear-gradient(135deg, var(--sigr-600), var(--sigr-900));">
+      S
+    </div>
+    <div *ngIf="showLabels" class="min-w-0 whitespace-nowrap">
+      <p class="text-lg font-extrabold tracking-tight leading-none truncate" style="color: var(--sigr-900);">SIGR</p>
+      <p class="text-[10px] font-semibold text-gray-400 mt-1 tracking-widest uppercase truncate">
+        Gestion des risques
+      </p>
+    </div>
   </div>
 
   <!-- Menu -->
-  <nav class="flex-1 px-3 py-5 overflow-y-auto sigr-scroll" role="navigation" aria-label="Menu principal">
-    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3"
+  <nav class="flex-1 px-3 py-5 overflow-y-auto overflow-x-hidden sigr-scroll" role="navigation" aria-label="Menu principal">
+    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3 whitespace-nowrap"
        *ngIf="showLabels">
       Menu principal
     </p>
 
-    <ul class="space-y-0.5">
+    <ul class="space-y-1">
       <li *ngFor="let item of menuItems">
 
         <!-- MENU AVEC ENFANTS -->
@@ -39,10 +51,12 @@
             [ngClass]="isMenuItemEnabled(item)
               ? 'text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)]'
               : 'text-gray-300 cursor-not-allowed'"
-            class="sigr-item w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+            class="sigr-item w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
             <div class="flex items-center gap-3 min-w-0">
-              <i [class]="item.icon" class="w-5 text-center flex-shrink-0"></i>
-              <span *ngIf="showLabels" class="truncate">{{ item.label }}</span>
+              <span class="sigr-icon w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0">
+                <i [class]="item.icon" class="text-[15px]"></i>
+              </span>
+              <span *ngIf="showLabels" class="truncate whitespace-nowrap">{{ item.label }}</span>
             </div>
             <i *ngIf="showLabels"
                class="fas fa-chevron-down w-3.5 text-center text-gray-400 transition-transform duration-200 flex-shrink-0"
@@ -50,7 +64,7 @@
           </button>
 
           <!-- SOUS-MENU -->
-          <ul *ngIf="item.expanded && showLabels" class="ml-4 pl-3 mt-0.5 mb-1 space-y-0.5 border-l border-gray-100">
+          <ul *ngIf="item.expanded && showLabels" class="ml-4 pl-3 mt-1 mb-1 space-y-1 border-l-2 border-gray-100">
             <li *ngFor="let child of item.children">
 
               <!-- SOUS-MENU AVEC ENFANTS -->
@@ -65,7 +79,7 @@
                     : 'text-gray-300 cursor-not-allowed'"
                   class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                   <div class="flex items-center gap-3 min-w-0">
-                    <i [class]="child.icon" class="w-4 text-center flex-shrink-0"></i>
+                    <i [class]="child.icon" class="w-4 text-center flex-shrink-0 text-[13px]"></i>
                     <span class="truncate">{{ child.label }}</span>
                   </div>
                   <i class="fas fa-chevron-down w-3 text-center text-gray-400 transition-transform duration-200 flex-shrink-0"
@@ -73,7 +87,7 @@
                 </button>
 
                 <!-- SOUS-SOUS-MENU -->
-                <ul *ngIf="child.expanded" class="ml-3 pl-3 mt-0.5 space-y-0.5 border-l border-gray-100">
+                <ul *ngIf="child.expanded" class="ml-3 pl-3 mt-1 space-y-1 border-l-2 border-gray-100">
                   <li *ngFor="let subChild of child.children">
                     <a *ngIf="subChild.path && isMenuItemEnabled(subChild)"
                        [routerLink]="subChild.path"
@@ -116,35 +130,42 @@
            [routerLinkActiveOptions]="{ exact: false }"
            (click)="onMenuItemClick(item)"
            [attr.title]="!showLabels ? item.label : null"
-           class="sigr-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
-          <i [class]="item.icon" class="w-5 text-center flex-shrink-0"></i>
-          <span *ngIf="showLabels" class="truncate">{{ item.label }}</span>
+           class="sigr-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+          <span class="sigr-icon w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0">
+            <i [class]="item.icon" class="text-[15px]"></i>
+          </span>
+          <span *ngIf="showLabels" class="truncate whitespace-nowrap">{{ item.label }}</span>
         </a>
 
         <!-- MENU DÉSACTIVÉ -->
         <div *ngIf="!item.children && (!item.path || !isMenuItemEnabled(item))"
              [attr.title]="!showLabels ? item.label : null"
-             class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-300 cursor-not-allowed">
-          <i [class]="item.icon" class="w-5 text-center flex-shrink-0"></i>
-          <span *ngIf="showLabels" class="truncate">{{ item.label }}</span>
+             class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-300 cursor-not-allowed">
+          <span class="sigr-icon w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0">
+            <i [class]="item.icon" class="text-[15px]"></i>
+          </span>
+          <span *ngIf="showLabels" class="truncate whitespace-nowrap">{{ item.label }}</span>
         </div>
       </li>
     </ul>
   </nav>
 
-  <!-- Footer -->
+  <!-- Footer : profil -->
   <button type="button"
+          (click)="ouvrirMonProfil()"
+          [attr.aria-label]="nomComplet ? 'Voir mon profil (' + nomComplet + ')' : 'Voir mon profil'"
           class="m-3 rounded-xl p-3 flex items-center gap-3 transition-all duration-300 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-          style="background: var(--sigr-800);">
-    <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+          [class.justify-center]="!showLabels"
+          style="background: linear-gradient(135deg, var(--sigr-800), var(--sigr-900));">
+    <div class="relative w-9 h-9 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ring-2 ring-white/20"
          style="background: var(--sigr-600);">
-      AD
+      {{ initiales || '…' }}
     </div>
-    <div *ngIf="showLabels" class="min-w-0 text-left">
-      <p class="text-white text-sm font-semibold truncate">Admin MEF</p>
-      <p class="text-xs truncate" style="color: var(--sigr-200);">Administrateur</p>
+    <div *ngIf="showLabels" class="min-w-0 text-left flex-1">
+      <p class="text-white text-sm font-semibold truncate">{{ nomComplet || 'Chargement...' }}</p>
+      <p class="text-[11px] truncate mt-0.5" style="color: var(--sigr-200);">{{ libelleRole }}</p>
     </div>
-    <i *ngIf="showLabels" class="fas fa-chevron-right ml-auto text-xs flex-shrink-0" style="color: var(--sigr-200);"></i>
+    <i *ngIf="showLabels" class="fas fa-chevron-right text-xs flex-shrink-0" style="color: var(--sigr-200);"></i>
   </button>
 </aside>
 
@@ -179,12 +200,27 @@
 }
 .sigr-scroll::-webkit-scrollbar-track { background: transparent; }
 
-/* Etat actif : fond teinté + barre latérale, plus lisible qu'un bloc plein */
+/* Icône : léger fond neutre au repos, teinté au survol/actif */
+.sigr-icon {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.08);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.sigr-item:hover .sigr-icon {
+  background: var(--sigr-100);
+  color: var(--sigr-800);
+}
+
+/* Etat actif : pastille douce + barre latérale, plus lisible qu'un bloc plein */
 .sigr-item.sigr-active {
   background: var(--sigr-100);
   color: var(--sigr-900);
   font-weight: 600;
   position: relative;
+}
+.sigr-item.sigr-active .sigr-icon {
+  background: var(--sigr-900);
+  color: white;
 }
 .sigr-item.sigr-active::before {
   content: "";

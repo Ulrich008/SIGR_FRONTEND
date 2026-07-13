@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { AgentService } from '../../core/services/agent.service';
 
 export interface MenuItem {
   icon: string;
@@ -18,7 +19,7 @@ export interface MenuItem {
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
 
   @Input() menuItems: MenuItem[] = [];
   @Input() activeMenu: string = '';
@@ -30,10 +31,51 @@ export class SidebarComponent {
   isHovered = false;
   isLgScreen = false;
 
-  constructor(private authService: AuthService) {}
+  // Mode "réduit" (icônes seules) sur desktop, activable via le bouton
+  // de la sidebar. Un survol pendant que le menu est réduit le déplie
+  // temporairement ("peek"), sans changer l'état épinglé.
+  isCollapsed = false;
+
+  // Rempli via GET /api/agents/me : reflète l'agent réellement connecté.
+  nomComplet = '';
+  initiales = '';
+  libelleRole = '';
+
+  constructor(
+    private authService: AuthService,
+    private agentService: AgentService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.checkScreenSize();
+
+    this.agentService.getMe().subscribe({
+      next: (agent) => {
+        this.nomComplet = `${agent.prenoms} ${agent.nom}`;
+        this.initiales = `${agent.prenoms.charAt(0)}${agent.nom.charAt(0)}`.toUpperCase();
+        this.libelleRole = agent.libelleProfil || this.libelleDuRole(agent.role);
+      },
+      error: (err) => {
+        console.error('Erreur chargement du profil connecté (/me)', err);
+        // Ne jamais rester bloqué sur "Chargement..." : on retombe sur les
+        // informations déjà stockées localement lors de la connexion.
+        const currentUser = this.authService.getCurrentUser();
+        this.nomComplet = currentUser ? `${currentUser.prenoms} ${currentUser.nom}` : 'Utilisateur';
+        this.initiales = currentUser
+          ? `${currentUser.prenoms.charAt(0)}${currentUser.nom.charAt(0)}`.toUpperCase()
+          : '?';
+        this.libelleRole = currentUser?.libelleProfil || this.libelleDuRole(currentUser?.role);
+      }
+    });
+  }
+
+  private libelleDuRole(role?: string): string {
+    switch (role) {
+      case 'SUPER_ADMIN': return 'Super administrateur';
+      case 'ADMIN': return 'Administrateur';
+      default: return 'Agent';
+    }
   }
 
   @HostListener('window:resize')
@@ -45,8 +87,17 @@ export class SidebarComponent {
   }
 
   get showLabels(): boolean {
-    if (this.isLgScreen) return true;
+    if (this.isLgScreen) return !this.isCollapsed || this.isHovered;
     return this.isMobileMenuOpen;
+  }
+
+  toggleCollapse(): void {
+    this.isCollapsed = !this.isCollapsed;
+    this.sidebarStateChanged.emit(!this.isCollapsed);
+  }
+
+  ouvrirMonProfil(): void {
+    this.router.navigate(['/me']);
   }
 
   isMenuItemEnabled(item: MenuItem): boolean {
@@ -88,7 +139,9 @@ export class SidebarComponent {
 
   getSidebarClasses(): string {
     if (this.isLgScreen) {
-      return 'sticky top-0 h-screen w-64';
+      return this.isCollapsed && !this.isHovered
+        ? 'sticky top-0 h-screen w-[76px]'
+        : 'sticky top-0 h-screen w-64';
     } else {
       return this.isMobileMenuOpen
         ? 'fixed top-0 left-0 h-full w-64'

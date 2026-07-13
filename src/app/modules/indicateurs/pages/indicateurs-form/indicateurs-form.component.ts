@@ -334,6 +334,7 @@ export class IndicateursFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier l\'indicateur';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -352,6 +353,7 @@ export class IndicateursFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de créer l\'indicateur';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });

@@ -62,7 +62,12 @@ export class CartographieRisquesDetailComponent implements OnInit {
     });
   }
 
+  get canWrite(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+  }
+
   editCartographie(): void {
+    if (!this.canWrite) return;
     if (this.cartographie) {
       this.router.navigate(['/cartographie-risques', this.cartographie.code, 'edit']);
     }

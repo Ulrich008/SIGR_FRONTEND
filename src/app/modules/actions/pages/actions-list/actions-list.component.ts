@@ -23,7 +23,7 @@ export class ActionsListComponent implements OnInit {
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
-  selectedPlan: string = '';
+  searchTerm: string = '';
 
   // Pagination
   currentPage = 1;
@@ -73,17 +73,18 @@ export class ActionsListComponent implements OnInit {
   }
 
   applyFilter(): void {
-    if (!this.selectedPlan) {
-      this.filteredActions = this.allActions;
-    } else {
-      this.filteredActions = this.allActions.filter(a => a.codePlan === this.selectedPlan);
-    }
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredActions = !terme
+      ? this.allActions
+      : this.allActions.filter(a =>
+          a.code.toLowerCase().includes(terme) ||
+          a.codePlan?.toLowerCase().includes(terme) ||
+          a.nomResponsable?.toLowerCase().includes(terme) ||
+          a.matriculeResponsable?.toLowerCase().includes(terme) ||
+          a.libelles?.some(l => l.toLowerCase().includes(terme))
+        );
     this.currentPage = 1;
     this.updatePagination();
-  }
-
-  onPlanChange(): void {
-    this.applyFilter();
   }
 
   updatePagination(): void {
@@ -126,11 +127,21 @@ export class ActionsListComponent implements OnInit {
     return { start, end };
   }
 
+  get canCreateOrDelete(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+  }
+
+  get canEdit(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+  }
+
   createAction(): void {
+    if (!this.canCreateOrDelete) return;
     this.router.navigate(['/actions/nouveau']);
   }
 
   editAction(code: string): void {
+    if (!this.canEdit) return;
     this.router.navigate(['/actions', code, 'edit']);
   }
 
@@ -139,6 +150,7 @@ export class ActionsListComponent implements OnInit {
   }
 
   deleteAction(code: string): void {
+    if (!this.canCreateOrDelete) return;
     Swal.fire({
       title: 'Supprimer cette action ?',
       text: 'Cette action est irréversible.',

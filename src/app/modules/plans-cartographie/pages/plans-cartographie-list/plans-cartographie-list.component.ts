@@ -7,14 +7,8 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
-import { RisqueResponse, AvisRisque, RisqueRequest } from '../../../../core/models/risque.model';
+import { RisqueResponse, AvisRisque, EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
-
-interface RisqueAvisUpdate {
-  avis?: AvisRisque;
-  motif?: string;
-  transmis?: boolean;
-}
 
 @Component({
   standalone: true,
@@ -25,6 +19,7 @@ interface RisqueAvisUpdate {
 export class PlansCartographieListComponent implements OnInit {
   risques: RisqueResponse[] = [];
   selectedRisques: Set<string> = new Set();
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -54,13 +49,36 @@ export class PlansCartographieListComponent implements OnInit {
     this.loadRisques();
   }
 
+  // Seul le Responsable des risques transmet le dossier (après formalisation
+  // complète) ; CMMR/CCI/PILOTE ne font que se prononcer via validerAvis().
+  get canTransmettre(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+  }
+
+  // Seuls les profils de validation se prononcent (Valider/Différer/Rejeter) ;
+  // le Responsable des risques ne fait que consulter et transmettre.
+  get canValiderAvis(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'PILOTE', 'CCI', 'CMMR']);
+  }
+
+  get filteredRisques(): RisqueResponse[] {
+    const terme = this.searchTerm.trim().toLowerCase();
+    if (!terme) return this.risques;
+    return this.risques.filter(r =>
+      r.code.toLowerCase().includes(terme) ||
+      r.libelle?.toLowerCase().includes(terme) ||
+      r.nomProcessus?.toLowerCase().includes(terme)
+    );
+  }
+
   loadRisques(): void {
     this.loading = true;
     this.error = null;
     this.risqueService.getAll().subscribe({
       next: (data) => {
-        // Filtrer uniquement les risques non transmis
-        this.risques = data.filter(r => !r.transmis);
+        // Chacun ne voit que les dossiers actuellement à sa propre étape
+        // du circuit de validation (Formalisation -> Pilote -> CCI -> CMMR).
+        this.risques = data.filter(r => this.estAMonEtape(r));
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -70,6 +88,28 @@ export class PlansCartographieListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private estAMonEtape(risque: RisqueResponse): boolean {
+    const etape = risque.etapeValidation ?? EtapeValidation.FORMALISATION;
+
+    if (this.authService.hasAnyRole(['SUPER_ADMIN'])) {
+      // Vue d'ensemble : tout ce qui n'est pas encore finalisé
+      return etape !== EtapeValidation.VALIDEE && etape !== EtapeValidation.REJETEE;
+    }
+    if (this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) {
+      return etape === EtapeValidation.FORMALISATION;
+    }
+    if (this.authService.hasAnyRole(['PILOTE'])) {
+      return etape === EtapeValidation.PILOTE;
+    }
+    if (this.authService.hasAnyRole(['CCI'])) {
+      return etape === EtapeValidation.CCI;
+    }
+    if (this.authService.hasAnyRole(['CMMR'])) {
+      return etape === EtapeValidation.CMMR;
+    }
+    return false;
   }
 
   toggleRisqueSelection(risqueId: string): void {
@@ -103,7 +143,7 @@ export class PlansCartographieListComponent implements OnInit {
   }
 
   enregistrerAvis(): void {
-    if (!this.selectedRisque) return;
+    if (!this.selectedRisque || !this.canValiderAvis) return;
 
     // Valider que le motif est obligatoire pour DIFFERE et REJETE
     if ((this.avisSelectionne === AvisRisque.DIFFERE || this.avisSelectionne === AvisRisque.REJETE) && !this.motif.trim()) {
@@ -116,52 +156,29 @@ export class PlansCartographieListComponent implements OnInit {
       return;
     }
 
-    // Récupérer le risque complet pour la mise à jour
-    this.risqueService.getByCode(this.selectedRisque!.code).subscribe({
-      next: (risqueComplet) => {
-        const updateRequest: RisqueRequest = {
-          code: risqueComplet.code,
-          libelle: risqueComplet.libelle,
-          causeProbable: risqueComplet.causeProbable,
-          consequenceProbable: risqueComplet.consequenceProbable,
-          bonnesPratiques: risqueComplet.bonnesPratiques,
-          statut: risqueComplet.statut,
-          strategieRisque: risqueComplet.strategieRisque,
-          dateIdentification: risqueComplet.dateIdentification,
-          codeProcessus: risqueComplet.codeProcessus,
-          typeRisque: risqueComplet.typeRisque,
-          avis: this.avisSelectionne,
-          motif: this.motif,
-          transmis: risqueComplet.transmis
-        };
-
-        this.risqueService.updateByCode(this.selectedRisque!.code, updateRequest).subscribe({
-          next: () => {
-            Swal.fire({
-              title: 'Avis enregistré',
-              text: 'L\'avis sur le risque a été enregistré avec succès.',
-              icon: 'success',
-              timer: 1500,
-              showConfirmButton: false
-            }).then(() => {
-              this.fermerModal();
-              this.loadRisques();
-            });
-          },
-          error: (err: any) => {
-            Swal.fire({
-              title: 'Erreur',
-              text: err?.message || 'Impossible d\'enregistrer l\'avis',
-              icon: 'error',
-              confirmButtonText: 'OK'
-            });
-          }
+    // Action dédiée : ne modifie que l'avis et le motif, jamais le
+    // contenu du risque (CMMR/CCI/PILOTE n'ont pas le droit de le
+    // modifier, seulement de se prononcer dessus).
+    this.risqueService.validerAvis(this.selectedRisque!.code, {
+      avis: this.avisSelectionne,
+      motif: this.motif
+    }).subscribe({
+      next: () => {
+        Swal.fire({
+          title: 'Avis enregistré',
+          text: 'L\'avis sur le risque a été enregistré avec succès.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          this.fermerModal();
+          this.loadRisques();
         });
       },
       error: (err: any) => {
         Swal.fire({
           title: 'Erreur',
-          text: err?.message || 'Impossible de charger le risque',
+          text: err?.message || 'Impossible d\'enregistrer l\'avis',
           icon: 'error',
           confirmButtonText: 'OK'
         });
@@ -170,7 +187,7 @@ export class PlansCartographieListComponent implements OnInit {
   }
 
   transmettreRisques(): void {
-    if (this.selectedRisques.size === 0) {
+    if (!this.canTransmettre || this.selectedRisques.size === 0) {
       Swal.fire({
         title: 'Aucun risque sélectionné',
         text: 'Veuillez sélectionner au moins un risque à transmettre.',
@@ -180,25 +197,11 @@ export class PlansCartographieListComponent implements OnInit {
       return;
     }
 
-    // Vérifier que tous les risques sélectionnés ont un avis
-    const risquesSansAvis = this.risques.filter(r =>
-      this.selectedRisques.has(r.code) && (!r.avis || r.avis === AvisRisque.EN_ATTENTE)
-    );
-
-    if (risquesSansAvis.length > 0) {
-      Swal.fire({
-        title: 'Avis manquant',
-        text: 'Tous les risques sélectionnés doivent avoir un avis (validé, différé ou rejeté) avant d\'être transmis.',
-        icon: 'warning',
-        confirmButtonText: 'OK'
-      });
-      return;
-    }
-
-    // Transmettre les risques
+    // Transmettre les risques : fait entrer chaque dossier dans le
+    // circuit de validation (étape Pilote de processus).
     Swal.fire({
       title: 'Confirmer la transmission',
-      text: `Êtes-vous sûr de vouloir transmettre ${this.selectedRisques.size} risque(s) ?`,
+      text: `Êtes-vous sûr de vouloir transmettre ${this.selectedRisques.size} risque(s) au Pilote de processus ?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Oui, transmettre',
@@ -206,55 +209,33 @@ export class PlansCartographieListComponent implements OnInit {
       confirmButtonColor: '#10b981',
       cancelButtonColor: '#64748b'
     }).then((result) => {
-      if (result.isConfirmed) {
-        this.loading = true;
+      if (!result.isConfirmed) return;
 
-        // Mettre à jour tous les risques sélectionnés comme transmis
-        const updates = Array.from(this.selectedRisques).map(code => {
-          const risque = this.risques.find(r => r.code === code);
-          if (!risque) return null;
+      this.loading = true;
+      const codes = Array.from(this.selectedRisques);
+      const requetes = codes.map(code => this.risqueService.transmettre(code));
 
-          const updateRequest: RisqueRequest = {
-            code: risque.code,
-            libelle: risque.libelle,
-            causeProbable: risque.causeProbable,
-            consequenceProbable: risque.consequenceProbable,
-            bonnesPratiques: risque.bonnesPratiques,
-            statut: risque.statut,
-            strategieRisque: risque.strategieRisque,
-            dateIdentification: risque.dateIdentification,
-            codeProcessus: risque.codeProcessus,
-            typeRisque: risque.typeRisque,
-            avis: risque.avis,
-            motif: risque.motif,
-            transmis: true
-          };
-
-          return this.risqueService.updateByCode(code, updateRequest);
-        }).filter(u => u !== null);
-
-        Promise.all(updates.map(u => u!.toPromise())).then(() => {
-          this.loading = false;
-          this.selectedRisques.clear();
-          Swal.fire({
-            title: 'Transmission réussie',
-            text: 'Les risques ont été transmis avec succès.',
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false
-          }).then(() => {
-            this.loadRisques();
-          });
-        }).catch((err: any) => {
-          this.loading = false;
-          Swal.fire({
-            title: 'Erreur',
-            text: err?.message || 'Impossible de transmettre les risques',
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
+      Promise.all(requetes.map(r => r.toPromise())).then(() => {
+        this.loading = false;
+        this.selectedRisques.clear();
+        Swal.fire({
+          title: 'Transmission réussie',
+          text: 'Les risques ont été transmis au Pilote de processus.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          this.loadRisques();
         });
-      }
+      }).catch((err: any) => {
+        this.loading = false;
+        Swal.fire({
+          title: 'Erreur',
+          text: err?.message || 'Impossible de transmettre les risques',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      });
     });
   }
 

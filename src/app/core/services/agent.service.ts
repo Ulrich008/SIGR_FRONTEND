@@ -30,22 +30,22 @@ export class AgentService {
   }
 
   getAll(): Observable<AgentResponse[]> {
+    // Le filtrage par ministère est appliqué côté backend (Hibernate filter)
+    // pour tous les rôles sauf SUPER_ADMIN : pas besoin de le dupliquer ici.
     return this.http.get<AgentResponse[]>(this.apiUrl, this.headers).pipe(
-      map(agents => {
-        const currentUser = this.authService.getCurrentUser();
-        // Si l'utilisateur est MANAGER, filtrer les agents de son ministère
-        if (currentUser && currentUser.role === 'MANAGER' && currentUser.codeMinistere) {
-          return agents.filter(agent => agent.codeMinistere === currentUser.codeMinistere);
-        }
-        // ADMIN voit tous les agents
-        return agents;
-      }),
       catchError(error => this.handleError(error))
     );
   }
 
   getById(id: string): Observable<AgentResponse> {
     return this.http.get<AgentResponse>(`${this.apiUrl}/id/${id}`, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Informations de l'agent actuellement connecté (GET /api/agents/me) */
+  getMe(): Observable<AgentResponse> {
+    return this.http.get<AgentResponse>(`${this.apiUrl}/me`, this.headers).pipe(
       catchError(error => this.handleError(error))
     );
   }
@@ -76,6 +76,21 @@ export class AgentService {
 
   delete(matricule: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${matricule}`, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /**
+   * PDF des agents d'un ministère. Un ADMIN reçoit toujours son propre
+   * ministère (le paramètre est ignoré côté backend) ; un SUPER_ADMIN
+   * doit fournir codeMinistere.
+   */
+  exportPdf(codeMinistere?: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export/pdf`, {
+      headers: this.authService.getAuthHeaders(),
+      params: codeMinistere ? { codeMinistere } : undefined,
+      responseType: 'blob' as const
+    }).pipe(
       catchError(error => this.handleError(error))
     );
   }

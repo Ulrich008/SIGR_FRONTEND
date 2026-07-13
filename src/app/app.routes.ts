@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () => import('./modules/dashboard/dashboard.component').then(c => c.DashboardComponent)
   },
   {
+    path: 'me',
+    loadComponent: () => import('./modules/me/me.component').then(c => c.MeComponent)
+  },
+  {
     path: 'ministeres',
     loadChildren: () => import('./modules/ministeres/ministeres.module').then(m => m.MinisteresModule)
   },
@@ -42,10 +46,6 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/evaluations/evaluations.module').then(m => m.EvaluationsModule)
   },
   {
-    path: 'risques-residuels',
-    loadChildren: () => import('./modules/risques-residuels/risques-residuels.module').then(m => m.RisquesResiduelsModule)
-  },
-  {
     path: 'matrices',
     loadChildren: () => import('./modules/matrices/matrices.module').then(m => m.MatricesModule)
   },
@@ -56,10 +56,6 @@ export const routes: Routes = [
   {
     path: 'unites-mesure',
     loadChildren: () => import('./modules/unites-mesure/unites-mesure.module').then(m => m.UnitesMesureModule)
-  },
-  {
-    path: 'missions',
-    loadChildren: () => import('./modules/missions/missions.module').then(m => m.MissionsModule)
   },
   {
     path: 'plans-mitigation',

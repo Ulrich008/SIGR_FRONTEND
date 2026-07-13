@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,12 +13,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-type-unite-list',
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
   templateUrl: './type-unite-list.component.html'
 })
 export class TypeUniteListComponent implements OnInit {
   typeUnites: TypeUniteResponse[] = [];
   allTypeUnites: TypeUniteResponse[] = [];
+  filteredTypeUnites: TypeUniteResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -59,8 +62,8 @@ export class TypeUniteListComponent implements OnInit {
         this.allTypeUnites = typeUnites.sort((a, b) => {
           return b.code.localeCompare(a.code);
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -72,11 +75,24 @@ export class TypeUniteListComponent implements OnInit {
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredTypeUnites = !terme
+      ? this.allTypeUnites
+      : this.allTypeUnites.filter(t =>
+          t.code.toLowerCase().includes(terme) ||
+          t.libelle?.toLowerCase().includes(terme) ||
+          t.description?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allTypeUnites.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredTypeUnites.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.typeUnites = this.allTypeUnites.slice(startIndex, endIndex);
+    this.typeUnites = this.filteredTypeUnites.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -108,19 +124,26 @@ export class TypeUniteListComponent implements OnInit {
 
   getDisplayedRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allTypeUnites.length);
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredTypeUnites.length);
     return { start, end };
   }
 
+  get isSuperAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === 'SUPER_ADMIN';
+  }
+
   createTypeUnite(): void {
+    if (!this.isSuperAdmin) return;
     this.router.navigate(['/unite-administrative/type-unite/nouveau']);
   }
 
   editTypeUnite(code: string): void {
+    if (!this.isSuperAdmin) return;
     this.router.navigate(['/unite-administrative/type-unite', code, 'edit']);
   }
 
   deleteTypeUnite(code: string): void {
+    if (!this.isSuperAdmin) return;
     Swal.fire({
       title: 'Supprimer ce type d\'unité ?',
       text: 'Cette action est irréversible.',

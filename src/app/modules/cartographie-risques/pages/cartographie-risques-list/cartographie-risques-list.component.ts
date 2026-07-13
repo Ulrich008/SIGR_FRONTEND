@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -15,12 +16,14 @@ import { UniteAdministrativeResponse } from '../../../../core/models/unite-admin
 @Component({
   standalone: true,
   selector: 'app-cartographie-risques-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './cartographie-risques-list.component.html'
 })
 export class CartographieRisquesListComponent implements OnInit {
   risques: RisqueResponse[] = [];
   allRisques: RisqueResponse[] = [];
+  filteredRisques: RisqueResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -76,8 +79,8 @@ export class CartographieRisquesListComponent implements OnInit {
       next: (risques) => {
         // Filtrer uniquement les risques transmis
         this.allRisques = risques.filter(r => r.transmis);
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -89,11 +92,24 @@ export class CartographieRisquesListComponent implements OnInit {
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredRisques = !terme
+      ? this.allRisques
+      : this.allRisques.filter(r =>
+          r.code.toLowerCase().includes(terme) ||
+          r.libelle?.toLowerCase().includes(terme) ||
+          r.nomProcessus?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allRisques.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredRisques.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.risques = this.allRisques.slice(startIndex, endIndex);
+    this.risques = this.filteredRisques.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -125,7 +141,7 @@ export class CartographieRisquesListComponent implements OnInit {
 
   getDisplayedRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allRisques.length);
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredRisques.length);
     return { start, end };
   }
 

@@ -1,0 +1,93 @@
+<app-main-layout [menuItems]="menuItems" activeMenu="" searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances" userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-3xl mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <div>
+        <p class="text-sm text-gray-500">Mon espace</p>
+        <h1 class="text-2xl font-semibold text-slate-900">Mon profil</h1>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Loader -->
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement de votre profil...</span>
+      </div>
+
+      <!-- Contenu -->
+      <div *ngIf="!loading && agent" class="rounded-3xl bg-white p-6 sm:p-8 shadow-sm">
+
+        <!-- Bandeau identité -->
+        <div class="flex items-center gap-4 pb-6 border-b border-slate-100">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
+               style="background: #1a4731;">
+            {{ initiales }}
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-xl font-semibold text-slate-900 truncate">{{ agent.prenoms }} {{ agent.nom }}</h2>
+            <p class="text-sm text-slate-500">{{ agent.matricule }}</p>
+            <span class="inline-block mt-1 rounded-full px-3 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700">
+              {{ libelleRole }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Informations -->
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mt-6">
+
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Profil métier</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ agent.libelleProfil || '—' }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Statut du compte</dt>
+            <dd class="mt-1 text-sm">
+              <span [class]="agent.enabled
+                ? 'inline-block rounded-full px-3 py-0.5 text-xs font-semibold bg-green-100 text-green-700'
+                : 'inline-block rounded-full px-3 py-0.5 text-xs font-semibold bg-red-100 text-red-700'">
+                {{ agent.enabled ? 'Actif' : 'Désactivé' }}
+              </span>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Ministère</dt>
+            <dd class="mt-1 text-sm font-semibold text-slate-800">{{ agent.libelleMinistere || '—' }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Unité administrative</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ agent.libelleUnite || '—' }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Sexe</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ agent.sexe }}</dd>
+          </div>
+
+          <div *ngIf="agent.npi">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">NPI</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ agent.npi }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Date de naissance</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ agent.dateNaissance }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Prise de service</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ agent.datePriseService }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</app-main-layout>

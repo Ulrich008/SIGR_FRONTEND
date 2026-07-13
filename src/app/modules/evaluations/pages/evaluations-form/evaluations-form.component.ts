@@ -473,6 +473,7 @@ export class EvaluationsFormComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         this.error = err?.message || `Impossible de ${this.isEditMode ? 'modifier' : 'créer'} l'évaluation`;
+        Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
         this.cdr.detectChanges();
       }
     });

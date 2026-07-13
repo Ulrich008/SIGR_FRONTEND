@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../core/services/auth.service';
+import { AgentService } from '../../core/services/agent.service';
 
 @Component({
   standalone: true,
@@ -10,7 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [CommonModule],
   templateUrl: './header.component.html'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   @Input() searchPlaceholder: string = 'Rechercher...';
   @Input() userInitials: string = 'AD';
   @Input() notificationCount: number = 0; // Nombre de notifications non lues
@@ -19,10 +20,36 @@ export class HeaderComponent {
 
   isMobileSearchOpen = false;
 
+  // Rempli via GET /api/agents/me : reflète toujours l'agent réellement
+  // connecté (pas une valeur codée en dur passée par la page courante).
+  nomComplet = '';
+  libelleMinistere = '';
+
   constructor(
     private authService: AuthService,
+    private agentService: AgentService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    this.agentService.getMe().subscribe({
+      next: (agent) => {
+        this.nomComplet = `${agent.prenoms} ${agent.nom}`;
+        this.userInitials = `${agent.prenoms.charAt(0)}${agent.nom.charAt(0)}`.toUpperCase();
+        this.libelleMinistere = agent.libelleMinistere || '';
+      },
+      error: (err) => {
+        console.error('Erreur chargement du profil connecté (/me)', err);
+        // Repli sur les informations stockées localement à la connexion,
+        // pour ne jamais laisser le header sans nom/initiales.
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser) {
+          this.nomComplet = `${currentUser.prenoms} ${currentUser.nom}`;
+          this.userInitials = `${currentUser.prenoms.charAt(0)}${currentUser.nom.charAt(0)}`.toUpperCase();
+        }
+      }
+    });
+  }
 
   onSearchInput(value: string): void {
     this.search.emit(value.trim());
@@ -64,5 +91,9 @@ export class HeaderComponent {
 
   openNotifications(): void {
     this.router.navigate(['/alertes']);
+  }
+
+  ouvrirMonProfil(): void {
+    this.router.navigate(['/me']);
   }
 }

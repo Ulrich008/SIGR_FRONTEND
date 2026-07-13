@@ -148,6 +148,7 @@ export class PlansMitigationFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier le plan';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -166,6 +167,7 @@ export class PlansMitigationFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de créer le plan';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });

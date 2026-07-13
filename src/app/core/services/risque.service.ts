@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { RisqueRequest, RisqueResponse } from '../models/risque.model';
+import { AvisRisqueRequest, RisqueRequest, RisqueResponse } from '../models/risque.model';
 import { AuthService } from './auth.service';
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -49,6 +49,20 @@ export class RisqueService {
 
   updateByCode(code: string, request: RisqueRequest): Observable<RisqueResponse> {
     return this.http.put<RisqueResponse>(`${this.apiUrl}/${code}`, request, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Valider / Différer / Rejeter un risque (CMMR, CCI, Pilote de processus) */
+  validerAvis(code: string, request: AvisRisqueRequest): Observable<RisqueResponse> {
+    return this.http.patch<RisqueResponse>(`${this.apiUrl}/${code}/avis`, request, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Transmettre un risque au circuit de validation (Responsable des risques) */
+  transmettre(code: string): Observable<RisqueResponse> {
+    return this.http.patch<RisqueResponse>(`${this.apiUrl}/${code}/transmettre`, {}, this.headers).pipe(
       catchError(error => this.handleError(error))
     );
   }

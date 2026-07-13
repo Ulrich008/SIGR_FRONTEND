@@ -321,6 +321,7 @@ export class ActionsFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier l\'action';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -339,6 +340,7 @@ export class ActionsFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de créer l\'action';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
