@@ -67,9 +67,13 @@
                   <!-- Modifier -->
                   <button
                     (click)="editMinistere(ministere.id)"
-                    title="Modifier"
-                    aria-label="Modifier"
-                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+                    [disabled]="!isSuperAdmin"
+                    [title]="!isSuperAdmin ? 'Seul un super administrateur peut modifier un ministère' : 'Modifier'"
+                    [attr.aria-label]="!isSuperAdmin ? 'Seul un super administrateur peut modifier un ministère' : 'Modifier'"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+                    [ngClass]="isSuperAdmin
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-100 text-slate-300 cursor-not-allowed'"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -80,9 +84,13 @@
                   <!-- Supprimer -->
                   <button
                     (click)="deleteMinistere(ministere.id)"
-                    title="Supprimer"
-                    aria-label="Supprimer"
-                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
+                    [disabled]="!isSuperAdmin"
+                    [title]="!isSuperAdmin ? 'Seul un super administrateur peut supprimer un ministère' : 'Supprimer'"
+                    [attr.aria-label]="!isSuperAdmin ? 'Seul un super administrateur peut supprimer un ministère' : 'Supprimer'"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+                    [ngClass]="isSuperAdmin
+                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                      : 'bg-red-50 text-red-200 cursor-not-allowed'"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

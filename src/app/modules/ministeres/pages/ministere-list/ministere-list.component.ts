@@ -133,10 +133,12 @@ export class MinistereListComponent implements OnInit {
   }
 
   editMinistere(id: string): void {
+    if (!this.isSuperAdmin) return;
     this.router.navigate(['/ministeres', id, 'edit']);
   }
 
   deleteMinistere(id: string): void {
+    if (!this.isSuperAdmin) return;
     Swal.fire({
       title: 'Supprimer ce ministère ?',
       text: 'Cette action est irréversible.',
