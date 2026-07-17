@@ -125,8 +125,10 @@ export class EvaluationsListComponent implements OnInit {
     return { start, end };
   }
 
+  // Le profil Responsable d'action n'a qu'un accès en lecture seule au
+  // module Évaluation : ni création, ni modification, ni suppression.
   get canWrite(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
   }
 
   createEvaluation(): void {

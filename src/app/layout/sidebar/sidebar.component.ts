@@ -105,6 +105,27 @@ export class SidebarComponent implements OnInit {
     return this.authService.hasAnyRole(item.roles);
   }
 
+  /**
+   * Menu filtré : les entrées non autorisées sont complètement masquées
+   * (au lieu d'être affichées grisées), et un groupe dont tous les
+   * enfants sont masqués disparaît lui aussi. Renvoie les objets MenuItem
+   * d'origine (pas de copie) pour que la mutation de `item.expanded`
+   * (dépli/repli d'un sous-menu) continue de fonctionner normalement.
+   */
+  get visibleMenuItems(): MenuItem[] {
+    return this.menuItems.filter(item => this.isMenuItemEnabled(item) && this.hasVisibleContent(item));
+  }
+
+  visibleChildren(item: MenuItem): MenuItem[] {
+    if (!item.children) return [];
+    return item.children.filter(child => this.isMenuItemEnabled(child) && this.hasVisibleContent(child));
+  }
+
+  private hasVisibleContent(item: MenuItem): boolean {
+    if (!item.children) return true;
+    return item.children.some(child => this.isMenuItemEnabled(child) && this.hasVisibleContent(child));
+  }
+
   onMenuItemClick(item: MenuItem): void {
     if (!this.isMenuItemEnabled(item)) return;
     

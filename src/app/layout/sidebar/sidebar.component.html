@@ -38,7 +38,7 @@
     </p>
 
     <ul class="space-y-1">
-      <li *ngFor="let item of menuItems">
+      <li *ngFor="let item of visibleMenuItems">
 
         <!-- MENU AVEC ENFANTS -->
         <div *ngIf="item.children">
@@ -47,11 +47,7 @@
             (click)="onMenuItemClick(item)"
             [attr.aria-expanded]="item.expanded"
             [attr.title]="!showLabels ? item.label : null"
-            [disabled]="!isMenuItemEnabled(item)"
-            [ngClass]="isMenuItemEnabled(item)
-              ? 'text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)]'
-              : 'text-gray-300 cursor-not-allowed'"
-            class="sigr-item w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+            class="sigr-item w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
             <div class="flex items-center gap-3 min-w-0">
               <span class="sigr-icon w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0">
                 <i [class]="item.icon" class="text-[15px]"></i>
@@ -65,7 +61,7 @@
 
           <!-- SOUS-MENU -->
           <ul *ngIf="item.expanded && showLabels" class="ml-4 pl-3 mt-1 mb-1 space-y-1 border-l-2 border-gray-100">
-            <li *ngFor="let child of item.children">
+            <li *ngFor="let child of visibleChildren(item)">
 
               <!-- SOUS-MENU AVEC ENFANTS -->
               <div *ngIf="child.children">
@@ -73,11 +69,7 @@
                   type="button"
                   (click)="onMenuItemClick(child)"
                   [attr.aria-expanded]="child.expanded"
-                  [disabled]="!isMenuItemEnabled(child)"
-                  [ngClass]="isMenuItemEnabled(child)
-                    ? 'text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)]'
-                    : 'text-gray-300 cursor-not-allowed'"
-                  class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+                  class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                   <div class="flex items-center gap-3 min-w-0">
                     <i [class]="child.icon" class="w-4 text-center flex-shrink-0 text-[13px]"></i>
                     <span class="truncate">{{ child.label }}</span>
@@ -88,8 +80,8 @@
 
                 <!-- SOUS-SOUS-MENU -->
                 <ul *ngIf="child.expanded" class="ml-3 pl-3 mt-1 space-y-1 border-l-2 border-gray-100">
-                  <li *ngFor="let subChild of child.children">
-                    <a *ngIf="subChild.path && isMenuItemEnabled(subChild)"
+                  <li *ngFor="let subChild of visibleChildren(child)">
+                    <a *ngIf="subChild.path"
                        [routerLink]="subChild.path"
                        routerLinkActive="sigr-active"
                        [routerLinkActiveOptions]="{ exact: false }"
@@ -97,16 +89,12 @@
                        class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                       {{ subChild.label }}
                     </a>
-                    <div *ngIf="!subChild.path || !isMenuItemEnabled(subChild)"
-                         class="block w-full px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed">
-                      {{ subChild.label }}
-                    </div>
                   </li>
                 </ul>
               </div>
 
               <!-- SOUS-MENU SANS ENFANTS -->
-              <a *ngIf="!child.children && child.path && isMenuItemEnabled(child)"
+              <a *ngIf="!child.children && child.path"
                  [routerLink]="child.path"
                  routerLinkActive="sigr-active"
                  [routerLinkActiveOptions]="{ exact: false }"
@@ -114,16 +102,12 @@
                  class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                 {{ child.label }}
               </a>
-              <div *ngIf="!child.children && (!child.path || !isMenuItemEnabled(child))"
-                   class="block w-full px-3 py-2 rounded-lg text-sm text-gray-300 cursor-not-allowed">
-                {{ child.label }}
-              </div>
             </li>
           </ul>
         </div>
 
         <!-- MENU AVEC ROUTE -->
-        <a *ngIf="!item.children && item.path && isMenuItemEnabled(item)"
+        <a *ngIf="!item.children && item.path"
            [routerLink]="item.path"
            routerLinkActive="sigr-active"
            [attr.aria-current]="'page'"
@@ -136,16 +120,6 @@
           </span>
           <span *ngIf="showLabels" class="truncate whitespace-nowrap">{{ item.label }}</span>
         </a>
-
-        <!-- MENU DÉSACTIVÉ -->
-        <div *ngIf="!item.children && (!item.path || !isMenuItemEnabled(item))"
-             [attr.title]="!showLabels ? item.label : null"
-             class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-300 cursor-not-allowed">
-          <span class="sigr-icon w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0">
-            <i [class]="item.icon" class="text-[15px]"></i>
-          </span>
-          <span *ngIf="showLabels" class="truncate whitespace-nowrap">{{ item.label }}</span>
-        </div>
       </li>
     </ul>
   </nav>
