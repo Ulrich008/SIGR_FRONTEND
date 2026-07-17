@@ -52,30 +52,80 @@
               <!-- Matricule agent -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Matricule de l'agent</label>
-                <input
-                  formControlName="matriculeAgent"
-                  type="text"
-                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
-                    (isEditMode
-                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'border-slate-200 bg-slate-50 focus:border-green-400')"
-                  placeholder="AGT001"
-                />
+                <div class="relative">
+                  <input
+                    #agentInput
+                    formControlName="matriculeAgent"
+                    type="text"
+                    placeholder="Rechercher par matricule ou nom..."
+                    autocomplete="off"
+                    [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
+                      (isEditMode
+                        ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : 'border-slate-200 bg-slate-50 focus:border-green-400')"
+                    (input)="onAgentSearch($event)"
+                    (focus)="onAgentFocus()"
+                  />
+                  <div *ngIf="showAgentDropdown"
+                       class="fixed bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                       [style.width.px]="agentInput.offsetWidth"
+                       [style.top.px]="getDropdownTop(agentInput)"
+                       [style.left.px]="getDropdownLeft(agentInput)"
+                       [style.background-color]="'#ffffff'"
+                       style="z-index: 10000;">
+                    <div
+                      *ngFor="let agent of filteredAgents"
+                      (click)="selectAgent(agent)"
+                      class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
+                    >
+                      <div class="font-medium text-slate-900">{{ agent.matricule }}</div>
+                      <div class="text-xs text-slate-500">{{ agent.nom }} {{ agent.prenoms }}</div>
+                    </div>
+                    <div *ngIf="filteredAgents.length === 0" class="px-4 py-3 text-sm text-slate-500">
+                      Aucun résultat trouvé
+                    </div>
+                  </div>
+                </div>
                 <p *ngIf="form.get('matriculeAgent')?.invalid && form.get('matriculeAgent')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('matriculeAgent') }}</p>
               </div>
 
               <!-- Code unité -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Code de l'unité</label>
-                <input
-                  formControlName="codeUnite"
-                  type="text"
-                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
-                    (isEditMode
-                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'border-slate-200 bg-slate-50 focus:border-green-400')"
-                  placeholder="DGB"
-                />
+                <div class="relative">
+                  <input
+                    #uniteInput
+                    formControlName="codeUnite"
+                    type="text"
+                    placeholder="Rechercher par code ou libellé..."
+                    autocomplete="off"
+                    [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
+                      (isEditMode
+                        ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : 'border-slate-200 bg-slate-50 focus:border-green-400')"
+                    (input)="onUniteSearch($event)"
+                    (focus)="onUniteFocus()"
+                  />
+                  <div *ngIf="showUniteDropdown"
+                       class="fixed bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                       [style.width.px]="uniteInput.offsetWidth"
+                       [style.top.px]="getDropdownTop(uniteInput)"
+                       [style.left.px]="getDropdownLeft(uniteInput)"
+                       [style.background-color]="'#ffffff'"
+                       style="z-index: 10000;">
+                    <div
+                      *ngFor="let unite of filteredUnites"
+                      (click)="selectUnite(unite)"
+                      class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
+                    >
+                      <div class="font-medium text-slate-900">{{ unite.code }}</div>
+                      <div class="text-xs text-slate-500">{{ unite.libelle }}</div>
+                    </div>
+                    <div *ngIf="filteredUnites.length === 0" class="px-4 py-3 text-sm text-slate-500">
+                      Aucun résultat trouvé
+                    </div>
+                  </div>
+                </div>
                 <p *ngIf="form.get('codeUnite')?.invalid && form.get('codeUnite')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('codeUnite') }}</p>
               </div>
 

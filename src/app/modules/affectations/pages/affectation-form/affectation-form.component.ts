@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -8,6 +8,10 @@ import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { AffectationService } from '../../../../core/services/affectation.service';
 import { AffectationRequest, AffectationResponse } from '../../../../core/models/affectation.model';
+import { AgentService } from '../../../../core/services/agent.service';
+import { AgentResponse } from '../../../../core/models/agent.model';
+import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
+import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -24,9 +28,19 @@ export class AffectationFormComponent implements OnInit {
   error: string | null = null;
   menuItems: MenuItem[];
 
+  agents: AgentResponse[] = [];
+  filteredAgents: AgentResponse[] = [];
+  showAgentDropdown = false;
+
+  unitesAdministratives: UniteAdministrativeResponse[] = [];
+  filteredUnites: UniteAdministrativeResponse[] = [];
+  showUniteDropdown = false;
+
   constructor(
     private fb: FormBuilder,
     private affectationService: AffectationService,
+    private agentService: AgentService,
+    private uniteAdministrativeService: UniteAdministrativeService,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -53,6 +67,16 @@ export class AffectationFormComponent implements OnInit {
       this.router.navigate(['/auth/login']);
       return;
     }
+
+    this.agentService.getAll().subscribe({
+      next: (agents) => { this.agents = agents; this.cdr.detectChanges(); },
+      error: () => {}
+    });
+
+    this.uniteAdministrativeService.getAll().subscribe({
+      next: (unites) => { this.unitesAdministratives = unites; this.cdr.detectChanges(); },
+      error: () => {}
+    });
 
     const codeParam = this.route.snapshot.paramMap.get('code');
     if (codeParam) {
@@ -120,6 +144,7 @@ export class AffectationFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier l\'affectation';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -140,6 +165,7 @@ export class AffectationFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de créer l\'affectation';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -158,5 +184,102 @@ export class AffectationFormComponent implements OnInit {
     if (errors['required']) return 'Ce champ est requis';
     if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
     return 'Champ invalide';
+  }
+
+  // ================= RECHERCHE DYNAMIQUE : AGENT =================
+
+  onAgentFocus(): void {
+    const currentValue = this.form.get('matriculeAgent')?.value;
+    if (currentValue) {
+      this.onAgentSearch({ target: { value: currentValue } } as any);
+    } else {
+      this.filteredAgents = this.agents;
+      this.showAgentDropdown = this.filteredAgents.length > 0;
+      this.cdr.detectChanges();
+    }
+  }
+
+  onAgentSearch(event: Event): void {
+    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
+
+    if (!searchTerm) {
+      this.filteredAgents = this.agents;
+      this.showAgentDropdown = this.filteredAgents.length > 0;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.filteredAgents = this.agents.filter(agent =>
+      agent.matricule.toLowerCase().includes(searchTerm) ||
+      agent.nom.toLowerCase().includes(searchTerm) ||
+      agent.prenoms.toLowerCase().includes(searchTerm)
+    );
+
+    this.showAgentDropdown = this.filteredAgents.length > 0;
+    this.cdr.detectChanges();
+  }
+
+  selectAgent(agent: AgentResponse): void {
+    this.form.patchValue({ matriculeAgent: agent.matricule });
+    this.showAgentDropdown = false;
+    this.filteredAgents = [];
+  }
+
+  // ================= RECHERCHE DYNAMIQUE : UNITÉ ADMINISTRATIVE =================
+
+  onUniteFocus(): void {
+    const currentValue = this.form.get('codeUnite')?.value;
+    if (currentValue) {
+      this.onUniteSearch({ target: { value: currentValue } } as any);
+    } else {
+      this.filteredUnites = this.unitesAdministratives;
+      this.showUniteDropdown = this.filteredUnites.length > 0;
+      this.cdr.detectChanges();
+    }
+  }
+
+  onUniteSearch(event: Event): void {
+    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
+
+    if (!searchTerm) {
+      this.filteredUnites = this.unitesAdministratives;
+      this.showUniteDropdown = this.filteredUnites.length > 0;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.filteredUnites = this.unitesAdministratives.filter(unite =>
+      unite.code.toLowerCase().includes(searchTerm) ||
+      unite.libelle.toLowerCase().includes(searchTerm)
+    );
+
+    this.showUniteDropdown = this.filteredUnites.length > 0;
+    this.cdr.detectChanges();
+  }
+
+  selectUnite(unite: UniteAdministrativeResponse): void {
+    this.form.patchValue({ codeUnite: unite.code });
+    this.showUniteDropdown = false;
+    this.filteredUnites = [];
+  }
+
+  getDropdownTop(input: HTMLInputElement): number {
+    const rect = input.getBoundingClientRect();
+    return rect.bottom + window.scrollY + 4;
+  }
+
+  getDropdownLeft(input: HTMLInputElement): number {
+    const rect = input.getBoundingClientRect();
+    return rect.left + window.scrollX;
+  }
+
+  // Fermer les dropdowns si on clique ailleurs
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.relative')) {
+      this.showAgentDropdown = false;
+      this.showUniteDropdown = false;
+    }
   }
 }

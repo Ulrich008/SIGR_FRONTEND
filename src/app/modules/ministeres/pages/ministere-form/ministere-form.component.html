@@ -46,12 +46,6 @@
           <p *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('description') }}</p>
         </div>
 
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-700">Créé par</label>
-          <input [value]="creePar || 'Votre rôle sera automatiquement défini'" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm" readonly/>
-          <p class="mt-1 text-xs text-slate-500">Champ automatiquement rempli avec votre rôle</p>
-        </div>
-
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-end">
           <button type="button" (click)="cancel()" class="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100">
             Annuler

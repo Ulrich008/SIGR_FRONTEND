@@ -16,10 +16,27 @@
         </div>
            <button
           (click)="createMinistere()"
-          class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          [disabled]="!isSuperAdmin"
+          [title]="!isSuperAdmin ? 'Seul un super administrateur peut créer un ministère' : ''"
+          class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition"
+          [ngClass]="isSuperAdmin
+            ? 'bg-emerald-700 text-white hover:bg-emerald-600'
+            : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
         >
           Nouveau ministère
-        </button> 
+        </button>
+      </div>
+
+      <!-- Filtre dynamique -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
+        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilter()"
+          placeholder="Rechercher par code, nom, sigle..."
+          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+        />
       </div>
 
       <!-- Erreur -->
@@ -35,8 +52,7 @@
               <th class="px-4 py-3 whitespace-nowrap">Code</th>
               <th class="px-4 py-3 whitespace-nowrap">Nom</th>
               <th class="px-4 py-3 whitespace-nowrap hidden md:table-cell">Sigle</th>
-              <th class="px-4 py-3 whitespace-nowrap hidden lg:table-cell">Créé par</th>
-              <th class="px-4 py-3 whitespace-nowrap">Actions</th>
+              <th class="px-4 py-3 whitespace-nowrap text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -45,17 +61,21 @@
               <td class="px-4 py-4 text-slate-700 whitespace-nowrap">{{ ministere.code }}</td>
               <td class="px-4 py-4 text-slate-700">{{ ministere.nom }}</td>
               <td class="px-4 py-4 text-slate-700 hidden md:table-cell">{{ ministere.sigle || '—' }}</td>
-              <td class="px-4 py-4 text-slate-700 hidden lg:table-cell">{{ ministere.creePar || 'Anonyme' }}</td>
-              <td class="px-4 py-4">
-                <div class="flex items-center gap-2">
+              <td class="px-4 py-4 text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-2">
 
                   <!-- Modifier -->
                   <button
                     (click)="editMinistere(ministere.id)"
-                    title="Modifier"
-                    class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition"
+                    [disabled]="!isSuperAdmin"
+                    [title]="!isSuperAdmin ? 'Seul un super administrateur peut modifier un ministère' : 'Modifier'"
+                    [attr.aria-label]="!isSuperAdmin ? 'Seul un super administrateur peut modifier un ministère' : 'Modifier'"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+                    [ngClass]="isSuperAdmin
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-100 text-slate-300 cursor-not-allowed'"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
@@ -64,10 +84,15 @@
                   <!-- Supprimer -->
                   <button
                     (click)="deleteMinistere(ministere.id)"
-                    title="Supprimer"
-                    class="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-800 transition"
+                    [disabled]="!isSuperAdmin"
+                    [title]="!isSuperAdmin ? 'Seul un super administrateur peut supprimer un ministère' : 'Supprimer'"
+                    [attr.aria-label]="!isSuperAdmin ? 'Seul un super administrateur peut supprimer un ministère' : 'Supprimer'"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+                    [ngClass]="isSuperAdmin
+                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                      : 'bg-red-50 text-red-200 cursor-not-allowed'"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -86,9 +111,9 @@
       </div>
 
       <!-- Contrôles de pagination -->
-      <div *ngIf="!loading && allMinisteres.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
+      <div *ngIf="!loading && filteredMinisteres.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
         <div class="text-sm text-slate-500">
-          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ allMinisteres.length }} ministères
+          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ filteredMinisteres.length }} ministères
         </div>
         <div class="flex items-center gap-2">
           <button (click)="previousPage()" [disabled]="currentPage === 1"

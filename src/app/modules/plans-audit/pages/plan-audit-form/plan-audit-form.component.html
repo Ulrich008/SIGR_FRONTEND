@@ -199,7 +199,7 @@
 
               <!-- Objectif d'audit -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Objectif d'audit</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Objectif d'audit <span class="text-red-500">*</span></label>
                 <textarea
                   formControlName="objectifAudit"
                   rows="3"
@@ -212,15 +212,15 @@
                 </p>
               </div>
 
-              <!-- Effet d'audit indicatif -->
+              <!-- Effort d'audit indicatif -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Effet d'audit indicatif</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Effort d'audit indicatif <span class="text-red-500">*</span></label>
                 <textarea
                   formControlName="effetAuditIndicatif"
                   rows="3"
                   maxlength="1000"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  placeholder="Décrire l'effet indicatif de l'audit..."
+                  placeholder="Décrire l'effort d'audit indicatif..."
                 ></textarea>
                 <p *ngIf="getFieldError('effetAuditIndicatif')" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('effetAuditIndicatif') }}

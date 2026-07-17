@@ -119,22 +119,6 @@
           </div>
         </div>
 
-
-        <!-- Risques résiduels -->
-        <div class="space-y-2">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Risques résiduels liés</h3>
-          <div class="rounded-xl bg-slate-50 p-4">
-            <p *ngIf="!risque.risquesResiduelsIds || risque.risquesResiduelsIds.length === 0" class="text-slate-500">
-              Aucun risque résiduel lié
-            </p>
-            <div *ngIf="risque.risquesResiduelsIds && risque.risquesResiduelsIds.length > 0" class="space-y-1">
-              <p *ngFor="let code of risque.risquesResiduelsIds" class="text-slate-700 text-sm">
-                {{ code }}
-              </p>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>

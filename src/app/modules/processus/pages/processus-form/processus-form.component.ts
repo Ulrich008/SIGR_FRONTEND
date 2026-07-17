@@ -89,7 +89,7 @@ export class ProcessusFormComponent implements OnInit {
         next: ({ unites, agents, processus }) => {
           this.unites        = unites;
           this.agents        = agents;
-          this.managers      = agents.filter(a => a.role === 'MANAGER');
+          this.managers      = agents.filter(a => a.codeProfil === 'PILOTE');
           this.loadingUnites = false;
           this.loadingAgents = false;
           this.loading       = false;
@@ -145,7 +145,7 @@ export class ProcessusFormComponent implements OnInit {
     this.agentService.getAll().subscribe({
       next: (agents) => {
         this.agents        = agents;
-        this.managers      = agents.filter(a => a.role === 'MANAGER');
+        this.managers      = agents.filter(a => a.codeProfil === 'PILOTE');
         this.loadingAgents = false;
         this.cdr.detectChanges();
       },
@@ -199,6 +199,7 @@ export class ProcessusFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error   = err?.message || 'Impossible de modifier le processus';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -217,6 +218,7 @@ export class ProcessusFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error   = err?.message || 'Impossible de créer le processus';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });

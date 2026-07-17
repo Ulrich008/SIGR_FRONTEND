@@ -23,7 +23,7 @@ export class ProcessusListComponent implements OnInit {
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
-  selectedUnite: string = '';
+  searchTerm: string = '';
 
   // Pagination
   currentPage = 1;
@@ -71,17 +71,20 @@ export class ProcessusListComponent implements OnInit {
   }
 
   applyFilter(): void {
-    if (!this.selectedUnite) {
+    const terme = this.searchTerm.trim().toLowerCase();
+    if (!terme) {
       this.filteredProcessus = this.allProcessus;
     } else {
-      this.filteredProcessus = this.allProcessus.filter(p => p.idUnite === this.selectedUnite);
+      this.filteredProcessus = this.allProcessus.filter(p =>
+        p.code.toLowerCase().includes(terme) ||
+        p.libelle?.toLowerCase().includes(terme) ||
+        p.nomUnite?.toLowerCase().includes(terme) ||
+        p.idUnite?.toLowerCase().includes(terme) ||
+        p.nomProprietaire?.toLowerCase().includes(terme)
+      );
     }
     this.currentPage = 1;
     this.updatePagination();
-  }
-
-  onUniteChange(): void {
-    this.applyFilter();
   }
 
   updatePagination(): void {
@@ -124,11 +127,17 @@ export class ProcessusListComponent implements OnInit {
     return { start, end };
   }
 
+  get canWrite(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+  }
+
   createProcessus(): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/processus/nouveau']);
   }
 
   editProcessus(code: string): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/processus', code, 'edit']);
   }
 
@@ -137,6 +146,7 @@ export class ProcessusListComponent implements OnInit {
   }
 
   deleteProcessus(code: string): void {
+    if (!this.canWrite) return;
     Swal.fire({
       title: 'Supprimer ce processus ?',
       text: 'Cette action est irréversible.',

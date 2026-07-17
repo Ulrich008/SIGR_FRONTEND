@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,12 +13,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-evaluations-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './evaluations-list.component.html'
 })
 export class EvaluationsListComponent implements OnInit {
   evaluations: EvaluationResponse[] = [];
   allEvaluations: EvaluationResponse[] = [];
+  filteredEvaluations: EvaluationResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -56,8 +59,8 @@ export class EvaluationsListComponent implements OnInit {
           const dateB = b.dateFin ? new Date(b.dateFin).getTime() : 0;
           return dateB - dateA;
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -69,11 +72,24 @@ export class EvaluationsListComponent implements OnInit {
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredEvaluations = !terme
+      ? this.allEvaluations
+      : this.allEvaluations.filter(e =>
+          e.code.toLowerCase().includes(terme) ||
+          e.libelleRisque?.toLowerCase().includes(terme) ||
+          this.getAgentLabel(e).toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allEvaluations.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredEvaluations.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.evaluations = this.allEvaluations.slice(startIndex, endIndex);
+    this.evaluations = this.filteredEvaluations.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -109,11 +125,19 @@ export class EvaluationsListComponent implements OnInit {
     return { start, end };
   }
 
+  // Le profil Responsable d'action n'a qu'un accès en lecture seule au
+  // module Évaluation : ni création, ni modification, ni suppression.
+  get canWrite(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+  }
+
   createEvaluation(): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/evaluations/nouveau']);
   }
 
   editEvaluation(code: string): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/evaluations', code, 'edit']);
   }
 
@@ -122,6 +146,7 @@ export class EvaluationsListComponent implements OnInit {
   }
 
   deleteEvaluation(code: string): void {
+    if (!this.canWrite) return;
     Swal.fire({
       title: 'Supprimer cette évaluation ?',
       text: 'Cette action est irréversible.',

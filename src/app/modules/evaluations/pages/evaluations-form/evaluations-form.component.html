@@ -26,41 +26,6 @@
       <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
-
-      <!-- Légende -->
-      <div *ngIf="!loading" class="rounded-3xl bg-slate-50 p-4 shadow-sm">
-        <h3 class="text-sm font-semibold text-slate-900 mb-3">Échelle d'Évaluation (1 à 5)</h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
-          <div>
-            <p class="font-semibold text-slate-700 mb-1">Impact / Probabilité</p>
-            <ul class="space-y-0.5">
-              <li><span class="font-medium">1:</span> Très faible / Négligeable</li>
-              <li><span class="font-medium">2:</span> Faible / Mineur</li>
-              <li><span class="font-medium">3:</span> Moyen / Modéré</li>
-              <li><span class="font-medium">4:</span> Élevé / Majeur</li>
-              <li><span class="font-medium">5:</span> Très élevé / Critique</li>
-            </ul>
-          </div>
-          <div>
-            <p class="font-semibold text-slate-700 mb-1">Protection / Prévention</p>
-            <ul class="space-y-0.5">
-              <li><span class="font-medium">0:</span> Aucun</li>
-              <li><span class="font-medium">1:</span> Très faible</li>
-              <li><span class="font-medium">2:</span> Faible</li>
-              <li><span class="font-medium">3:</span> Moyen</li>
-            </ul>
-          </div>
-          <div>
-            <p class="font-semibold text-slate-700 mb-1">Score Inhérent (Impact × Probabilité)</p>
-            <ul class="space-y-0.5">
-              <li><span class="font-medium">1-7:</span> Faible</li>
-              <li><span class="font-medium">8-14:</span> Moyen</li>
-              <li><span class="font-medium">15-25:</span> Élevé</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
       <!-- Formulaire -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -68,7 +33,7 @@
           <!-- SECTION 1: Informations générales -->
           <div class="space-y-4">
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class=" md:grid-cols-2 gap-4">
               <!-- Risque -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque *</label>
@@ -83,16 +48,7 @@
                   class="mt-1 text-xs text-red-600">{{ getFieldError('codeRisque') }}</p>
               </div>
               <!-- Agent -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Évaluateur (optionnel)</label>
-                <select formControlName="matriculeAgent"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
-                  <option value="">Sélectionner un agent</option>
-                  <option *ngFor="let agent of agents" [value]="agent.matricule">
-                    {{ agent.matricule }} - {{ agent.nom }} {{ agent.prenoms }}
-                  </option>
-                </select>
-              </div>
+            
             </div>
           </div>
 
@@ -247,12 +203,6 @@
               </svg>
             </button>
             <div *ngIf="sections.controles" class="space-y-3 pt-2">
-              <!-- Informations sur le calcul automatique -->
-              <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
-                <svg class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-              </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Protection -->
                 <div>

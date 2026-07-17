@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,12 +13,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-plans-mitigation-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './plans-mitigation-list.component.html'
 })
 export class PlansMitigationListComponent implements OnInit {
   plans: PlanMitigationResponse[] = [];
   allPlans: PlanMitigationResponse[] = [];
+  filteredPlans: PlanMitigationResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -56,8 +59,8 @@ export class PlansMitigationListComponent implements OnInit {
           const dateB = b.dateCreation ? new Date(b.dateCreation).getTime() : 0;
           return dateB - dateA;
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -69,11 +72,25 @@ export class PlansMitigationListComponent implements OnInit {
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredPlans = !terme
+      ? this.allPlans
+      : this.allPlans.filter(p =>
+          p.code.toLowerCase().includes(terme) ||
+          p.codeRisque?.toLowerCase().includes(terme) ||
+          p.libelleRisque?.toLowerCase().includes(terme) ||
+          p.description?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allPlans.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredPlans.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.plans = this.allPlans.slice(startIndex, endIndex);
+    this.plans = this.filteredPlans.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -105,15 +122,21 @@ export class PlansMitigationListComponent implements OnInit {
 
   getDisplayedRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allPlans.length);
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredPlans.length);
     return { start, end };
   }
 
+  get canWrite(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+  }
+
   createPlan(): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/plans-mitigation/nouveau']);
   }
 
   editPlan(code: string): void {
+    if (!this.canWrite) return;
     this.router.navigate(['/plans-mitigation', code, 'edit']);
   }
 
@@ -122,6 +145,7 @@ export class PlansMitigationListComponent implements OnInit {
   }
 
   deletePlan(code: string): void {
+    if (!this.canWrite) return;
     Swal.fire({
       title: 'Supprimer ce plan ?',
       text: 'Cette action est irréversible.',

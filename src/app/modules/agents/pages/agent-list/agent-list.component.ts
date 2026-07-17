@@ -7,7 +7,8 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { AgentService } from '../../../../core/services/agent.service';
-import { AgentResponse, Role } from '../../../../core/models/agent.model';
+import { MinistereService } from '../../../../core/services/ministere.service';
+import { AgentResponse } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -23,22 +24,33 @@ export class AgentListComponent implements OnInit {
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
-  selectedUnite: string = '';
-  selectedRole: Role | '' = '';
+  searchTerm: string = '';
 
   // Pagination
   currentPage = 1;
   itemsPerPage = 10;
   totalPages = 1;
 
+  exportingPdf = false;
+
   constructor(
     private agentService: AgentService,
+    private ministereService: MinistereService,
     private router: Router,
     private authService: AuthService,
     private menuService: MenuService,
     private cdr: ChangeDetectorRef // ← ajout
   ) {
     this.menuItems = this.menuService.items;
+  }
+
+  get isSuperAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === 'SUPER_ADMIN';
+  }
+
+  get canExportPdf(): boolean {
+    const role = this.authService.getCurrentUser()?.role;
+    return role === 'ADMIN' || role === 'SUPER_ADMIN';
   }
 
   ngOnInit(): void {
@@ -74,26 +86,22 @@ export class AgentListComponent implements OnInit {
   }
 
   applyFilter(): void {
-    this.filteredAgents = this.allAgents;
-    
-    if (this.selectedUnite) {
-      this.filteredAgents = this.filteredAgents.filter(a => a.codeUnite === this.selectedUnite);
-    }
-    
-    if (this.selectedRole) {
-      this.filteredAgents = this.filteredAgents.filter(a => a.role === this.selectedRole);
-    }
-    
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredAgents = !terme
+      ? this.allAgents
+      : this.allAgents.filter(a =>
+          a.matricule.toLowerCase().includes(terme) ||
+          a.nom?.toLowerCase().includes(terme) ||
+          a.prenoms?.toLowerCase().includes(terme) ||
+          a.npi?.toLowerCase().includes(terme) ||
+          a.role?.toLowerCase().includes(terme) ||
+          a.codeProfil?.toLowerCase().includes(terme) ||
+          a.libelleProfil?.toLowerCase().includes(terme) ||
+          a.codeUnite?.toLowerCase().includes(terme) ||
+          a.libelleUnite?.toLowerCase().includes(terme)
+        );
     this.currentPage = 1;
     this.updatePagination();
-  }
-
-  onUniteChange(): void {
-    this.applyFilter();
-  }
-
-  onRoleChange(): void {
-    this.applyFilter();
   }
 
   updatePagination(): void {
@@ -209,12 +217,93 @@ export class AgentListComponent implements OnInit {
     });
   }
 
+  exportPdf(): void {
+    if (this.isSuperAdmin) {
+      this.demanderMinistereEtExporter();
+    } else {
+      this.telechargerPdf();
+    }
+  }
+
+  private demanderMinistereEtExporter(): void {
+    this.ministereService.getAll().subscribe({
+      next: (ministeres) => {
+        const options = ministeres
+          .map(m => `<option value="${m.code}">${m.code} - ${m.nom}</option>`)
+          .join('');
+
+        Swal.fire({
+          title: 'Choisir un ministère',
+          html: `
+            <select id="ministere-select" class="swal2-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px;">
+              <option value="">-- Sélectionner un ministère --</option>
+              ${options}
+            </select>
+          `,
+          showCancelButton: true,
+          confirmButtonText: 'Générer le PDF',
+          cancelButtonText: 'Annuler',
+          confirmButtonColor: '#047857',
+          cancelButtonColor: '#6b7280',
+          preConfirm: () => {
+            const select = document.getElementById('ministere-select') as HTMLSelectElement;
+            if (!select || !select.value) {
+              Swal.showValidationMessage('Veuillez sélectionner un ministère');
+              return false;
+            }
+            return select.value;
+          }
+        }).then(result => {
+          if (result.isConfirmed && result.value) {
+            this.telechargerPdf(result.value);
+          }
+        });
+      },
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: err?.message || 'Impossible de charger la liste des ministères',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    });
+  }
+
+  private telechargerPdf(codeMinistere?: string): void {
+    this.exportingPdf = true;
+    this.agentService.exportPdf(codeMinistere).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'agents.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        this.exportingPdf = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.exportingPdf = false;
+        this.cdr.detectChanges();
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: err?.message || 'Impossible de générer le PDF',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    });
+  }
+
   getRoleBadgeClass(role: string): string {
     switch (role) {
-      case 'ADMIN':   return 'bg-purple-100 text-purple-700';
-      case 'MANAGER': return 'bg-blue-100 text-blue-700';
-      case 'AGENT':   return 'bg-green-100 text-green-700';
-      default:        return 'bg-gray-100 text-gray-700';
+      case 'SUPER_ADMIN': return 'bg-red-100 text-red-700';
+      case 'ADMIN':       return 'bg-purple-100 text-purple-700';
+      case 'AGENT':       return 'bg-green-100 text-green-700';
+      default:            return 'bg-gray-100 text-gray-700';
     }
   }
 

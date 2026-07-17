@@ -65,10 +65,17 @@
       <!-- Séparateur -->
       <div class="w-px h-6 bg-gray-200 mx-2 md:mx-3"></div>
 
-      <!-- Avatar -->
+      <!-- Ministère de l'agent connecté : bien visible, en gras -->
+      <div *ngIf="libelleMinistere" class="hidden md:flex flex-col items-end mr-3 leading-tight">
+        <span *ngIf="nomComplet" class="text-xs text-gray-500">{{ nomComplet }}</span>
+        <span class="text-sm font-bold" style="color: var(--sigr-900);">{{ libelleMinistere }}</span>
+      </div>
+
+      <!-- Avatar : ouvre la page "Mon profil" (/me) -->
       <button type="button"
+              (click)="ouvrirMonProfil()"
               class="flex items-center gap-1.5 rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)] hover:bg-gray-50 transition-colors"
-              aria-label="Menu du compte">
+              [attr.aria-label]="nomComplet ? 'Voir mon profil (' + nomComplet + ')' : 'Voir mon profil'">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
              style="background: var(--sigr-900);">
           {{ userInitials }}

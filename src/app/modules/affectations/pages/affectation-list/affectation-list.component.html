@@ -22,6 +22,18 @@
         </button>
       </div>
 
+      <!-- Filtre dynamique -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
+        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilter()"
+          placeholder="Rechercher par code, agent, unité, poste..."
+          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+        />
+      </div>
+
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
@@ -83,6 +95,8 @@
           <div class="flex gap-2 pt-1 border-t border-slate-100">
             <button
               (click)="editAffectation(affectation.code)"
+              title="Modifier"
+              aria-label="Modifier"
               class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -92,6 +106,8 @@
             </button>
             <button
               (click)="deleteAffectation(affectation.code)"
+              title="Supprimer"
+              aria-label="Supprimer"
               class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -116,7 +132,7 @@
               <th class="px-4 py-3">Poste</th>
               <th class="px-4 py-3">Date début</th>
               <th class="px-4 py-3">Date fin</th>
-              <th class="px-4 py-3">Actions</th>
+              <th class="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -137,29 +153,33 @@
               <td class="px-4 py-4 text-slate-700">{{ affectation.poste }}</td>
               <td class="px-4 py-4 text-slate-700">{{ formatDate(affectation.dateAffectation) }}</td>
               <td class="px-4 py-4 text-slate-700">{{ formatDate(affectation.dateFinAffectation) }}</td>
-              <td class="px-4 py-4 space-x-2">
-                <button
-                  (click)="editAffectation(affectation.code)"
-                  title="Modifier"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                </button>
-                <button
-                  (click)="deleteAffectation(affectation.code)"
-                  title="Supprimer"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6M14 11v6"/>
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                  </svg>
-                </button>
+              <td class="px-4 py-4 text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    (click)="editAffectation(affectation.code)"
+                    title="Modifier"
+                    aria-label="Modifier"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="deleteAffectation(affectation.code)"
+                    title="Supprimer"
+                    aria-label="Supprimer"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                      <path d="M10 11v6M14 11v6"/>
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
             <tr *ngIf="affectations.length === 0">
@@ -170,9 +190,9 @@
       </div>
 
       <!-- Contrôles de pagination -->
-      <div *ngIf="!loading && allAffectations.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
+      <div *ngIf="!loading && filteredAffectations.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
         <div class="text-sm text-slate-500">
-          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ allAffectations.length }} affectations
+          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ filteredAffectations.length }} affectations
         </div>
         <div class="flex items-center gap-2">
           <button (click)="previousPage()" [disabled]="currentPage === 1"

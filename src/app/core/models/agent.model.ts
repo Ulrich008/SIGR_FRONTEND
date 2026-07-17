@@ -1,5 +1,5 @@
 export type Sexe = 'MASCULIN' | 'FEMININ';
-export type Role = 'ADMIN' | 'MANAGER' | 'AGENT';
+export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'AGENT';
 
 export interface AgentRequest {
   matricule: string;

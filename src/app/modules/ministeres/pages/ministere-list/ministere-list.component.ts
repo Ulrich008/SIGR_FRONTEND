@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // ← ajout
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,12 +13,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-ministere-list',
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
   templateUrl: './ministere-list.component.html'
 })
 export class MinistereListComponent implements OnInit {
   ministeres: MinistereResponse[] = [];
   allMinisteres: MinistereResponse[] = [];
+  filteredMinisteres: MinistereResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -54,8 +57,8 @@ export class MinistereListComponent implements OnInit {
         this.allMinisteres = ministeres.sort((a, b) => {
           return b.code.localeCompare(a.code);
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -67,11 +70,24 @@ export class MinistereListComponent implements OnInit {
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredMinisteres = !terme
+      ? this.allMinisteres
+      : this.allMinisteres.filter(m =>
+          m.code.toLowerCase().includes(terme) ||
+          m.nom?.toLowerCase().includes(terme) ||
+          m.sigle?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allMinisteres.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredMinisteres.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.ministeres = this.allMinisteres.slice(startIndex, endIndex);
+    this.ministeres = this.filteredMinisteres.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -103,19 +119,26 @@ export class MinistereListComponent implements OnInit {
 
   getDisplayedRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allMinisteres.length);
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredMinisteres.length);
     return { start, end };
   }
 
+  get isSuperAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === 'SUPER_ADMIN';
+  }
+
   createMinistere(): void {
+    if (!this.isSuperAdmin) return;
     this.router.navigate(['/ministeres/nouveau']);
   }
 
   editMinistere(id: string): void {
+    if (!this.isSuperAdmin) return;
     this.router.navigate(['/ministeres', id, 'edit']);
   }
 
   deleteMinistere(id: string): void {
+    if (!this.isSuperAdmin) return;
     Swal.fire({
       title: 'Supprimer ce ministère ?',
       text: 'Cette action est irréversible.',

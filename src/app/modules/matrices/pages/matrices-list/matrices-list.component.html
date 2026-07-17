@@ -82,6 +82,17 @@
         </div>
       </div>
 
+      <!-- Filtre dynamique -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
+        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Rechercher par code ou libellé de risque..."
+          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+        />
+      </div>
+
       <!-- Matrice 5x5 -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">

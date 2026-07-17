@@ -5,6 +5,7 @@ import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse } from '../models/auth.model';
+import { MenuService } from './menu.service';
 
 // ✅ ErrorHandlerService retiré — dépendance circulaire supprimée
 // AuthService -> ErrorHandlerService -> AuthService causait NG0200
@@ -24,6 +25,7 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
+    private menuService: MenuService,
     @Inject(PLATFORM_ID) platformId: Object
     // ✅ ErrorHandlerService supprimé du constructeur
   ) {
@@ -41,6 +43,10 @@ export class AuthService {
       tap(response => {
         this.setSession(response);
         this.currentUserSubject.next(response);
+        // Le menu est un singleton partagé : on repart d'un menu replié
+        // pour ce nouvel agent, plutôt que de garder l'état déplié
+        // laissé par la session précédente.
+        this.menuService.resetExpandedState();
       }),
       catchError(error => this.handleError(error))
     );
@@ -53,6 +59,7 @@ export class AuthService {
       localStorage.removeItem(this.USER_KEY);
     }
     this.currentUserSubject.next(null);
+    this.menuService.resetExpandedState();
   }
 
   // ================= AUTH CHECK =================

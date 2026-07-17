@@ -23,7 +23,7 @@ export class UniteAdministrativeListComponent implements OnInit {
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
-  selectedUniteParent: string = '';
+  searchTerm: string = '';
 
   // Pagination
   currentPage = 1;
@@ -70,17 +70,18 @@ export class UniteAdministrativeListComponent implements OnInit {
     });
   }
 
-  onUniteParentChange(): void {
-    this.applyFilter();
-  }
-
   applyFilter(): void {
-    if (!this.selectedUniteParent) {
-      this.filteredUnites = this.allUnites;
-    } else {
-      // Filtrer les unités qui sont sous l'unité parent sélectionnée (par code)
-      this.filteredUnites = this.allUnites.filter(u => u.idUniteParent === this.selectedUniteParent);
-    }
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredUnites = !terme
+      ? this.allUnites
+      : this.allUnites.filter(u =>
+          u.code.toLowerCase().includes(terme) ||
+          u.libelle?.toLowerCase().includes(terme) ||
+          u.typeUniteLibelle?.toLowerCase().includes(terme) ||
+          u.nomMinistere?.toLowerCase().includes(terme) ||
+          u.codeMinistere?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
     this.updatePagination();
   }
 

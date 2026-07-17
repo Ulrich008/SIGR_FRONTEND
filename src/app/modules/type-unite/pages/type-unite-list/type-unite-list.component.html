@@ -16,10 +16,27 @@
         </div>
         <button
           (click)="createTypeUnite()"
-          class="w-full md:w-auto inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+          [disabled]="!isSuperAdmin"
+          [title]="!isSuperAdmin ? 'Seul un super administrateur peut créer un type d\'unité' : ''"
+          class="w-full md:w-auto inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition"
+          [ngClass]="isSuperAdmin
+            ? 'bg-emerald-700 text-white hover:bg-emerald-600'
+            : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
         >
           + Nouveau type
         </button>
+      </div>
+
+      <!-- Filtre dynamique -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
+        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilter()"
+          placeholder="Rechercher par code, libellé, description..."
+          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+        />
       </div>
 
       <!-- Erreur -->
@@ -59,16 +76,16 @@
             <p>{{ typeUnite.description }}</p>
           </div>
 
-          <!-- Créé par -->
-          <div class="text-xs text-slate-500">
-            <p>Créé par: {{ typeUnite.creePar }}</p>
-          </div>
-
           <!-- Actions -->
           <div class="flex gap-2 pt-1 border-t border-slate-100">
             <button
               (click)="editTypeUnite(typeUnite.code)"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+              [disabled]="!isSuperAdmin"
+              [title]="!isSuperAdmin ? 'Seul un super administrateur peut modifier un type d\'unité' : ''"
+              class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+              [ngClass]="isSuperAdmin
+                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                : 'bg-slate-100 text-slate-300 cursor-not-allowed'"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -77,7 +94,12 @@
             </button>
             <button
               (click)="deleteTypeUnite(typeUnite.code)"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
+              [disabled]="!isSuperAdmin"
+              [title]="!isSuperAdmin ? 'Seul un super administrateur peut supprimer un type d\'unité' : ''"
+              class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+              [ngClass]="isSuperAdmin
+                ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                : 'bg-red-50 text-red-200 cursor-not-allowed'"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"/>
@@ -98,8 +120,7 @@
               <th class="px-4 py-3">Code</th>
               <th class="px-4 py-3">Libellé</th>
               <th class="px-4 py-3">Description</th>
-              <th class="px-4 py-3">Créé par</th>
-              <th class="px-4 py-3">Actions</th>
+              <th class="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -107,30 +128,41 @@
               <td class="px-4 py-4 text-slate-700 font-medium">{{ typeUnite.code }}</td>
               <td class="px-4 py-4 text-slate-700">{{ typeUnite.libelle }}</td>
               <td class="px-4 py-4 text-slate-700">{{ typeUnite.description || '—' }}</td>
-              <td class="px-4 py-4 text-slate-700">{{ typeUnite.creePar }}</td>
-              <td class="px-4 py-4 space-x-2">
-                <button
-                  (click)="editTypeUnite(typeUnite.code)"
-                  title="Modifier"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                </button>
-                <button
-                  (click)="deleteTypeUnite(typeUnite.code)"
-                  title="Supprimer"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6M14 11v6"/>
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                  </svg>
-                </button>
+              <td class="px-4 py-4 text-right whitespace-nowrap">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    (click)="editTypeUnite(typeUnite.code)"
+                    [disabled]="!isSuperAdmin"
+                    [title]="!isSuperAdmin ? 'Seul un super administrateur peut modifier un type d\'unité' : 'Modifier'"
+                    [attr.aria-label]="!isSuperAdmin ? 'Seul un super administrateur peut modifier un type d\'unité' : 'Modifier'"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+                    [ngClass]="isSuperAdmin
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      : 'bg-slate-100 text-slate-300 cursor-not-allowed'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button
+                    (click)="deleteTypeUnite(typeUnite.code)"
+                    [disabled]="!isSuperAdmin"
+                    [title]="!isSuperAdmin ? 'Seul un super administrateur peut supprimer un type d\'unité' : 'Supprimer'"
+                    [attr.aria-label]="!isSuperAdmin ? 'Seul un super administrateur peut supprimer un type d\'unité' : 'Supprimer'"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
+                    [ngClass]="isSuperAdmin
+                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                      : 'bg-red-50 text-red-200 cursor-not-allowed'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                      <path d="M10 11v6M14 11v6"/>
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
             <tr *ngIf="typeUnites.length === 0">
@@ -141,9 +173,9 @@
       </div>
 
       <!-- Contrôles de pagination -->
-      <div *ngIf="!loading && allTypeUnites.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
+      <div *ngIf="!loading && filteredTypeUnites.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
         <div class="text-sm text-slate-500">
-          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ allTypeUnites.length }} types d'unités
+          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ filteredTypeUnites.length }} types d'unités
         </div>
         <div class="flex items-center gap-2">
           <button (click)="previousPage()" [disabled]="currentPage === 1"

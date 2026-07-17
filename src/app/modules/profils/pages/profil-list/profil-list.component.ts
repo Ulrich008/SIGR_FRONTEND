@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,12 +13,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-profil-list',
-  imports: [CommonModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
   templateUrl: './profil-list.component.html'
 })
 export class ProfilListComponent implements OnInit {
   profils: ProfilResponse[] = [];
   allProfils: ProfilResponse[] = [];
+  filteredProfils: ProfilResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -54,8 +57,8 @@ export class ProfilListComponent implements OnInit {
         this.allProfils = profils.sort((a, b) => {
           return b.code.localeCompare(a.code);
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -67,11 +70,24 @@ export class ProfilListComponent implements OnInit {
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredProfils = !terme
+      ? this.allProfils
+      : this.allProfils.filter(p =>
+          p.code.toLowerCase().includes(terme) ||
+          p.libelle?.toLowerCase().includes(terme) ||
+          p.description?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allProfils.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredProfils.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.profils = this.allProfils.slice(startIndex, endIndex);
+    this.profils = this.filteredProfils.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -103,7 +119,7 @@ export class ProfilListComponent implements OnInit {
 
   getDisplayedRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allProfils.length);
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredProfils.length);
     return { start, end };
   }
 

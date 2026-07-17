@@ -71,6 +71,18 @@ export class ErrorHandlerService {
       if (error.error.error) {
         return error.error.error;
       }
+      // Erreurs de validation de champ (@Valid côté backend) : le corps est
+      // un objet { "champ": "message", ... } sans clé "message"/"error".
+      // Sans ce cas, ces erreurs (visibles dans Network) ne remontaient
+      // jamais à l'utilisateur : on retombait sur le message générique.
+      if (typeof error.error === 'object') {
+        const messages = Object.values(error.error).filter(
+          (v): v is string => typeof v === 'string' && v.trim().length > 0
+        );
+        if (messages.length > 0) {
+          return messages.join(' ');
+        }
+      }
     }
     return null;
   }

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm view *)",
+      "Bash(npm install *)",
+      "Bash(cd \"/home/ulrich/Téléchargements/SIGR\" && find / -path /proc -prune -o -name \"openpdf-1.3.39.jar\" -print 2>/dev/null | head -5 *)",
+      "Read(//home/ulrich/.m2/**)"
+    ],
+    "additionalDirectories": [
+      "/home/ulrich/Téléchargements/SIGR/src/main/java/com/example/SIGR/services",
+      "/home/ulrich/Téléchargements/SIGR/src/main/java/com/example/SIGR/controller"
+    ]
+  }
+}

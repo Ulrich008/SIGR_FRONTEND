@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -12,12 +13,14 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-unites-mesure-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './unites-mesure-list.component.html'
 })
 export class UnitesMesureListComponent implements OnInit {
   unitesMesure: UniteMesureResponse[] = [];
   allUnitesMesure: UniteMesureResponse[] = [];
+  filteredUnitesMesure: UniteMesureResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
@@ -54,8 +57,8 @@ export class UnitesMesureListComponent implements OnInit {
         this.allUnitesMesure = unitesMesure.sort((a, b) => {
           return b.code.localeCompare(a.code);
         });
-        
-        this.updatePagination();
+
+        this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -67,11 +70,24 @@ export class UnitesMesureListComponent implements OnInit {
     });
   }
 
+  applyFilter(): void {
+    const terme = this.searchTerm.trim().toLowerCase();
+    this.filteredUnitesMesure = !terme
+      ? this.allUnitesMesure
+      : this.allUnitesMesure.filter(u =>
+          u.code.toLowerCase().includes(terme) ||
+          u.libelle?.toLowerCase().includes(terme) ||
+          u.symbole?.toLowerCase().includes(terme)
+        );
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.allUnitesMesure.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredUnitesMesure.length / this.itemsPerPage);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.unitesMesure = this.allUnitesMesure.slice(startIndex, endIndex);
+    this.unitesMesure = this.filteredUnitesMesure.slice(startIndex, endIndex);
   }
 
   goToPage(page: number): void {
@@ -103,7 +119,7 @@ export class UnitesMesureListComponent implements OnInit {
 
   getDisplayedRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allUnitesMesure.length);
+    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredUnitesMesure.length);
     return { start, end };
   }
 

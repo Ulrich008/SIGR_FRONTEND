@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
@@ -11,14 +12,24 @@ import { AuthService } from '../../../../core/services/auth.service';
 @Component({
   standalone: true,
   selector: 'app-matrices-list',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   templateUrl: './matrices-list.component.html'
 })
 export class MatricesListComponent implements OnInit {
   evaluations: EvaluationResponse[] = [];
+  searchTerm: string = '';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
+
+  get filteredEvaluations(): EvaluationResponse[] {
+    const terme = this.searchTerm.trim().toLowerCase();
+    if (!terme) return this.evaluations;
+    return this.evaluations.filter(e =>
+      e.code.toLowerCase().includes(terme) ||
+      e.libelleRisque?.toLowerCase().includes(terme)
+    );
+  }
 
   readonly impactLevels = [5, 4, 3, 2, 1];
   readonly probLevels = [1, 2, 3, 4, 5];
@@ -59,7 +70,7 @@ export class MatricesListComponent implements OnInit {
   }
 
   getEvaluationsForCell(impact: number, probabilite: number): EvaluationResponse[] {
-    return this.evaluations.filter(e => e.impactInherent === impact && e.probabiliteInherente === probabilite);
+    return this.filteredEvaluations.filter(e => e.impactInherent === impact && e.probabiliteInherente === probabilite);
   }
 
   getCellColor(impact: number, probabilite: number): string {
@@ -86,7 +97,7 @@ export class MatricesListComponent implements OnInit {
   }
 
   countByScore(min: number, max: number): number {
-    return this.evaluations.filter(e => {
+    return this.filteredEvaluations.filter(e => {
       const score = e.impactInherent * e.probabiliteInherente;
       return score >= min && score <= max;
     }).length;

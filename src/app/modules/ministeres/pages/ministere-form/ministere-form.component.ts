@@ -19,7 +19,6 @@ export class MinistereFormComponent implements OnInit {
   loading = false;
   error: string | null = null;
   ministereId: string | null = null;
-  creePar: string | null = null;
 
   menuItems: MenuItem[] = [
     { icon: 'fas fa-th', label: 'Tableau de bord', path: '/dashboard' },
@@ -58,10 +57,9 @@ export class MinistereFormComponent implements OnInit {
     this.loading = true;
     this.ministereService.getById(id).subscribe({
       next: ministere => {
-        // Ne pas inclure creePar dans le formulaire car il est géré automatiquement
+        // creePar est géré automatiquement côté backend, pas dans ce formulaire
         const { creePar, ...formData } = ministere;
         this.form.patchValue(formData);
-        this.creePar = creePar ?? null;
         this.loading = false;
       },
       error: err => {
@@ -102,6 +100,7 @@ export class MinistereFormComponent implements OnInit {
       error: err => {
         this.loading = false;
         this.error = err?.message || 'Impossible d’enregistrer le ministère';
+        Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
       }
     });
   }

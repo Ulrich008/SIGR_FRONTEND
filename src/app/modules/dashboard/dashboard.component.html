@@ -12,17 +12,17 @@
     <div class="mb-5 sm:mb-6">
       <p class="text-xs text-gray-400 mb-1">Dashboards <span class="mx-1">›</span> Vue d'ensemble</p>
       <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Tableau de bord</h1>
-      <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">
-        <span *ngIf="ministereNom">{{ ministereNom }} ({{ ministereCode }})</span>
-        <span *ngIf="!ministereNom">Ministère · Gestion des risques</span>
+      <p *ngIf="ministereNom" class="text-sm sm:text-base font-bold mt-1" style="color: #1a4731;">
+        {{ ministereNom }} <span class="font-normal text-gray-400">({{ ministereCode }})</span>
       </p>
+      <p *ngIf="!ministereNom" class="text-xs text-gray-400 mt-0.5 hidden sm:block">Ministère · Gestion des risques</p>
     </div>
 
     <!-- KPI Cards - Ligne 1 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-3 sm:mb-4">
 
       <!-- Total Risques -->
-      <div class="sigr-kpi relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
+      <div class="sigr-kpi sigr-fade-in-up relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
         <span class="absolute inset-y-0 left-0 w-1 bg-[var(--sigr-700)]"></span>
         <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Nombre de risques</p>
@@ -40,7 +40,7 @@
       </div>
 
       <!-- Risques Critiques (mise en avant) -->
-      <div class="sigr-kpi relative bg-red-50/40 rounded-2xl border border-red-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
+      <div class="sigr-kpi sigr-fade-in-up relative bg-red-50/40 rounded-2xl border border-red-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
         <span class="absolute inset-y-0 left-0 w-1 bg-red-500"></span>
         <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Risques critiques</p>
@@ -59,10 +59,10 @@
       </div>
 
       <!-- Processus Métiers -->
-      <div class="sigr-kpi relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
+      <div class="sigr-kpi sigr-fade-in-up relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
         <span class="absolute inset-y-0 left-0 w-1 bg-[var(--sigr-700)]"></span>
         <div class="flex justify-between items-start mb-2 sm:mb-3">
-          <p class="text-xs text-gray-500">Processus métiers</p>
+          <p class="text-xs text-gray-500">Processus</p>
           <span class="w-7 h-7 rounded-lg bg-[var(--sigr-100)] flex items-center justify-center flex-shrink-0" aria-hidden="true">
             <svg class="w-4 h-4 text-[var(--sigr-700)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-width="2" stroke-linecap="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18M3 9v10a2 2 0 002 2h4m10-12v10a2 2 0 01-2 2h-4"/>
@@ -77,7 +77,7 @@
       </div>
 
       <!-- Indicateurs KPI -->
-      <div class="sigr-kpi relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
+      <div class="sigr-kpi sigr-fade-in-up relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
         <span class="absolute inset-y-0 left-0 w-1 bg-amber-400"></span>
         <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Indicateurs KPI</p>
@@ -99,7 +99,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
 
       <!-- Plans de Mitigation -->
-      <div class="sigr-kpi relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
+      <div class="sigr-kpi sigr-fade-in-up relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
         <span class="absolute inset-y-0 left-0 w-1 bg-teal-500"></span>
         <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Plans mitigation</p>
@@ -117,7 +117,7 @@
       </div>
 
       <!-- Actions -->
-      <div class="sigr-kpi relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
+      <div class="sigr-kpi sigr-fade-in-up relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
         <span class="absolute inset-y-0 left-0 w-1 bg-orange-500"></span>
         <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Actions</p>
@@ -135,7 +135,7 @@
       </div>
 
       <!-- Agents -->
-      <div class="sigr-kpi relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
+      <div class="sigr-kpi sigr-fade-in-up relative bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 pl-5 sm:pl-6 overflow-hidden">
         <span class="absolute inset-y-0 left-0 w-1 bg-purple-500"></span>
         <div class="flex justify-between items-start mb-2 sm:mb-3">
           <p class="text-xs text-gray-500">Agents</p>
@@ -157,7 +157,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
       <!-- Bar chart -->
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
+      <div class="sigr-fade-in-up lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5" style="animation-delay: 0.3s;">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
           <div>
             <h3 class="font-semibold text-gray-800 text-sm">Risques identifiés par processus</h3>
@@ -175,17 +175,37 @@
       </div>
 
       <!-- Activités Récentes -->
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
+      <div class="sigr-fade-in-up bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5" style="animation-delay: 0.35s;">
         <h3 class="font-semibold text-gray-800 text-sm mb-4">Activités récentes</h3>
 
-        <div class="space-y-3" *ngIf="activities.length">
-          <div *ngFor="let act of activities" class="flex items-start gap-3">
-            <div
-              class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              [style.background]="act.bg"
-              aria-hidden="true">
-              {{ act.initials }}
-            </div>
+        <div class="space-y-1" *ngIf="activities.length">
+          <div *ngFor="let act of activities; let i = index; let last = last"
+               class="sigr-fade-in-up flex items-center gap-3 py-2.5"
+               [class.border-b]="!last" [class.border-gray-50]="!last"
+               [style.animation-delay.ms]="400 + i * 80">
+
+            <span *ngIf="act.type === 'risques'" class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background: var(--sigr-100); color: var(--sigr-700);" aria-hidden="true">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" stroke-linecap="round" d="M3 17l4-8 4 4 4-6 4 3"/>
+              </svg>
+            </span>
+            <span *ngIf="act.type === 'evaluations'" class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span *ngIf="act.type === 'mitigation'" class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+            </span>
+            <span *ngIf="act.type === 'actions'" class="w-9 h-9 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </span>
+
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-800 leading-tight break-words">{{ act.label }}</p>
               <p class="text-xs text-gray-400 mt-0.5 break-words">{{ act.user }} · {{ act.time }}</p>
@@ -219,5 +239,25 @@
 .sigr-kpi:hover {
   box-shadow: 0 4px 14px rgba(26, 71, 49, 0.08);
   transform: translateY(-1px);
+}
+
+/* Entrée en fondu + léger glissement vers le haut au chargement */
+.sigr-fade-in-up {
+  opacity: 0;
+  animation: sigrFadeInUp 0.5s ease-out forwards;
+}
+@keyframes sigrFadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Cascade sur les cartes KPI (les deux grilles de 4 cartes se répètent) */
+.sigr-kpi:nth-child(1) { animation-delay: 0s; }
+.sigr-kpi:nth-child(2) { animation-delay: 0.06s; }
+.sigr-kpi:nth-child(3) { animation-delay: 0.12s; }
+.sigr-kpi:nth-child(4) { animation-delay: 0.18s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sigr-fade-in-up { animation: none !important; opacity: 1 !important; }
 }
 </style>

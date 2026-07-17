@@ -13,6 +13,7 @@ export interface CartographieRisquesRequest {
   seuilMoyen: number;
   seuilEleve: number;
   statut: StatutCartographie;
+  codeUniteAdministrative: string;
 }
 
 export interface CartographieRisquesResponse {
@@ -24,5 +25,7 @@ export interface CartographieRisquesResponse {
   seuilMoyen: number;
   seuilEleve: number;
   statut: StatutCartographie;
+  codeUniteAdministrative?: string;
+  libelleUniteAdministrative?: string;
   nombreRisques: number;
 }

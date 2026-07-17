@@ -1,9 +1,12 @@
-<div class="min-h-screen w-full flex flex-col md:flex-row">
-  
+<div class="min-h-screen w-full flex flex-col md:flex-row sigr-login">
+
   <!-- Panneau gauche : image de fond (50% de largeur) -->
-  <div class="relative md:w-1/2 min-h-[20vh] md:min-h-screen flex flex-col items-center justify-center overflow-hidden"
-       style="background-image: url('/assets/images/statut.jpg'); background-size: cover; background-position: center;">
-    
+  <div class="relative md:w-1/2 min-h-[20vh] md:min-h-screen flex flex-col items-center justify-center overflow-hidden">
+
+    <div class="sigr-login-bg absolute inset-0"
+         style="background-image: url('/assets/images/statut.jpg'); background-size: cover; background-position: center;">
+    </div>
+
     <!-- Overlay léger pour améliorer la lisibilité du texte sans trop assombrir -->
     <div class="absolute inset-0 bg-black/20"></div>
 
@@ -20,16 +23,16 @@
 
   <!-- Panneau droit : formulaire (50% de largeur) -->
   <div class="relative md:w-1/2 flex flex-col justify-center py-6 md:py-8 bg-white min-h-[80vh] md:min-h-screen">
-    
+
     <!-- Contenu principal centré verticalement -->
     <div class="px-4 md:px-8 lg:px-12">
       <!-- Logo + titre -->
-      <div class="flex flex-col items-center gap-2 mb-4">
+      <div class="sigr-fade-in-up flex flex-col items-center gap-2 mb-4" style="animation-delay: 0.05s;">
         <!-- Logo très grand -->
-        <img src="/assets/images/mef.png" 
-             alt="Logo du Ministère de l'Économie et des Finances" 
+        <img src="/assets/images/mef.png"
+             alt="Logo du Ministère de l'Économie et des Finances"
              class="w-40 h-40 md:w-52 md:h-52 lg:w-60 lg:h-60 object-contain">
-        
+
         <div class="text-center">
           <h1 class="text-3xl md:text-4xl font-semibold" style="font-family: 'Georgia', serif; color: #003d20;">SIGR</h1>
           <p class="text-[10px] md:text-xs text-gray-500 tracking-wide">Système d'Information de Gestion des Risques</p>
@@ -37,7 +40,7 @@
       </div>
 
       <!-- Formulaire -->
-      <div class="max-w-sm mx-auto w-full">
+      <div class="sigr-fade-in-up max-w-sm mx-auto w-full" style="animation-delay: 0.2s;">
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-3">
 
           <!-- Matricule -->
@@ -98,7 +101,7 @@
           </div>
 
           <!-- Erreur générale -->
-          <div class="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm"
+          <div class="sigr-shake bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm"
                *ngIf="error">
             {{ error }}
           </div>
@@ -106,9 +109,9 @@
           <!-- Bouton de connexion -->
           <button
             type="submit"
-            class="w-full py-2 rounded-lg text-white text-sm font-semibold tracking-wide
-                   transition-all duration-200 hover:opacity-90 active:scale-[0.99]
-                   disabled:opacity-50 disabled:cursor-not-allowed"
+            class="sigr-btn w-full py-2 rounded-lg text-white text-sm font-semibold tracking-wide
+                   transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.99] active:translate-y-0
+                   disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
             style="background-color: #008751;"
             [disabled]="loading"
           >
@@ -142,3 +145,50 @@
     </div>
   </div>
 </div>
+
+<style>
+/* Entrée nette (fondu + zoom arrière) puis zoom lent continu façon "Ken Burns" */
+.sigr-login-bg {
+  transform-origin: center;
+  animation:
+    sigrImageIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both,
+    sigrKenBurns 12s ease-in-out 1.2s infinite alternate;
+}
+@keyframes sigrImageIn {
+  from { opacity: 0; transform: scale(1.25); }
+  to   { opacity: 1; transform: scale(1.1); }
+}
+@keyframes sigrKenBurns {
+  from { transform: scale(1.1); }
+  to   { transform: scale(1.22); }
+}
+
+/* Entrée en fondu + léger glissement vers le haut, au chargement de la page */
+.sigr-fade-in-up {
+  opacity: 0;
+  animation: sigrFadeInUp 0.6s ease-out forwards;
+}
+@keyframes sigrFadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Petite secousse pour attirer l'oeil sur le message d'erreur */
+.sigr-shake {
+  animation: sigrFadeInUp 0.3s ease-out, sigrShake 0.4s ease-in-out 0.3s;
+}
+@keyframes sigrShake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-4px); }
+  40%      { transform: translateX(4px); }
+  60%      { transform: translateX(-3px); }
+  80%      { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sigr-login-bg, .sigr-fade-in-up, .sigr-shake {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+</style>

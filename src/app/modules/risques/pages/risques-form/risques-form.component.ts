@@ -347,6 +347,7 @@ export class RisquesFormComponent implements OnInit {
 
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier le risque';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
 
           this.cdr.detectChanges();
         }
@@ -373,6 +374,7 @@ export class RisquesFormComponent implements OnInit {
 
           this.loading = false;
           this.error = err?.message || 'Impossible de créer le risque';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
 
           this.cdr.detectChanges();
         }

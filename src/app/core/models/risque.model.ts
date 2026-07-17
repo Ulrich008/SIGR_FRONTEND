@@ -33,6 +33,21 @@ export enum AvisRisque {
   EN_ATTENTE = 'EN_ATTENTE'
 }
 
+// Circuit de validation : Formalisation -> Pilote -> CCI -> CMMR -> Validée/Rejetée
+export enum EtapeValidation {
+  FORMALISATION = 'FORMALISATION',
+  PILOTE = 'PILOTE',
+  CCI = 'CCI',
+  CMMR = 'CMMR',
+  VALIDEE = 'VALIDEE',
+  REJETEE = 'REJETEE'
+}
+
+export interface AvisRisqueRequest {
+  avis: AvisRisque;
+  motif?: string;
+}
+
 export interface RisqueRequest {
   code?: string;
   libelle: string;
@@ -64,8 +79,8 @@ export interface RisqueResponse {
   nomProcessus: string;
   idCartographie: string;
   typeRisque: TypeRisque;
-  risquesResiduelsIds: string[];
   avis?: AvisRisque;
   motif?: string;
   transmis?: boolean;
+  etapeValidation?: EtapeValidation;
 }

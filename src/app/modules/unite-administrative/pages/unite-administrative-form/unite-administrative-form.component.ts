@@ -74,7 +74,9 @@ export class UniteAdministrativeFormComponent implements OnInit {
       ]).subscribe({
         next: ([typeUnites, ministeres]) => {
           this.typeUnites = typeUnites;
-          this.ministeres = ministeres;
+          this.ministeres = this.isSuperAdmin
+            ? ministeres
+            : ministeres.filter(m => m.code === this.authService.getCurrentUser()?.codeMinistere);
           this.loadingTypeUnites = false;
           this.loadingMinisteres = false;
           this.loadUnite(codeParam);
@@ -141,11 +143,25 @@ export class UniteAdministrativeFormComponent implements OnInit {
     });
   }
 
+  get isSuperAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === 'SUPER_ADMIN';
+  }
+
   loadMinisteres(): void {
     this.loadingMinisteres = true;
     this.ministereService.getAll().subscribe({
       next: (ministeres) => {
-        this.ministeres = ministeres;
+        if (this.isSuperAdmin) {
+          this.ministeres = ministeres;
+        } else {
+          // Un ADMIN ne peut créer une unité que dans son propre ministère
+          const codeMinistereAgent = this.authService.getCurrentUser()?.codeMinistere;
+          this.ministeres = ministeres.filter(m => m.code === codeMinistereAgent);
+          if (codeMinistereAgent) {
+            this.form.patchValue({ codeMinistere: codeMinistereAgent });
+            this.form.get('codeMinistere')?.disable();
+          }
+        }
         this.loadingMinisteres = false;
         this.cdr.detectChanges();
       },
@@ -215,6 +231,7 @@ export class UniteAdministrativeFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de modifier l\'unité administrative';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
@@ -235,6 +252,7 @@ export class UniteAdministrativeFormComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de créer l\'unité administrative';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
