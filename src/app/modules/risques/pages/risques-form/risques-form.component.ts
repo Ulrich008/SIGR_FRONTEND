@@ -12,7 +12,6 @@ import { MenuService } from '../../../../core/services/menu.service';
 
 import { RisqueService } from '../../../../core/services/risque.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
-import { CartographieRisquesService } from '../../../../core/services/cartographie-risques.service';
 
 import {
   RisqueRequest,
@@ -23,7 +22,6 @@ import {
 } from '../../../../core/models/risque.model';
 
 import { ProcessusResponse } from '../../../../core/models/processus.model';
-import { CartographieRisquesResponse } from '../../../../core/models/cartographie-risques.model';
 
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -46,7 +44,6 @@ export class RisquesFormComponent implements OnInit {
   menuItems: MenuItem[];
 
   processus: ProcessusResponse[] = [];
-  cartographies: CartographieRisquesResponse[] = [];
   finalitesProcessus: string[] = [];
 
   causesProbables: string[] = [];
@@ -67,7 +64,6 @@ export class RisquesFormComponent implements OnInit {
   showBonnesPratiques = true;
 
   loadingProcessus = false;
-  loadingCartographies = false;
 
   statutOptions = [
     { value: StatutRisque.ACTIF, label: 'Actif' },
@@ -131,7 +127,6 @@ export class RisquesFormComponent implements OnInit {
     private fb: FormBuilder,
     private risqueService: RisqueService,
     private processusService: ProcessusService,
-    private cartographieService: CartographieRisquesService,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -155,8 +150,6 @@ export class RisquesFormComponent implements OnInit {
 
       codeProcessus: ['', [Validators.required]],
 
-      codeCartographie: [''],
-
       typeRisque: ['', [Validators.required]]
     });
   }
@@ -177,14 +170,12 @@ export class RisquesFormComponent implements OnInit {
 
       forkJoin({
         processus: this.processusService.getAll(),
-        cartographies: this.cartographieService.getAll(),
         risque: this.risqueService.getByCode(codeParam)
       }).subscribe({
 
         next: (data) => {
 
           this.processus = data.processus;
-          this.cartographies = data.cartographies;
 
           this.patchForm(data.risque);
 
@@ -211,15 +202,11 @@ export class RisquesFormComponent implements OnInit {
 
     this.loading = true;
 
-    forkJoin({
-      processus: this.processusService.getAll(),
-      cartographies: this.cartographieService.getAll()
-    }).subscribe({
+    this.processusService.getAll().subscribe({
 
       next: (data) => {
 
-        this.processus = data.processus;
-        this.cartographies = data.cartographies;
+        this.processus = data;
 
         this.loading = false;
 
@@ -244,7 +231,6 @@ export class RisquesFormComponent implements OnInit {
       statut: risque.statut,
       dateIdentification: this.formatDateForInput(risque.dateIdentification),
       codeProcessus: risque.codeProcessus,
-      codeCartographie: risque.idCartographie,
       typeRisque: risque.typeRisque
     });
 
@@ -322,7 +308,6 @@ export class RisquesFormComponent implements OnInit {
       statut: raw.statut,
       dateIdentification: raw.dateIdentification,
       codeProcessus: raw.codeProcessus,
-      codeCartographie: raw.codeCartographie,
       typeRisque: raw.typeRisque
     };
 

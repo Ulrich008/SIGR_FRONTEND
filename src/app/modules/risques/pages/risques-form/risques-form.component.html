@@ -73,23 +73,8 @@
                 </p>
               </div>
 
-              <!-- Cartographie -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  Cartographie (optionnel)
-                </label>
-                <select formControlName="codeCartographie"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
-                  <option value="">Sélectionner une cartographie</option>
-                  <option *ngIf="loadingCartographies" value="" disabled>Chargement...</option>
-                  <option *ngFor="let carto of cartographies" [value]="carto.code">
-                    {{ carto.code }} - {{ carto.titre }}
-                  </option>
-                </select>
-              </div>
-
               <!-- Libellé -->
-              <div>
+              <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Libellé <span class="text-red-500">*</span>
                   <span class="ml-1 text-xs font-normal text-slate-400">(max 200 caractères)</span>
