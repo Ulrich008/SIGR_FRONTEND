@@ -14,6 +14,7 @@ export interface AgentRequest {
   datePriseService: string;
   codeUnite: string;
   codeMinistere: string;     // ← nouveau champ pour multi-ministères
+  email?: string;            // ← optionnel, sert aux notifications par email
 }
 
 export interface AgentResponse {
@@ -33,4 +34,6 @@ export interface AgentResponse {
   libelleUnite?: string;
   codeMinistere?: string;    // ← nouveau champ pour multi-ministères
   libelleMinistere?: string; // ← libellé du ministère pour affichage
+  sigleMinistere?: string;   // ← sigle du ministère pour affichage compact (header)
+  email?: string;            // ← optionnel, sert aux notifications par email
 }

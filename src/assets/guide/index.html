@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide d'utilisation — SIGR</title>
+<meta name="description" content="Guide complet d'utilisation de la plateforme SIGR (Système Intégré de Gestion des Risques).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a4731%22/><text x=%2250%22 y=%2266%22 font-size=%2255%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Georgia,serif%22>S</text></svg>">
+<style>
+  :root {
+    --sigr-900: #1a4731;
+    --sigr-800: #1f5738;
+    --sigr-700: #22703f;
+    --sigr-600: #2c8a4f;
+    --sigr-100: #eaf5ee;
+    --sigr-50: #f5faf6;
+    --ink: #1c2521;
+    --ink-soft: #566661;
+    --line: #e4e9e6;
+    --bg: #fbfcfb;
+    --card: #ffffff;
+    --amber: #b7791f;
+    --amber-bg: #fff8ec;
+    --amber-line: #f1dfb8;
+    --red: #b42318;
+    --red-bg: #fef3f2;
+    --red-line: #f3c6c2;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+  }
+  a { color: var(--sigr-700); }
+
+  /* ===== Bandeau drapeau ===== */
+  .flag-strip { display: flex; height: 4px; }
+  .flag-strip span { flex: 1; }
+  .flag-strip span:nth-child(1) { background: #008751; }
+  .flag-strip span:nth-child(2) { background: #fcd116; }
+  .flag-strip span:nth-child(3) { background: #e8112d; }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 40;
+    background: var(--sigr-900);
+    color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--sigr-600), var(--sigr-900));
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, serif; font-weight: 700; font-size: 18px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .topbar-title { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }
+  .topbar-subtitle { font-size: 11px; color: #cfe4d6; letter-spacing: 0.5px; text-transform: uppercase; }
+  .topbar-search {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px; padding: 8px 12px;
+    color: #dfeee5; font-size: 13px;
+    min-width: 220px;
+  }
+  .topbar-search input {
+    background: transparent; border: none; outline: none;
+    color: white; font-size: 13px; width: 100%;
+  }
+  .topbar-search input::placeholder { color: #a9c9b6; }
+
+  /* ===== Layout ===== */
+  .shell {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    max-width: 1360px;
+    margin: 0 auto;
+  }
+  .toc {
+    position: sticky;
+    top: 61px;
+    align-self: start;
+    height: calc(100vh - 61px);
+    overflow-y: auto;
+    padding: 28px 16px 40px 24px;
+    border-right: 1px solid var(--line);
+  }
+  .toc-group { margin-bottom: 22px; }
+  .toc-group h4 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--ink-soft); margin: 0 0 8px 10px; font-weight: 700;
+  }
+  .toc a {
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 10px; border-radius: 9px;
+    text-decoration: none; color: var(--ink-soft);
+    font-size: 13.5px; font-weight: 600;
+    transition: background .15s, color .15s;
+  }
+  .toc a .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--line); flex-shrink: 0;
+    transition: background .15s, transform .15s;
+  }
+  .toc a:hover { background: var(--sigr-50); color: var(--sigr-900); }
+  .toc a.active { background: var(--sigr-100); color: var(--sigr-900); }
+  .toc a.active .dot { background: var(--sigr-700); transform: scale(1.3); }
+
+  main { padding: 40px 48px 100px; min-width: 0; }
+
+  /* ===== Hero ===== */
+  .hero {
+    background: linear-gradient(135deg, var(--sigr-900) 0%, var(--sigr-700) 100%);
+    border-radius: 22px;
+    padding: 44px 40px;
+    color: white;
+    margin-bottom: 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute; right: -60px; top: -60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 { font-size: 32px; margin: 0 0 12px; font-weight: 800; letter-spacing: -0.5px; }
+  .hero p { font-size: 15px; color: #e2f0e7; max-width: 640px; margin: 0 0 22px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white; color: var(--sigr-900);
+    padding: 10px 18px; border-radius: 10px;
+    font-weight: 700; font-size: 13.5px; text-decoration: none;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  }
+  .hero-btn.ghost {
+    background: rgba(255,255,255,0.08); color: white;
+    border: 1px solid rgba(255,255,255,0.3); box-shadow: none;
+  }
+
+  /* ===== Sections ===== */
+  section.doc { margin-bottom: 64px; scroll-margin-top: 80px; }
+  .doc-kicker {
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--sigr-700); margin-bottom: 8px;
+  }
+  .doc h2 {
+    font-size: 25px; margin: 0 0 8px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px;
+  }
+  .doc > p.lead { color: var(--ink-soft); font-size: 14.5px; max-width: 760px; margin: 0 0 28px; }
+
+  .subsection { margin-top: 34px; padding-top: 30px; border-top: 1px dashed var(--line); scroll-margin-top: 80px; }
+  .subsection h3 { font-size: 18px; margin: 0 0 6px; font-weight: 750; color: var(--ink); }
+  .subsection .role-tags { margin-bottom: 14px; }
+
+  .role-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 16px; }
+  .role-tag {
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+    background: var(--sigr-100); color: var(--sigr-900); border: 1px solid #d3ebda;
+  }
+
+  .steps { margin: 16px 0; padding: 0; list-style: none; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 4px 40px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 2px;
+    width: 26px; height: 26px; border-radius: 8px;
+    background: var(--sigr-900); color: white;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps li b { color: var(--sigr-900); }
+
+  figure.shot {
+    margin: 20px 0; border-radius: var(--radius);
+    overflow: hidden; border: 1px solid var(--line);
+    box-shadow: 0 10px 30px rgba(16, 40, 26, 0.08);
+    background: var(--card);
+  }
+  figure.shot img { display: block; width: 100%; height: auto; }
+  figure.shot figcaption {
+    padding: 10px 16px; font-size: 12.5px; color: var(--ink-soft);
+    background: var(--sigr-50); border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .shot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .shot-grid { grid-template-columns: 1fr; } }
+
+  .callout {
+    display: flex; gap: 12px; align-items: flex-start;
+    border-radius: 12px; padding: 14px 16px; margin: 18px 0;
+    font-size: 13.5px; border: 1px solid var(--line);
+  }
+  .callout.tip { background: var(--sigr-50); border-color: #d3ebda; }
+  .callout.warn { background: var(--amber-bg); border-color: var(--amber-line); }
+  .callout.danger { background: var(--red-bg); border-color: var(--red-line); }
+  .callout .icon { font-size: 16px; line-height: 1; flex-shrink: 0; }
+  .callout.tip .icon { color: var(--sigr-700); }
+  .callout.warn .icon { color: var(--amber); }
+  .callout.danger .icon { color: var(--red); }
+  .callout b { display: block; margin-bottom: 2px; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+  @media (max-width: 900px) { .card-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .card-grid { grid-template-columns: 1fr; } }
+  .mini-card {
+    border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+    background: var(--card);
+  }
+  .mini-card .mc-icon {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--sigr-100);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+    color: var(--sigr-900); font-size: 16px;
+  }
+  .mini-card h5 { margin: 0 0 4px; font-size: 13.5px; font-weight: 750; }
+  .mini-card p { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
+
+  .flow {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 18px 0 22px;
+  }
+  .flow .node {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 14px; font-size: 12.5px; font-weight: 700; color: var(--sigr-900);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .flow .arrow { color: var(--ink-soft); font-size: 16px; }
+  .flow .node.final { background: var(--sigr-900); color: white; border-color: var(--sigr-900); }
+
+  table.compact { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  table.compact th, table.compact td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  table.compact th { background: var(--sigr-50); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ink-soft); }
+  table.compact td.ok { color: var(--sigr-700); font-weight: 700; }
+  table.compact td.no { color: #9aa5a0; }
+
+  .top-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; color: var(--sigr-700);
+    text-decoration: none; margin-top: 18px;
+  }
+
+  footer.doc-footer {
+    max-width: 1360px; margin: 0 auto; padding: 30px 48px 60px 328px;
+    color: var(--ink-soft); font-size: 12.5px;
+  }
+
+  @media (max-width: 980px) {
+    .shell { grid-template-columns: 1fr; }
+    .toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    main { padding: 28px 20px 80px; }
+    footer.doc-footer { padding-left: 20px; }
+    .topbar-search { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="flag-strip"><span></span><span></span><span></span></div>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">S</div>
+    <div>
+      <div class="topbar-title">SIGR — Guide d'utilisation</div>
+      <div class="topbar-subtitle">Système intégré de gestion des risques</div>
+    </div>
+  </div>
+  <div class="topbar-search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+    <input id="tocFilter" type="text" placeholder="Filtrer les sections...">
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ============ TABLE DES MATIÈRES ============ -->
+  <nav class="toc" id="toc">
+    <div class="toc-group">
+      <h4>Prise en main</h4>
+      <a href="#intro"><span class="dot"></span>Bienvenue</a>
+      <a href="#connexion"><span class="dot"></span>Se connecter</a>
+      <a href="#interface"><span class="dot"></span>Découvrir l'interface</a>
+      <a href="#roles"><span class="dot"></span>Rôles &amp; profils</a>
+    </div>
+    <div class="toc-group">
+      <h4>Administration</h4>
+      <a href="#agents"><span class="dot"></span>Agents</a>
+      <a href="#affectations"><span class="dot"></span>Affectations</a>
+      <a href="#profils-crud"><span class="dot"></span>Profils métier</a>
+      <a href="#ministeres"><span class="dot"></span>Ministères &amp; unités</a>
+      <a href="#unites-mesure"><span class="dot"></span>Unités de mesure</a>
+    </div>
+    <div class="toc-group">
+      <h4>Gestion des risques</h4>
+      <a href="#processus"><span class="dot"></span>Processus &amp; risques</a>
+      <a href="#evaluations"><span class="dot"></span>Évaluations</a>
+      <a href="#matrice"><span class="dot"></span>Matrice des risques</a>
+      <a href="#mitigation"><span class="dot"></span>Mitigation</a>
+      <a href="#cartographie"><span class="dot"></span>Cartographie &amp; validation</a>
+      <a href="#audit"><span class="dot"></span>Plan d'audit</a>
+    </div>
+    <div class="toc-group">
+      <h4>Mon espace</h4>
+      <a href="#alertes"><span class="dot"></span>Alertes</a>
+      <a href="#profil"><span class="dot"></span>Mon profil</a>
+      <a href="#faq"><span class="dot"></span>Questions fréquentes</a>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENU ============ -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero" id="intro">
+      <span class="hero-eyebrow">📘 Guide officiel</span>
+      <h1>Tout savoir pour bien utiliser SIGR</h1>
+      <p>
+        Ce guide vous accompagne pas à pas dans la plateforme : connexion, navigation,
+        gestion des agents, formalisation et évaluation des risques, mitigation et
+        circuit de validation de la cartographie. Chaque section est illustrée par
+        de vraies captures d'écran de l'application pour vous éviter de vous perdre.
+      </p>
+      <div class="hero-actions">
+        <a class="hero-btn" href="#connexion">Commencer la lecture →</a>
+        <a class="hero-btn ghost" href="#roles">Voir les rôles &amp; profils</a>
+      </div>
+    </div>
+
+    <!-- CONNEXION -->
+    <section class="doc" id="connexion">
+      <div class="doc-kicker">Étape 1</div>
+      <h2>Se connecter à la plateforme</h2>
+      <p class="lead">
+        L'accès à SIGR se fait avec un <b>matricule</b> et un <b>mot de passe</b> fournis par
+        votre administrateur. Aucune auto-inscription n'est possible : seul un agent
+        ADMIN ou SUPER_ADMIN peut créer un compte.
+      </p>
+
+      <ol class="steps">
+        <li>Ouvrez la page de connexion de SIGR.</li>
+        <li>Saisissez votre <b>matricule</b> (ex. <code>AGT-003</code>) dans le premier champ.</li>
+        <li>Saisissez votre <b>mot de passe</b> dans le second champ.</li>
+        <li>Cliquez sur <b>« Se connecter »</b>. Vous êtes redirigé vers le tableau de bord.</li>
+      </ol>
+
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="images/01-login.png" alt="Écran de connexion SIGR">
+          <figcaption>🔐 Écran de connexion — matricule et mot de passe</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/02-login-filled.png" alt="Formulaire de connexion rempli">
+          <figcaption>✍️ Formulaire rempli, prêt à valider</figcaption>
+        </figure>
+      </div>
+
+      <div class="callout warn">
+        <span class="icon">⚠️</span>
+        <div><b>Mot de passe oublié ?</b>Contactez votre administrateur ministériel ou le SUPER_ADMIN : lui seul peut réinitialiser un compte.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- INTERFACE -->
+    <section class="doc" id="interface">
+      <div class="doc-kicker">Étape 2</div>
+      <h2>Découvrir l'interface</h2>
+      <p class="lead">
+        Une fois connecté, vous arrivez sur le <b>tableau de bord</b>. Trois zones structurent
+        toute la plateforme : le menu latéral à gauche, la barre supérieure, et la zone de
+        contenu principale.
+      </p>
+
+      <figure class="shot">
+        <img src="images/03-dashboard.png" alt="Tableau de bord SIGR">
+        <figcaption>🏠 Tableau de bord — vue d'ensemble des indicateurs clés</figcaption>
+      </figure>
+
+      <div class="card-grid">
+        <div class="mini-card">
+          <div class="mc-icon">☰</div>
+          <h5>Menu latéral (gauche)</h5>
+          <p>Regroupe les modules par rubrique. Cliquez sur une rubrique pour déplier ses sous-menus. Le menu affiché dépend de votre rôle et profil.</p>
+        </div>
+        <div class="mini-card">
+          <div class="mc-icon">⤴</div>
+          <h5>Barre supérieure</h5>
+          <p>Guide d'utilisation, cloche de notifications (avec compteur des non-lues), déconnexion, ministère de rattachement et accès à votre profil (avatar, en haut à droite).</p>
+        </div>
+        <div class="mini-card">
+          <div class="mc-icon">▦</div>
+          <h5>Zone de contenu</h5>
+          <p>Listes, formulaires et détails s'affichent ici. La plupart des listes proposent recherche, filtres et pagination.</p>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Déplier un sous-menu</h3>
+        <p class="lead" style="margin-bottom:14px;">Cliquez sur une rubrique du menu (ex. « Configuration ») pour afficher ses pages.</p>
+        <figure class="shot">
+          <img src="images/04-sidebar-menu.png" alt="Menu latéral déplié sur la rubrique Configuration">
+          <figcaption>📂 La rubrique « Configuration » dépliée, avec ses sous-pages</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Le guide, les notifications et votre profil</h3>
+        <figure class="shot">
+          <img src="images/20-header-closeup.png" alt="Gros plan sur la barre supérieure">
+          <figcaption>🔎 Barre supérieure : guide d'utilisation, notifications, déconnexion, ministère et avatar</figcaption>
+        </figure>
+        <ul class="steps">
+          <li>L'icône <b>livre ouvert</b> ouvre ce guide dans un nouvel onglet, à tout moment.</li>
+          <li>La <b>cloche</b> affiche un badge avec le nombre de notifications non lues et vous emmène vers le <a href="#alertes">centre de notifications</a>. Le badge se met à jour automatiquement, sans recharger la page.</li>
+          <li>Votre <b>avatar</b> (initiales, en haut à droite) ouvre la page « Mon profil ».</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>L'assistant SIGR (chatbot)</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Une bulle de discussion 💬 reste accessible en bas à droite sur toutes les pages.
+          Elle répond aux questions courantes sur l'utilisation de la plateforme (connexion,
+          création d'un risque, circuit de validation, rôles…) en s'appuyant directement sur
+          le contenu de ce guide — aucune connexion internet ni clé externe n'est nécessaire.
+        </p>
+        <figure class="shot">
+          <img src="images/42-chatbot-widget.png" alt="Assistant conversationnel SIGR ouvert">
+          <figcaption>💬 Assistant SIGR — questions suggérées et recherche dans le guide</figcaption>
+        </figure>
+        <ul class="steps">
+          <li>Cliquez sur la bulle verte pour ouvrir la conversation.</li>
+          <li>Choisissez une <b>suggestion</b> ou tapez votre question librement.</li>
+          <li>Chaque réponse propose un lien <b>« En savoir plus dans le guide »</b> vers la section correspondante.</li>
+        </ul>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Pas de question hors sujet.</b>L'assistant ne connaît que le fonctionnement de SIGR : il ne remplace pas une recherche internet générale.</div>
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- ROLES -->
+    <section class="doc" id="roles">
+      <div class="doc-kicker">Étape 3</div>
+      <h2>Comprendre les rôles &amp; profils</h2>
+      <p class="lead">
+        SIGR combine deux notions complémentaires : le <b>rôle technique</b> (ce que le compte
+        est autorisé à administrer) et le <b>profil métier</b> (ce que l'agent fait dans le
+        circuit de gestion des risques).
+      </p>
+
+      <table class="compact">
+        <thead><tr><th>Rôle technique</th><th>Portée</th></tr></thead>
+        <tbody>
+          <tr><td><b>SUPER_ADMIN</b></td><td>Accès total, tous ministères confondus. Seul rôle pouvant créer un autre SUPER_ADMIN.</td></tr>
+          <tr><td><b>ADMIN</b></td><td>Administration complète, limitée à son propre ministère (agents, structures, unités).</td></tr>
+          <tr><td><b>AGENT</b></td><td>Compte opérationnel rattaché à un <b>profil métier</b> obligatoire (voir ci-dessous).</td></tr>
+        </tbody>
+      </table>
+
+      <div class="card-grid">
+        <div class="mini-card"><div class="mc-icon">📋</div><h5>RESPONSABLE_RISQUES</h5><p>Formalise les risques et transmet la cartographie au Pilote.</p></div>
+        <div class="mini-card"><div class="mc-icon">🧭</div><h5>PILOTE</h5><p>Valide, diffère ou rejette au niveau du processus.</p></div>
+        <div class="mini-card"><div class="mc-icon">🏛️</div><h5>CCI</h5><p>Consolide avec le CODIR avant transmission au CMMR.</p></div>
+        <div class="mini-card"><div class="mc-icon">✅</div><h5>CMMR</h5><p>Valide la cartographie du ministère — étape finale du circuit.</p></div>
+        <div class="mini-card"><div class="mc-icon">🛠️</div><h5>RESPONSABLE_ACTION</h5><p>Gère les plans de mitigation et les actions correctives.</p></div>
+        <div class="mini-card"><div class="mc-icon">🔍</div><h5>AUDITEUR</h5><p>Accès en lecture seule + gestion du plan d'audit.</p></div>
+      </div>
+
+      <div class="callout tip">
+        <span class="icon">💡</span>
+        <div><b>Ce que vous voyez dépend de qui vous êtes.</b>Le menu, les boutons et les colonnes des tableaux s'adaptent automatiquement à votre rôle et à votre profil : un bouton grisé signifie simplement que l'action n'est pas autorisée pour votre profil.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- AGENTS -->
+    <section class="doc" id="agents">
+      <div class="doc-kicker">Administration</div>
+      <h2>Gérer les agents</h2>
+      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
+      <p class="lead">
+        Menu <b>Configuration → Agents</b>. Créez, modifiez, activez/désactivez ou
+        supprimez les comptes. Un SUPER_ADMIN voit tous les ministères ; un ADMIN ne voit
+        que le sien.
+      </p>
+
+      <figure class="shot">
+        <img src="images/05-agents-list.png" alt="Liste des agents">
+        <figcaption>👥 Liste des agents — recherche, statut et actions rapides</figcaption>
+      </figure>
+
+      <div class="subsection">
+        <h3>Créer un nouvel agent</h3>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouvel agent »</b> en haut de la liste.</li>
+          <li>Renseignez l'état civil, puis choisissez le <b>ministère</b> et l'<b>unité administrative</b> de rattachement.</li>
+          <li>Si le rôle choisi est <b>AGENT</b>, sélectionnez obligatoirement un <b>profil métier</b>.</li>
+          <li>Définissez le matricule et le mot de passe initial, puis enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/06-agent-form.png" alt="Formulaire de création d'un agent">
+          <figcaption>📝 Formulaire « Nouvel agent »</figcaption>
+        </figure>
+        <div class="callout tip">
+          <span class="icon">📄</span>
+          <div><b>Export PDF.</b>Depuis la liste, le bouton « Exporter PDF » génère un répertoire imprimable des agents, filtrable par ministère et par unité administrative.</div>
+        </div>
+      </div>
+
+      <div class="subsection" id="affectations">
+        <h3>Affectations</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Menu <b>Configuration → Agents → Affectations</b>. Une affectation trace
+          l'<b>historique des postes</b> occupés par un agent au sein d'une unité
+          administrative (poste, date de début, date de fin optionnelle) — distinct
+          de l'unité de rattachement principale définie sur la fiche de l'agent.
+        </p>
+        <figure class="shot">
+          <img src="images/23-affectations-list.png" alt="Liste des affectations">
+          <figcaption>🗓️ Affectations — historique des postes par agent et unité</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouvelle affectation »</b>.</li>
+          <li>Sélectionnez l'<b>agent</b> et l'<b>unité administrative</b> concernés.</li>
+          <li>Renseignez le <b>poste</b> occupé et la <b>date de début</b> (la date de fin est optionnelle).</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/28-affectation-form.png" alt="Formulaire de nouvelle affectation">
+          <figcaption>📝 Formulaire « Nouvelle affectation »</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- PROFILS CRUD -->
+    <section class="doc" id="profils-crud">
+      <h2>Gérer les profils métier</h2>
+      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
+      <p class="lead">
+        Menu <b>Configuration → Profils</b>. C'est ici que sont définis les profils
+        métier (code, libellé, description) proposés lors de la création d'un agent
+        — voir la section <a href="#roles">Rôles &amp; profils</a> pour comprendre leur rôle
+        dans le circuit de validation.
+      </p>
+      <figure class="shot">
+        <img src="images/21-profils-list.png" alt="Liste des profils métier">
+        <figcaption>🪪 Profils métier disponibles pour les agents</figcaption>
+      </figure>
+      <div class="subsection">
+        <h3>Créer un profil</h3>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouveau profil »</b>.</li>
+          <li>Renseignez le <b>code</b> (identifiant technique, ex. <code>PILOTE</code>), le <b>libellé</b> et une <b>description</b>.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/29-profil-form.png" alt="Formulaire de nouveau profil">
+          <figcaption>📝 Formulaire « Nouveau profil »</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- MINISTERES -->
+    <section class="doc" id="ministeres">
+      <h2>Ministères &amp; unités administratives</h2>
+      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
+      <p class="lead">
+        Menu <b>Configuration → Structures</b> et <b>Unités administratives</b>. C'est ici que
+        se construit l'organisation hiérarchique utilisée partout ailleurs dans l'application
+        (processus, risques, agents…).
+      </p>
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="images/07-ministeres-list.png" alt="Liste des ministères">
+          <figcaption>🏛️ Liste des ministères (structures)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/08-unites-list.png" alt="Liste des unités administratives">
+          <figcaption>🧩 Unités administratives, rattachées à un ministère</figcaption>
+        </figure>
+      </div>
+      <div class="callout warn">
+        <span class="icon">⚠️</span>
+        <div><b>Cloisonnement par ministère.</b>Un agent ADMIN ou AGENT ne voit et ne modifie que les données de son propre ministère. Seul le SUPER_ADMIN a une vue transversale.</div>
+      </div>
+
+      <div class="subsection">
+        <h3>Créer un ministère</h3>
+        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span></div>
+        <ol class="steps">
+          <li>Depuis <b>Structures</b>, cliquez sur <b>« Nouveau ministère »</b>.</li>
+          <li>Renseignez le <b>code</b>, le <b>libellé</b>, le <b>sigle</b> et une description optionnelle.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/30-ministere-form.png" alt="Formulaire de création d'un ministère">
+          <figcaption>📝 Formulaire « Créer un ministère »</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Créer une unité administrative</h3>
+        <ol class="steps">
+          <li>Depuis <b>Unités administratives</b>, cliquez sur <b>« Nouvelle unité »</b>.</li>
+          <li>Renseignez le <b>sigle</b> et le <b>libellé</b>, choisissez le <b>type d'unité</b> et le <b>ministère</b> de rattachement.</li>
+          <li>Optionnel : sélectionnez une <b>unité parent</b> pour construire la hiérarchie — le <b>niveau hiérarchique</b> se calcule alors automatiquement.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/31-unite-administrative-form.png" alt="Formulaire de création d'une unité administrative">
+          <figcaption>📝 Formulaire « Nouvelle unité administrative »</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Types d'unités</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Menu <b>Configuration → Unités administratives → Types d'unités</b>. Ces types
+          (ex. Direction Générale, Secrétariat Général…) qualifient chaque unité
+          administrative et sont sélectionnés lors de sa création.
+        </p>
+        <figure class="shot">
+          <img src="images/24-type-unite-list.png" alt="Liste des types d'unités">
+          <figcaption>🏷️ Types d'unités</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouveau type »</b>.</li>
+          <li>Renseignez le <b>code</b>, le <b>libellé</b> et une description optionnelle.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/32-type-unite-form.png" alt="Formulaire de création d'un type d'unité">
+          <figcaption>📝 Formulaire « Nouveau type d'unité »</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- UNITES DE MESURE -->
+    <section class="doc" id="unites-mesure">
+      <h2>Unités de mesure</h2>
+      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
+      <p class="lead">
+        Menu <b>Configuration → Unités de mesure</b>. Définit les unités (numériques
+        ou dates) utilisées pour exprimer la valeur cible et la valeur réelle des
+        <b>indicateurs de performance (KPI)</b> du module Mitigation.
+      </p>
+      <figure class="shot">
+        <img src="images/22-unites-mesure-list.png" alt="Liste des unités de mesure">
+        <figcaption>📏 Unités de mesure des indicateurs</figcaption>
+      </figure>
+      <div class="callout warn">
+        <span class="icon">⚠️</span>
+        <div><b>Liste de référence.</b>La création d'unités de mesure n'est pas ouverte depuis l'interface : si la liste est vide, un indicateur de performance ne pourra pas se voir attribuer d'unité tant qu'aucune n'a été initialisée côté administration technique.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- PROCESSUS & RISQUES -->
+    <section class="doc" id="processus">
+      <h2>Processus &amp; formalisation des risques</h2>
+      <p class="lead">
+        Menu <b>Formalisation du risque inhérent</b>. Un risque est toujours rattaché à un
+        <b>processus/mission</b> métier.
+      </p>
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="images/09-processus-list.png" alt="Liste des processus">
+          <figcaption>⚙️ Processus / missions</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/10-risques-list.png" alt="Liste des risques">
+          <figcaption>⚠️ Risques identifiés</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Créer un processus</h3>
+        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span><span class="role-tag">RESPONSABLE_RISQUES</span></div>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouveau processus »</b>.</li>
+          <li>Renseignez le <b>libellé</b>, le <b>type de processus</b> et l'<b>unité administrative</b> propriétaire.</li>
+          <li>Ajoutez une ou plusieurs <b>finalités</b> (saisir puis « Ajouter »).</li>
+          <li>Un <b>propriétaire</b> peut être désigné parmi les managers de l'unité (optionnel).</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/34-processus-form.png" alt="Formulaire de nouveau processus">
+          <figcaption>📝 Formulaire « Nouveau processus »</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Créer un risque</h3>
+        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span><span class="role-tag">RESPONSABLE_RISQUES</span></div>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouveau risque »</b>.</li>
+          <li>Sélectionnez le <b>processus</b> concerné et le <b>type de risque</b>.</li>
+          <li>Décrivez le risque : <b>libellé</b>, <b>date d'identification</b>, <b>statut</b>.</li>
+          <li>Ajoutez au moins une <b>cause probable</b>, une <b>conséquence probable</b> et une <b>bonne pratique</b> (en la classant Prévention ou Protection).</li>
+          <li>Enregistrez. Le risque part à l'étape <b>Formalisation</b> du circuit de validation.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/35-risque-form.png" alt="Formulaire de nouveau risque">
+          <figcaption>📝 Formulaire « Nouveau risque »</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- EVALUATIONS -->
+    <section class="doc" id="evaluations">
+      <h2>Évaluer les risques</h2>
+      <p class="lead">Menu <b>Évaluations → Évaluer Risque</b>. Chaque risque formalisé est noté (probabilité × impact) pour déterminer sa criticité, visible ensuite sous forme de matrice.</p>
+      <figure class="shot">
+        <img src="images/11-evaluations-list.png" alt="Liste des évaluations">
+        <figcaption>📊 Évaluations des risques</figcaption>
+      </figure>
+
+      <div class="subsection">
+        <h3>Créer une évaluation</h3>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouvelle évaluation »</b>.</li>
+          <li>Sélectionnez le <b>risque</b> à évaluer et, si besoin, une période d'évaluation.</li>
+          <li>Renseignez l'<b>impact</b> et la <b>probabilité</b> inhérents (échelle 1 à 5).</li>
+          <li>Décrivez les <b>bonnes pratiques existantes</b> et <b>manquantes</b>, et cochez si le risque <b>est déjà survenu</b>.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/36-evaluation-form.png" alt="Formulaire de nouvelle évaluation">
+          <figcaption>📝 Formulaire « Nouvelle évaluation »</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection" id="matrice">
+        <h3>Matrice des risques</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Menu <b>Évaluations → Matrice</b>. Vue croisée <b>probabilité × impact</b> de
+          tous les risques évalués : chaque case affiche un score et se colore selon
+          la criticité (faible, moyen, élevé). Cliquez sur une case pour voir le détail
+          des risques qu'elle contient.
+        </p>
+        <figure class="shot">
+          <img src="images/25-matrices-list.png" alt="Matrice des risques">
+          <figcaption>🟩🟨🟥 Matrice d'évaluation des risques — code couleur par niveau de criticité</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- MITIGATION -->
+    <section class="doc" id="mitigation">
+      <h2>Mitigation : plans, actions, indicateurs</h2>
+      <p class="lead">Menu <b>Mitigation</b>. Un <b>plan de mitigation</b> regroupe des <b>actions</b> correctives, suivies par des <b>indicateurs de performance (KPI)</b>.</p>
+      <div class="role-tags"><span class="role-tag">RESPONSABLE_ACTION</span><span class="role-tag">SUPER_ADMIN</span></div>
+      <div class="shot-grid">
+        <figure class="shot">
+          <img src="images/12-plans-mitigation-list.png" alt="Liste des plans de mitigation">
+          <figcaption>🛡️ Plans de mitigation</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/13-actions-list.png" alt="Liste des actions">
+          <figcaption>🔧 Actions correctives</figcaption>
+        </figure>
+      </div>
+      <figure class="shot">
+        <img src="images/14-indicateurs-list.png" alt="Liste des indicateurs de performance">
+        <figcaption>📈 Indicateurs de performance (KPI)</figcaption>
+      </figure>
+
+      <div class="subsection">
+        <h3>Créer un plan de mitigation</h3>
+        <ol class="steps">
+          <li>Depuis <b>Plans de mitigation</b>, cliquez sur <b>« Nouveau plan »</b>.</li>
+          <li>Renseignez le <b>libellé</b>, le <b>statut</b>, le <b>risque associé</b> et une description.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/37-plan-mitigation-form.png" alt="Formulaire de nouveau plan de mitigation">
+          <figcaption>📝 Formulaire « Nouveau plan de mitigation »</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Créer une action</h3>
+        <ol class="steps">
+          <li>Depuis <b>Actions</b>, cliquez sur <b>« Nouvelle action »</b>.</li>
+          <li>Sélectionnez le <b>plan de mitigation</b>, le <b>risque associé</b> et, si pertinent, la <b>bonne pratique</b> visée.</li>
+          <li>Ajoutez un ou plusieurs <b>libellés d'actions</b>, un <b>statut</b>, des <b>dates de début/fin</b> et un <b>responsable</b>.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/38-action-form.png" alt="Formulaire de nouvelle action">
+          <figcaption>📝 Formulaire « Nouvelle action »</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Créer un indicateur de performance</h3>
+        <ol class="steps">
+          <li>Depuis <b>Indicateurs</b>, cliquez sur <b>« Nouvel indicateur »</b>.</li>
+          <li>Renseignez le <b>libellé</b> et la <b>fréquence</b> de suivi.</li>
+          <li>Rattachez-le à un <b>processus</b>, un <b>risque</b>, un <b>plan de mitigation</b> et/ou une <b>action</b>.</li>
+          <li>Choisissez une <b>unité de mesure</b>, définissez les <b>dates</b>, le <b>seuil d'alerte</b>, la <b>valeur cible</b> et la <b>valeur obtenue</b>.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/39-indicateur-form.png" alt="Formulaire de nouvel indicateur de performance">
+          <figcaption>📝 Formulaire « Nouvel indicateur de performance »</figcaption>
+        </figure>
+        <div class="callout warn">
+          <span class="icon">⚠️</span>
+          <div><b>« Aucune unité de mesure disponible ».</b>Ce message apparaît si la liste des <a href="#unites-mesure">unités de mesure</a> est vide. Rapprochez-vous du SUPER_ADMIN pour les faire initialiser.</div>
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- CARTOGRAPHIE -->
+    <section class="doc" id="cartographie">
+      <h2>Cartographie des risques &amp; circuit de validation</h2>
+      <p class="lead">
+        Menu <b>Cartographie des risques</b>. C'est le cœur du dispositif : chaque risque
+        formalisé suit un <b>circuit de validation</b> à quatre étapes avant de devenir définitif.
+      </p>
+
+      <div class="flow">
+        <div class="node">Responsable des risques</div>
+        <div class="arrow">→</div>
+        <div class="node">Pilote</div>
+        <div class="arrow">→</div>
+        <div class="node">CCI</div>
+        <div class="arrow">→</div>
+        <div class="node final">CMMR (validation finale)</div>
+      </div>
+
+      <figure class="shot">
+        <img src="images/15-cartographie-projet.png" alt="Projet de cartographie de risques">
+        <figcaption>📋 Projet de cartographie — sélection des risques à transmettre</figcaption>
+      </figure>
+
+      <div class="subsection">
+        <h3>Transmettre un risque</h3>
+        <div class="role-tags"><span class="role-tag">RESPONSABLE_RISQUES</span><span class="role-tag">SUPER_ADMIN</span></div>
+        <ol class="steps">
+          <li>Cochez un ou plusieurs risques dans la liste.</li>
+          <li>Cliquez sur <b>« Transmettre »</b> : le dossier avance à l'étape Pilote.</li>
+        </ol>
+      </div>
+
+      <div class="subsection">
+        <h3>Valider, différer ou rejeter</h3>
+        <div class="role-tags"><span class="role-tag">PILOTE</span><span class="role-tag">CCI</span><span class="role-tag">CMMR</span></div>
+        <ul class="steps">
+          <li><b>Valider</b> fait avancer le dossier à l'étape suivante du circuit.</li>
+          <li><b>Différer</b> renvoie le dossier à l'étape précédente — un <b>motif est obligatoire</b>.</li>
+          <li><b>Rejeter</b> clôture définitivement le dossier — un <b>motif est obligatoire</b>.</li>
+        </ul>
+        <div class="callout danger">
+          <span class="icon">⛔</span>
+          <div><b>Motif obligatoire.</b>Impossible de différer ou de rejeter un risque sans saisir de motif : le formulaire bloque l'enregistrement tant que le champ est vide.</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Retrouver les dossiers selon leur statut</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Trois vues complémentaires permettent de suivre les dossiers transmis dans le circuit :
+        </p>
+        <figure class="shot">
+          <img src="images/16-cartographie-definitive.png" alt="Cartographie définitif des risques">
+          <figcaption>📚 <b>Cartographie définitif des risques</b> — tous les dossiers transmis, à n'importe quelle étape du circuit</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/26-cartographie-differees-rejetees.png" alt="Cartographie différée et rejetée">
+          <figcaption>⏸️ <b>Cartographie différée et rejetée</b> — dossiers renvoyés en arrière ou clôturés négativement, avec leur motif</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/27-cartographie-validees.png" alt="Cartographie validée">
+          <figcaption>✅ <b>Cartographie validée</b> — uniquement les dossiers ayant reçu la validation finale du CMMR</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- AUDIT -->
+    <section class="doc" id="audit">
+      <h2>Plan d'audit</h2>
+      <div class="role-tags"><span class="role-tag">AUDITEUR</span><span class="role-tag">PILOTE</span><span class="role-tag">CCI</span><span class="role-tag">CMMR</span><span class="role-tag">SUPER_ADMIN</span></div>
+      <p class="lead">Menu <b>Audit → Plan d'audit</b>. Planifiez et suivez les missions d'audit rattachées à un processus ou un risque.</p>
+      <figure class="shot">
+        <img src="images/17-plan-audit.png" alt="Liste des plans d'audit">
+        <figcaption>🗂️ Plan d'audit</figcaption>
+      </figure>
+
+      <div class="subsection">
+        <h3>Créer un plan d'audit</h3>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Nouveau plan d'audit »</b>.</li>
+          <li>Renseignez le <b>libellé</b>, la <b>date de création</b> et l'<b>unité administrative</b> concernée.</li>
+          <li>Dans la <b>pré-planification</b>, choisissez le <b>processus</b> puis, si besoin, le <b>risque inhérent</b> associé.</li>
+          <li>Précisez le <b>type d'audit proposé</b>, le <b>type de revue</b>, l'<b>objectif</b> et l'<b>effort d'audit indicatif</b>.</li>
+          <li>Enregistrez.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/40-plan-audit-form.png" alt="Formulaire de nouveau plan d'audit">
+          <figcaption>📝 Formulaire « Nouveau plan d'audit »</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- ALERTES -->
+    <section class="doc" id="alertes">
+      <h2>Centre de notifications</h2>
+      <p class="lead">
+        Menu <b>Alertes</b> (visible dans le menu principal) ou icône <b>cloche</b> dans la
+        barre supérieure. Contrairement à une liste d'alertes générale, chaque notification
+        est <b>personnelle</b> : elle vous est adressée spécifiquement parce que votre
+        rôle/profil et votre étape dans le circuit de validation la concernent.
+      </p>
+
+      <figure class="shot">
+        <img src="images/18-alertes.png" alt="Centre de notifications">
+        <figcaption>🔔 Centre de notifications — filtres, compteurs et recherche</figcaption>
+      </figure>
+
+      <div class="subsection">
+        <h3>Comment une notification vous est adressée</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Une tâche planifiée analyse la plateforme toutes les heures et crée une notification
+          pour chaque agent concerné par une situation à traiter :
+        </p>
+        <table class="compact">
+          <thead><tr><th>Situation détectée</th><th>Sévérité</th><th>Destinataire(s)</th></tr></thead>
+          <tbody>
+            <tr><td>Risque sans plan de mitigation</td><td>Critique</td><td>Responsable des risques + Responsable d'action du ministère</td></tr>
+            <tr><td>Risque avec plan mais sans action en cours</td><td>Haute</td><td>Responsable d'action du ministère</td></tr>
+            <tr><td>Seuil d'alerte d'un indicateur dépassé</td><td>Haute</td><td>Responsable d'action du ministère</td></tr>
+            <tr><td>Échéance d'action proche (≤ 7 jours)</td><td>Moyenne</td><td>Responsable d'action du ministère</td></tr>
+            <tr><td>Risque en attente de votre décision</td><td>Moyenne</td><td>Le profil correspondant à l'étape (Pilote, CCI ou CMMR)</td></tr>
+          </tbody>
+        </table>
+        <div class="callout tip">
+          <span class="icon">📧</span>
+          <div><b>Email.</b>Les notifications Critique et Haute sont, en plus de l'in-app, envoyées par email si une adresse email a été renseignée sur votre fiche agent.</div>
+        </div>
+        <div class="callout tip">
+          <span class="icon">🔁</span>
+          <div><b>Pas de doublon.</b>Tant qu'une notification n'est pas marquée comme lue, la situation qu'elle décrit ne génère pas de second avis identique — inutile de la traiter deux fois.</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Filtrer et rechercher</h3>
+        <ul class="steps">
+          <li>Les cartes en haut de page (<b>Total, Non lues, Critique, Haute, Moyenne, Faible</b>) filtrent la liste en un clic.</li>
+          <li>La barre de recherche filtre par titre, description, élément ou processus concerné.</li>
+          <li>Une notification non lue affiche un badge <b>« Nouveau »</b> et reste mise en avant visuellement.</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Consulter et marquer comme lu</h3>
+        <ul class="steps">
+          <li>Cliquez sur une notification pour ouvrir son <b>détail</b> : elle est automatiquement marquée comme lue à l'ouverture.</li>
+          <li>Le détail propose un lien direct <b>« Ouvrir l'élément concerné »</b> vers le risque ou l'indicateur en cause.</li>
+          <li>Le bouton <b>« Tout marquer comme lu »</b> (visible s'il reste des notifications non lues) traite la liste entière en un clic.</li>
+        </ul>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- PROFIL -->
+    <section class="doc" id="profil">
+      <h2>Mon profil</h2>
+      <p class="lead">Cliquez sur votre <b>avatar</b> (haut droite) pour consulter vos informations : matricule, rôle, profil métier, ministère et unité de rattachement.</p>
+      <figure class="shot">
+        <img src="images/19-mon-profil.png" alt="Page Mon profil">
+        <figcaption>🙍 Mon profil</figcaption>
+      </figure>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- FAQ -->
+    <section class="doc" id="faq">
+      <h2>Questions fréquentes</h2>
+
+      <div class="subsection" style="margin-top:0; padding-top:0; border-top:none;">
+        <h3>Un bouton est grisé, pourquoi ?</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);">Votre rôle ou profil métier ne dispose pas des droits nécessaires pour cette action. Ce n'est pas une erreur : c'est le contrôle d'accès qui protège les données.</p>
+      </div>
+      <div class="subsection">
+        <h3>Je ne vois pas les données d'un autre ministère, est-ce normal ?</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);">Oui. Sauf pour un SUPER_ADMIN, chaque compte est cloisonné à son ministère par sécurité.</p>
+      </div>
+      <div class="subsection">
+        <h3>J'ai différé un risque par erreur, que faire ?</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);">Le dossier revient à l'étape précédente du circuit. La personne responsable de cette étape peut le re-transmettre normalement.</p>
+      </div>
+      <div class="subsection">
+        <h3>Comment obtenir un compte ?</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);">Seul un agent ADMIN (de votre ministère) ou le SUPER_ADMIN peut créer votre compte, depuis Configuration → Agents.</p>
+      </div>
+      <div class="subsection">
+        <h3>Je ne reçois pas mes notifications par email</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);">Vérifiez qu'une adresse email est renseignée sur votre fiche agent (Configuration → Agents). Sans email, vous restez notifié normalement en in-app, seul le canal email est indisponible.</p>
+      </div>
+      <div class="subsection">
+        <h3>Une notification a disparu de ma liste ?</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);">Aucune notification n'est supprimée automatiquement. Vérifiez vos filtres (« Non lues », sévérité) ou la barre de recherche : la notification est probablement simplement masquée par un filtre actif.</p>
+      </div>
+
+      <div class="callout tip" style="margin-top:26px;">
+        <span class="icon">✉️</span>
+        <div><b>Besoin d'aide supplémentaire ?</b>Rapprochez-vous de l'administrateur SIGR de votre ministère.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+  </main>
+</div>
+
+<footer class="doc-footer">
+  SIGR — Système Intégré de Gestion des Risques · République du Bénin · Ministère de l'Économie et des Finances
+</footer>
+
+<script>
+  // Filtrage simple des entrées du sommaire
+  document.getElementById('tocFilter').addEventListener('input', function (e) {
+    var q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.toc-group').forEach(function (group) {
+      var visibleCount = 0;
+      group.querySelectorAll('a').forEach(function (link) {
+        var match = link.textContent.toLowerCase().includes(q);
+        link.style.display = match ? 'flex' : 'none';
+        if (match) visibleCount++;
+      });
+      group.style.display = visibleCount > 0 ? 'block' : 'none';
+    });
+  });
+
+  // Mise en surbrillance de la section active au scroll
+  var sections = Array.from(document.querySelectorAll('section.doc'));
+  var links = Array.from(document.querySelectorAll('.toc a'));
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var link = links.find(function (l) { return l.getAttribute('href') === '#' + entry.target.id; });
+      if (!link) return;
+      if (entry.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { observer.observe(s); });
+</script>
+
+</body>
+</html>

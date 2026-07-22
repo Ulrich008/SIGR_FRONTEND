@@ -73,6 +73,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
       password:         ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword:  ['', [Validators.required, this.passwordMatchValidator()]],
       npi:              ['', [Validators.maxLength(20), this.noSpacesValidator()]],
+      email:            ['', [Validators.email, Validators.maxLength(150)]],
       nom:              ['', [Validators.required, Validators.maxLength(50),  this.noSpecialCharsValidator()]],
       prenoms:          ['', [Validators.required, Validators.maxLength(100), this.noSpecialCharsValidator()]],
       sexe:             ['MASCULIN' as Sexe, Validators.required],
@@ -279,6 +280,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
           password:         '',
           confirmPassword:  '',
           npi:              agent.npi              ?? '',
+          email:            agent.email             ?? '',
           nom:              agent.nom              ?? '',
           prenoms:          agent.prenoms          ?? '',
           sexe:             agent.sexe             ?? 'MASCULIN',
@@ -386,6 +388,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
     if (e['passwordMismatch'])return 'Les mots de passe ne correspondent pas';
     if (e['hasSpaces'])       return 'Les espaces ne sont pas autorisés';
     if (e['hasSpecialChars']) return 'Caractères spéciaux non autorisés';
+    if (e['email'])           return 'Adresse email invalide';
     return 'Champ invalide';
   }
 
@@ -410,6 +413,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   get matriculeControl()        { return this.form.get('matricule'); }
   get passwordControl()         { return this.form.get('password'); }
   get nomControl()              { return this.form.get('nom'); }
+  get emailControl()            { return this.form.get('email'); }
   get prenomsControl()          { return this.form.get('prenoms'); }
   get codeMinistereControl()    { return this.form.get('codeMinistere'); }  // ← nouveau pour multi-ministères
   get codeUniteControl()        { return this.form.get('codeUnite'); }
