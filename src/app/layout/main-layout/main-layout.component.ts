@@ -2,11 +2,12 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent, MenuItem } from '../sidebar/sidebar.component';
 import { HeaderComponent } from '../header/header.component';
+import { ChatbotWidgetComponent } from '../../shared/chatbot-widget/chatbot-widget.component';
 
 @Component({
   standalone: true,
   selector: 'app-main-layout',
-  imports: [CommonModule, SidebarComponent, HeaderComponent],
+  imports: [CommonModule, SidebarComponent, HeaderComponent, ChatbotWidgetComponent],
   templateUrl: './main-layout.component.html'
 })
 export class MainLayoutComponent {

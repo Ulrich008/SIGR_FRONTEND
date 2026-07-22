@@ -6,6 +6,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse } from '../models/auth.model';
 import { MenuService } from './menu.service';
+import { ChatbotService } from './chatbot.service';
 
 // ✅ ErrorHandlerService retiré — dépendance circulaire supprimée
 // AuthService -> ErrorHandlerService -> AuthService causait NG0200
@@ -26,6 +27,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private menuService: MenuService,
+    private chatbotService: ChatbotService,
     @Inject(PLATFORM_ID) platformId: Object
     // ✅ ErrorHandlerService supprimé du constructeur
   ) {
@@ -47,6 +49,9 @@ export class AuthService {
         // pour ce nouvel agent, plutôt que de garder l'état déplié
         // laissé par la session précédente.
         this.menuService.resetExpandedState();
+        // Conversation propre à chaque agent : on repart de l'accueil du
+        // chatbot plutôt que de garder l'historique de la session précédente.
+        this.chatbotService.reset();
       }),
       catchError(error => this.handleError(error))
     );
@@ -60,6 +65,7 @@ export class AuthService {
     }
     this.currentUserSubject.next(null);
     this.menuService.resetExpandedState();
+    this.chatbotService.reset();
   }
 
   // ================= AUTH CHECK =================

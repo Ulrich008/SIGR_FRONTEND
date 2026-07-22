@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
-import { AlerteService } from '../../../../core/services/alerte.service';
-import { AlerteResponse } from '../../../../core/models/alerte.model';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { NotificationResponse, TypeNotification } from '../../../../core/models/notification.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -16,45 +16,46 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './alertes-list.component.html'
 })
 export class AlertesListComponent implements OnInit {
-  alertes: AlerteResponse[] = [];
-  alertesFiltrees: AlerteResponse[] = [];
+  notifications: NotificationResponse[] = [];
+  notificationsFiltrees: NotificationResponse[] = [];
   filtreActif: string = 'TOUTES';
   loading = false;
   error: string | null = null;
   menuItems: MenuItem[];
   recherche: string = '';
 
-  // Animation pour les cartes
-  animationDelay = 0;
-
   constructor(
-    private alerteService: AlerteService,
+    private notificationService: NotificationService,
     private authService: AuthService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.menuItems = this.menuService.items;
   }
 
   ngOnInit(): void {
     if (!this.authService.isAuthenticated()) {
-      window.location.href = '/auth/login';
+      this.router.navigate(['/auth/login']);
       return;
     }
-    this.loadAlertes();
+    this.loadNotifications();
   }
 
-  loadAlertes(): void {
+  loadNotifications(): void {
     this.loading = true;
     this.error = null;
-    this.alerteService.getToutesAlertes().subscribe({
-      next: (alertes) => {
-        this.alertes = alertes;
-        this.appliquerFiltre(this.filtreActif);
+    this.notificationService.getAll().subscribe({
+      next: (notifications) => {
+        this.notifications = notifications;
+        this.filtrerEtRechercher();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
-        this.error = err?.message || 'Impossible de charger les alertes';
+        this.error = err?.message || 'Impossible de charger les notifications';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -69,29 +70,48 @@ export class AlertesListComponent implements OnInit {
   }
 
   private filtrerEtRechercher(): void {
-    let resultats = this.alertes;
-    
-    // Filtre par sévérité
-    if (this.filtreActif !== 'TOUTES') {
-      resultats = resultats.filter(a => a.severite === this.filtreActif);
+    let resultats = this.notifications;
+
+    if (this.filtreActif === 'NON_LUES') {
+      resultats = resultats.filter(n => !n.lu);
+    } else if (this.filtreActif !== 'TOUTES') {
+      resultats = resultats.filter(n => n.severite === this.filtreActif);
     }
-    
-    // Filtre par recherche
+
     if (this.recherche.trim()) {
       const searchTerm = this.recherche.toLowerCase();
-      resultats = resultats.filter(a => 
-        a.titre.toLowerCase().includes(searchTerm) ||
-        a.description.toLowerCase().includes(searchTerm) ||
-        a.libelleElement.toLowerCase().includes(searchTerm) ||
-        a.libelleProcessus.toLowerCase().includes(searchTerm)
+      resultats = resultats.filter(n =>
+        n.titre.toLowerCase().includes(searchTerm) ||
+        n.description.toLowerCase().includes(searchTerm) ||
+        (n.libelleElement || '').toLowerCase().includes(searchTerm) ||
+        (n.libelleProcessus || '').toLowerCase().includes(searchTerm)
       );
     }
-    
-    this.alertesFiltrees = resultats;
+
+    this.notificationsFiltrees = resultats;
+  }
+
+  get nombreNonLues(): number {
+    return this.notifications.filter(n => !n.lu).length;
   }
 
   compterParSeverite(severite: string): number {
-    return this.alertes.filter(a => a.severite === severite).length;
+    return this.notifications.filter(n => n.severite === severite).length;
+  }
+
+  ouvrirNotification(notification: NotificationResponse): void {
+    this.router.navigate(['/alertes', notification.id]);
+  }
+
+  marquerToutesCommeLues(): void {
+    if (this.nombreNonLues === 0) return;
+    this.notificationService.markAllAsRead().subscribe({
+      next: () => this.loadNotifications(),
+      error: (err) => {
+        this.error = err?.message || 'Impossible de marquer les notifications comme lues';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   getCardBorderClass(severite: string): string {
@@ -114,19 +134,14 @@ export class AlertesListComponent implements OnInit {
     }
   }
 
-  getTypeBadgeClass(type: string): string {
+  getTypeLabel(type: TypeNotification | string): string {
     switch (type) {
-      case 'RISQUE_NON_GERE':          return 'badge--risque';
-      case 'INDICATEUR_PROCHE_SEUIL':  return 'badge--indicateur';
-      default:                          return 'badge--default';
-    }
-  }
-
-  getTypeLabel(type: string): string {
-    switch (type) {
-      case 'RISQUE_NON_GERE':         return 'Risque non géré';
-      case 'INDICATEUR_PROCHE_SEUIL': return 'Indicateur proche du seuil';
-      default:                         return type;
+      case 'RISQUE_SANS_MITIGATION':        return 'Risque sans plan de mitigation';
+      case 'RISQUE_SANS_ACTIONS_EN_COURS':  return 'Risque sans actions en cours';
+      case 'INDICATEUR_SEUIL_DEPASSE':      return 'Seuil dépassé';
+      case 'INDICATEUR_ECHEANCE_PROCHE':    return 'Échéance proche';
+      case 'RISQUE_EN_ATTENTE_VALIDATION':  return 'En attente de validation';
+      default:                               return type;
     }
   }
 

@@ -6,6 +6,7 @@ import { MenuItem } from '../../layout/sidebar/sidebar.component';
 export class MenuService {
   readonly items: MenuItem[] = [
     { icon: 'fas fa-th',                   label: 'Tableau de bord', path: '/dashboard', roles: ['SUPER_ADMIN', 'ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
+    { icon: 'fas fa-bell',                 label: 'Alertes',         path: '/alertes',   roles: ['SUPER_ADMIN', 'ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
     {
       icon: 'fas fa-cogs',
       label: 'Configuration',

@@ -2,32 +2,23 @@
 <div class="sigr-header bg-white border-b border-gray-200 px-3 md:px-6 py-3 flex flex-col flex-shrink-0">
   <div class="flex items-center justify-between">
 
-    <!-- Barre de recherche : cachée sur mobile, visible à partir de md -->
-    <div class="relative hidden md:block">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-           fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+    <!-- Guide d'utilisation : ouvre le guide complet dans un nouvel onglet
+    <a
+      [href]="guideUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Consulter le guide d'utilisation de la plateforme"
+      title="Guide d'utilisation"
+      class="inline-flex items-center gap-2 rounded-lg border border-[var(--sigr-100)] bg-[var(--sigr-100)]/60 px-3 py-2 text-sm font-semibold text-[var(--sigr-900)] transition hover:bg-[var(--sigr-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
       </svg>
-      <input
-        type="text"
-        [placeholder]="searchPlaceholder"
-        (input)="onSearchInput($any($event.target).value)"
-        class="pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 w-64 lg:w-96 transition-colors focus:outline-none focus:bg-white focus:border-[var(--sigr-700)] focus:ring-2 focus:ring-[var(--sigr-100)] placeholder-gray-400"
-        style="font-family: 'Inter', system-ui, sans-serif;"
-      />
-    </div>
-
-    <!-- Sur mobile : icône loupe seule -->
-    <button type="button"
-            (click)="toggleMobileSearch()"
-            [attr.aria-label]="isMobileSearchOpen ? 'Fermer la recherche' : 'Ouvrir la recherche'"
-            [attr.aria-expanded]="isMobileSearchOpen"
-            class="md:hidden p-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]"
-            [ngClass]="isMobileSearchOpen ? 'text-[var(--sigr-900)] bg-[var(--sigr-100)]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
-      </svg>
-    </button>
+      <span class="hidden sm:inline">Guide d'utilisation</span>
+    </a>
+    -->
+    <div></div>
 
     <div class="flex items-center">
       <!-- Notification -->
@@ -66,9 +57,9 @@
       <div class="w-px h-6 bg-gray-200 mx-2 md:mx-3"></div>
 
       <!-- Ministère de l'agent connecté : bien visible, en gras -->
-      <div *ngIf="libelleMinistere" class="hidden md:flex flex-col items-end mr-3 leading-tight">
+      <div *ngIf="sigleMinistere" class="hidden md:flex flex-col items-end mr-3 leading-tight">
         <span *ngIf="nomComplet" class="text-xs text-gray-500">{{ nomComplet }}</span>
-        <span class="text-sm font-bold" style="color: var(--sigr-900);">{{ libelleMinistere }}</span>
+        <span class="text-sm font-bold" style="color: var(--sigr-900);">{{ sigleMinistere }}</span>
       </div>
 
       <!-- Avatar : ouvre la page "Mon profil" (/me) -->
@@ -83,21 +74,6 @@
         <i class="fas fa-chevron-down hidden md:block text-[10px] text-gray-400"></i>
       </button>
     </div>
-  </div>
-
-  <!-- Recherche mobile en overlay -->
-  <div *ngIf="isMobileSearchOpen" class="md:hidden mt-3 relative">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
-    </svg>
-    <input
-      type="text"
-      [placeholder]="searchPlaceholder"
-      (input)="onSearchInput($any($event.target).value)"
-      autofocus
-      class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:bg-white focus:border-[var(--sigr-700)] focus:ring-2 focus:ring-[var(--sigr-100)] placeholder-gray-400"
-    />
   </div>
 </div>
 

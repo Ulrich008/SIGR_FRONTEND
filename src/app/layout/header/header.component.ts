@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../core/services/auth.service';
 import { AgentService } from '../../core/services/agent.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   standalone: true,
@@ -11,24 +12,30 @@ import { AgentService } from '../../core/services/agent.service';
   imports: [CommonModule],
   templateUrl: './header.component.html'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   @Input() searchPlaceholder: string = 'Rechercher...';
   @Input() userInitials: string = 'AD';
   @Input() notificationCount: number = 0; // Nombre de notifications non lues
 
   @Output() search = new EventEmitter<string>();
 
-  isMobileSearchOpen = false;
+  // Guide d'utilisation complet de la plateforme : page statique autonome,
+  // volontairement ouverte hors du routeur Angular (nouvel onglet).
+  readonly guideUrl = 'assets/guide/index.html';
 
   // Rempli via GET /api/agents/me : reflète toujours l'agent réellement
   // connecté (pas une valeur codée en dur passée par la page courante).
   nomComplet = '';
-  libelleMinistere = '';
+  sigleMinistere = '';
+
+  private notificationPollInterval?: ReturnType<typeof setInterval>;
 
   constructor(
     private authService: AuthService,
     private agentService: AgentService,
-    private router: Router
+    private notificationService: NotificationService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -36,7 +43,8 @@ export class HeaderComponent implements OnInit {
       next: (agent) => {
         this.nomComplet = `${agent.prenoms} ${agent.nom}`;
         this.userInitials = `${agent.prenoms.charAt(0)}${agent.nom.charAt(0)}`.toUpperCase();
-        this.libelleMinistere = agent.libelleMinistere || '';
+        this.sigleMinistere = agent.sigleMinistere || '';
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Erreur chargement du profil connecté (/me)', err);
@@ -47,16 +55,32 @@ export class HeaderComponent implements OnInit {
           this.nomComplet = `${currentUser.prenoms} ${currentUser.nom}`;
           this.userInitials = `${currentUser.prenoms.charAt(0)}${currentUser.nom.charAt(0)}`.toUpperCase();
         }
+        this.cdr.detectChanges();
       }
     });
+
+    this.loadUnreadCount();
+    // Rafraîchi périodiquement : reflète les notifications générées par
+    // le sweep planifié côté backend sans nécessiter un rechargement.
+    this.notificationPollInterval = setInterval(() => this.loadUnreadCount(), 60000);
   }
 
-  onSearchInput(value: string): void {
-    this.search.emit(value.trim());
+  ngOnDestroy(): void {
+    if (this.notificationPollInterval) {
+      clearInterval(this.notificationPollInterval);
+    }
   }
 
-  toggleMobileSearch(): void {
-    this.isMobileSearchOpen = !this.isMobileSearchOpen;
+  private loadUnreadCount(): void {
+    this.notificationService.getUnreadCount().subscribe({
+      next: (res) => {
+        this.notificationCount = res.nonLues;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Silencieux : un échec de comptage ne doit pas perturber le header.
+      }
+    });
   }
 
   confirmLogout(): void {
