@@ -339,10 +339,10 @@
       <span class="hero-eyebrow">📘 Guide officiel</span>
       <h1>Tout savoir pour bien utiliser SIGR</h1>
       <p>
-        Ce guide vous accompagne pas à pas dans la plateforme : connexion, navigation,
-        gestion des agents, formalisation et évaluation des risques, mitigation et
-        circuit de validation de la cartographie. Chaque section est illustrée par
-        de vraies captures d'écran de l'application pour vous éviter de vous perdre.
+        Suivez ce guide étape par étape pour prendre en main la plateforme : connexion,
+        navigation, gestion des agents, formalisation et évaluation des risques, mitigation
+        et circuit de validation de la cartographie. Chaque section s'appuie sur de vraies
+        captures d'écran de l'application, pour que vous vous y retrouviez rapidement.
       </p>
       <div class="hero-actions">
         <a class="hero-btn" href="#connexion">Commencer la lecture →</a>
@@ -416,6 +416,28 @@
           <h5>Zone de contenu</h5>
           <p>Listes, formulaires et détails s'affichent ici. La plupart des listes proposent recherche, filtres et pagination.</p>
         </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Les indicateurs clés du tableau de bord</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          La partie centrale du tableau de bord affiche des compteurs chiffrés qui donnent un
+          aperçu rapide de la situation du ministère :
+        </p>
+        <div class="card-grid">
+          <div class="mini-card"><div class="mc-icon">📌</div><h5>Nombre de risques</h5><p>Total des risques enregistrés et nombre d'évaluations réalisées.</p></div>
+          <div class="mini-card"><div class="mc-icon">🔺</div><h5>Risques critiques</h5><p>Nombre de risques nécessitant une attention particulière.</p></div>
+          <div class="mini-card"><div class="mc-icon">⚙️</div><h5>Processus métiers</h5><p>Nombre de processus actifs suivis par l'application.</p></div>
+          <div class="mini-card"><div class="mc-icon">📈</div><h5>Indicateurs KPI</h5><p>Nombre d'indicateurs de performance et de plans associés.</p></div>
+          <div class="mini-card"><div class="mc-icon">🛡️</div><h5>Plans de mitigation</h5><p>Nombre de plans en place et d'actions associées.</p></div>
+          <div class="mini-card"><div class="mc-icon">🔧</div><h5>Actions</h5><p>Nombre d'actions en cours de traitement.</p></div>
+          <div class="mini-card"><div class="mc-icon">👥</div><h5>Agents</h5><p>Nombre d'agents actifs sur la plateforme.</p></div>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-soft);">
+          En bas de page, un graphique présente les risques identifiés par processus métier,
+          et l'encart <b>« Activités récentes »</b> liste les dernières actions effectuées sur le système
+          (risques identifiés, évaluations complétées…).
+        </p>
       </div>
 
       <div class="subsection">
@@ -534,6 +556,26 @@
         </div>
       </div>
 
+      <div class="subsection">
+        <h3>Modifier, désactiver ou supprimer un agent</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Dans la colonne « Actions », trois icônes sont disponibles pour chaque agent :
+        </p>
+        <ul class="steps">
+          <li>L'icône <b>crayon</b> permet de modifier les informations de l'agent.</li>
+          <li>L'icône <b>orange</b> (bascule vers <b>vert</b> une fois le compte désactivé) permet de désactiver — ou réactiver — le compte de l'agent, sans le supprimer.</li>
+          <li>L'icône <b>corbeille</b> permet de supprimer définitivement l'agent.</li>
+        </ul>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Préférez la désactivation à la suppression.</b>Désactiver un agent l'empêche de se connecter (son compte devient « Inactif ») tout en conservant tout son historique dans le système. Réservez la suppression définitive aux comptes qui ne reviendront jamais.</div>
+        </div>
+        <div class="callout warn">
+          <span class="icon">⚠️</span>
+          <div><b>Suppression parfois bloquée.</b>Un agent encore rattaché à des données (processus dont il est propriétaire, actions dont il est responsable, notifications reçues…) ne peut pas toujours être supprimé immédiatement : un message d'erreur l'indique. Réaffectez ou nettoyez d'abord les éléments concernés, ou préférez la désactivation.</div>
+        </div>
+      </div>
+
       <div class="subsection" id="affectations">
         <h3>Affectations</h3>
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
@@ -556,6 +598,14 @@
           <img src="images/28-affectation-form.png" alt="Formulaire de nouvelle affectation">
           <figcaption>📝 Formulaire « Nouvelle affectation »</figcaption>
         </figure>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin:14px 0;">
+          Les icônes <b>crayon</b> et <b>corbeille</b>, dans la colonne « Actions », permettent
+          respectivement de modifier ou de supprimer une affectation existante.
+        </p>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Une date de fin ne signifie pas un départ.</b>Elle peut simplement marquer la fin d'un poste avant qu'une nouvelle affectation ne soit créée pour le même agent.</div>
+        </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
@@ -628,6 +678,19 @@
       </div>
 
       <div class="subsection">
+        <h3>Modifier ou supprimer un ministère</h3>
+        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span></div>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Dans la colonne « Actions », l'icône <b>crayon</b> permet de modifier les informations
+          du ministère (y compris son code), l'icône <b>corbeille</b> permet de le supprimer.
+        </p>
+        <div class="callout danger">
+          <span class="icon">⛔</span>
+          <div><b>Suppression définitive.</b>Assurez-vous qu'aucune unité administrative (ni aucun agent) n'est encore rattachée à ce ministère avant de le supprimer : sinon, l'opération est refusée pour préserver l'intégrité des données déjà enregistrées.</div>
+        </div>
+      </div>
+
+      <div class="subsection">
         <h3>Créer une unité administrative</h3>
         <ol class="steps">
           <li>Depuis <b>Unités administratives</b>, cliquez sur <b>« Nouvelle unité »</b>.</li>
@@ -661,6 +724,10 @@
           <img src="images/32-type-unite-form.png" alt="Formulaire de création d'un type d'unité">
           <figcaption>📝 Formulaire « Nouveau type d'unité »</figcaption>
         </figure>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>À définir en premier.</b>Il est recommandé de bien définir les types d'unités avant de créer les unités administratives, car ce champ est obligatoire lors de la création d'une unité.</div>
+        </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
@@ -702,6 +769,13 @@
           <figcaption>⚠️ Risques identifiés</figcaption>
         </figure>
       </div>
+      <p style="font-size:13.5px;color:var(--ink-soft);">
+        En haut de la liste des processus, des compteurs indiquent le nombre total de processus
+        ainsi que leur répartition par type (Métier, Support, Pilotage). Le filtre
+        « Filtrer par unité administrative » permet d'afficher uniquement les processus d'une
+        unité donnée. Dans la colonne « Actions », trois icônes permettent de <b>consulter</b> (œil),
+        <b>modifier</b> (crayon) ou <b>supprimer</b> (corbeille) un processus.
+      </p>
 
       <div class="subsection">
         <h3>Créer un processus</h3>
@@ -709,7 +783,7 @@
         <ol class="steps">
           <li>Cliquez sur <b>« Nouveau processus »</b>.</li>
           <li>Renseignez le <b>libellé</b>, le <b>type de processus</b> et l'<b>unité administrative</b> propriétaire.</li>
-          <li>Ajoutez une ou plusieurs <b>finalités</b> (saisir puis « Ajouter »).</li>
+          <li>Ajoutez une ou plusieurs <b>finalités</b> (saisir puis « Ajouter ») — <b>au moins une finalité est obligatoire</b>.</li>
           <li>Un <b>propriétaire</b> peut être désigné parmi les managers de l'unité (optionnel).</li>
           <li>Enregistrez.</li>
         </ol>
@@ -717,6 +791,10 @@
           <img src="images/34-processus-form.png" alt="Formulaire de nouveau processus">
           <figcaption>📝 Formulaire « Nouveau processus »</figcaption>
         </figure>
+        <div class="callout warn">
+          <span class="icon">⚠️</span>
+          <div><b>Suppression parfois bloquée.</b>Un processus déjà relié à des risques, indicateurs ou plans d'audit ne peut pas être supprimé tant que ces éléments existent : traitez-les d'abord.</div>
+        </div>
       </div>
 
       <div class="subsection">
@@ -733,6 +811,15 @@
           <img src="images/35-risque-form.png" alt="Formulaire de nouveau risque">
           <figcaption>📝 Formulaire « Nouveau risque »</figcaption>
         </figure>
+        <div class="callout warn">
+          <span class="icon">⚠️</span>
+          <div><b>Champs obligatoires.</b>Les causes probables, conséquences probables et bonnes pratiques sont obligatoires : au moins un élément de chaque type doit être ajouté avant de pouvoir créer le risque.</div>
+        </div>
+        <p style="font-size:13.5px;color:var(--ink-soft);">
+          En haut de la liste des risques, des compteurs indiquent le nombre total ainsi que
+          leur répartition par statut (Actif, En cours, Maîtrisé, Clôturé). Le filtre
+          « Filtrer par processus » permet d'afficher uniquement les risques d'un processus donné.
+        </p>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
@@ -745,20 +832,36 @@
         <img src="images/11-evaluations-list.png" alt="Liste des évaluations">
         <figcaption>📊 Évaluations des risques</figcaption>
       </figure>
+      <p style="font-size:13.5px;color:var(--ink-soft);">
+        En haut de la page, des compteurs indiquent le nombre d'évaluations par niveau de
+        criticité : Faible, Moyen, Élevé, Critique.
+      </p>
 
       <div class="subsection">
         <h3>Créer une évaluation</h3>
+        <table class="compact">
+          <thead><tr><th>Échelle</th><th>Valeurs</th><th>Classement du score inhérent (impact × probabilité)</th></tr></thead>
+          <tbody>
+            <tr><td>Impact / Probabilité</td><td>1 (très faible) à 5 (très élevé)</td><td rowspan="2">Faible : 1-7 · Moyen : 8-14 · Élevé : 15-25</td></tr>
+            <tr><td>Protection / Prévention</td><td>0 (aucun) à 3 (élevé)</td></tr>
+          </tbody>
+        </table>
         <ol class="steps">
-          <li>Cliquez sur <b>« Nouvelle évaluation »</b>.</li>
-          <li>Sélectionnez le <b>risque</b> à évaluer et, si besoin, une période d'évaluation.</li>
+          <li>Sélectionnez le <b>risque</b> à évaluer et, si besoin, l'<b>agent évaluateur</b> (optionnel).</li>
+          <li>Renseignez la <b>période d'évaluation</b> (date de début et de fin, toutes deux optionnelles).</li>
           <li>Renseignez l'<b>impact</b> et la <b>probabilité</b> inhérents (échelle 1 à 5).</li>
           <li>Décrivez les <b>bonnes pratiques existantes</b> et <b>manquantes</b>, et cochez si le risque <b>est déjà survenu</b>.</li>
+          <li>Ajoutez, si nécessaire, une <b>recommandation</b> (1000 caractères maximum).</li>
           <li>Enregistrez.</li>
         </ol>
         <figure class="shot">
           <img src="images/36-evaluation-form.png" alt="Formulaire de nouvelle évaluation">
           <figcaption>📝 Formulaire « Nouvelle évaluation »</figcaption>
         </figure>
+        <div class="callout tip">
+          <span class="icon">🧮</span>
+          <div><b>Protection et Prévention calculées automatiquement.</b>Ces deux scores (0 à 3) ne se saisissent pas directement : ils sont déduits des bonnes pratiques existantes sélectionnées, selon la formule <code>(nombre de bonnes pratiques sélectionnées du type × 3) / nombre total de bonnes pratiques de ce type</code>.</div>
+        </div>
       </div>
 
       <div class="subsection" id="matrice">
@@ -773,6 +876,10 @@
           <img src="images/25-matrices-list.png" alt="Matrice des risques">
           <figcaption>🟩🟨🟥 Matrice d'évaluation des risques — code couleur par niveau de criticité</figcaption>
         </figure>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Cases vides masquées.</b>Seules les cases contenant au moins une évaluation sont affichées dans la section « Détail par cellule », sous la matrice.</div>
+        </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
@@ -799,6 +906,10 @@
 
       <div class="subsection">
         <h3>Créer un plan de mitigation</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Des compteurs, en haut de la liste, indiquent le nombre de plans selon leur statut :
+          <b>Planifié</b>, <b>En cours</b>, <b>Terminé</b>, <b>Annulé</b>.
+        </p>
         <ol class="steps">
           <li>Depuis <b>Plans de mitigation</b>, cliquez sur <b>« Nouveau plan »</b>.</li>
           <li>Renseignez le <b>libellé</b>, le <b>statut</b>, le <b>risque associé</b> et une description.</li>
@@ -812,16 +923,40 @@
 
       <div class="subsection">
         <h3>Créer une action</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Le filtre « Filtrer par plan de mitigation » affiche uniquement les actions d'un plan
+          donné. Des compteurs indiquent le nombre d'actions par statut : <b>En cours</b>,
+          <b>Terminée</b>, <b>En retard</b>, <b>Annulée</b>.
+        </p>
         <ol class="steps">
           <li>Depuis <b>Actions</b>, cliquez sur <b>« Nouvelle action »</b>.</li>
           <li>Sélectionnez le <b>plan de mitigation</b>, le <b>risque associé</b> et, si pertinent, la <b>bonne pratique</b> visée.</li>
-          <li>Ajoutez un ou plusieurs <b>libellés d'actions</b>, un <b>statut</b>, des <b>dates de début/fin</b> et un <b>responsable</b>.</li>
+          <li>Ajoutez un ou plusieurs <b>libellés d'actions</b> — <b>au moins un est obligatoire</b>.</li>
+          <li>Sélectionnez un <b>statut</b>, renseignez les <b>dates de début/fin</b> et choisissez un <b>responsable</b>.</li>
           <li>Enregistrez.</li>
         </ol>
         <figure class="shot">
           <img src="images/38-action-form.png" alt="Formulaire de nouvelle action">
           <figcaption>📝 Formulaire « Nouvelle action »</figcaption>
         </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Le tableau de bord des indicateurs</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          La page <b>Indicateurs</b> combine une liste de gestion et un véritable tableau de
+          bord de suivi. En haut, des compteurs indiquent le nombre d'indicateurs par statut :
+          <b>En cours</b>, <b>Attention</b>, <b>En retard</b>, <b>Non disponible</b>. Trois
+          graphiques complètent la vue : <b>« Vue d'ensemble »</b> (valeurs obtenues vs cibles),
+          <b>« Répartition par Statut »</b> (proportion d'indicateurs par statut) et
+          <b>« Taux d'Atteinte par Indicateur »</b> (performance relative par rapport à la cible).
+        </p>
+        <p style="font-size:13.5px;color:var(--ink-soft);">
+          La section « Détail des Indicateurs » liste chaque indicateur avec son code, son
+          libellé, le plan de mitigation associé, le processus concerné, sa fréquence de suivi
+          (annuelle, trimestrielle…), son écart par rapport à la cible, son seuil et son taux
+          d'atteinte représenté sous forme de <b>jauge circulaire</b>.
+        </p>
       </div>
 
       <div class="subsection">
@@ -908,6 +1043,13 @@
           <img src="images/27-cartographie-validees.png" alt="Cartographie validée">
           <figcaption>✅ <b>Cartographie validée</b> — uniquement les dossiers ayant reçu la validation finale du CMMR</figcaption>
         </figure>
+        <p style="font-size:13.5px;color:var(--ink-soft);">
+          Sur la page « Cartographie définitif des risques », des compteurs indiquent le nombre
+          total de risques ainsi que leur répartition selon l'avis rendu : <b>Validé</b>,
+          <b>Différé</b>, <b>Rejeté</b>. Le bouton « voir détails » ouvre la fiche complète d'un
+          risque, et le bouton <b>« Cartographie définitive »</b>, en haut à droite, permet de
+          générer le document final de la cartographie.
+        </p>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
@@ -921,6 +1063,11 @@
         <img src="images/17-plan-audit.png" alt="Liste des plans d'audit">
         <figcaption>🗂️ Plan d'audit</figcaption>
       </figure>
+      <p style="font-size:13.5px;color:var(--ink-soft);">
+        Des compteurs indiquent le nombre total de plans d'audit ainsi que leur répartition
+        par type (Opérationnel, Conformité, Contrôle interne). Les filtres « Recherche »,
+        « Unité administrative » et « Audit proposé » permettent d'affiner la liste.
+      </p>
 
       <div class="subsection">
         <h3>Créer un plan d'audit</h3>
@@ -935,6 +1082,10 @@
           <img src="images/40-plan-audit-form.png" alt="Formulaire de nouveau plan d'audit">
           <figcaption>📝 Formulaire « Nouveau plan d'audit »</figcaption>
         </figure>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Sélection en cascade.</b>Le choix du processus n'est possible qu'après avoir sélectionné l'unité administrative, et le choix du risque inhérent qu'après avoir sélectionné le processus.</div>
+        </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
