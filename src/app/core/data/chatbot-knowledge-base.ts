@@ -53,10 +53,24 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     anchor: 'agents'
   },
   {
+    id: 'desactiver-agent',
+    keywords: ['desactiver agent', 'reactiver agent', 'bloquer connexion', 'empecher de se connecter', 'compte inactif', 'suspendre un agent'],
+    question: 'Comment désactiver un agent ?',
+    answer: "Dans la liste des agents, l'icône **orange** (colonne Actions) désactive le compte — il ne peut alors plus se connecter, mais tout son historique est conservé. Elle devient **verte** pour le réactiver. Préférez toujours cette option à la suppression définitive si l'agent peut revenir.",
+    anchor: 'agents'
+  },
+  {
+    id: 'suppression-impossible',
+    keywords: ['suppression impossible', 'ne peux pas supprimer', 'erreur suppression', 'suppression refusee', 'element encore utilise', 'cle etrangere'],
+    question: 'Pourquoi je ne peux pas supprimer un élément ?',
+    answer: "Un ministère, un agent ou un processus encore rattaché à d'autres données (unités, notifications, risques, actions…) ne peut pas être supprimé tant que ces éléments dépendants existent : un message l'indique clairement. Traitez ou réaffectez d'abord ces éléments, ou préférez la désactivation quand elle existe (cas des agents).",
+    anchor: 'faq'
+  },
+  {
     id: 'affectations',
     keywords: ['affectation', 'poste', 'historique poste', 'changer de poste'],
     question: "Qu'est-ce qu'une affectation ?",
-    answer: "Menu **Configuration → Agents → Affectations**. Une affectation trace l'historique des postes occupés par un agent dans une unité (poste, date de début, date de fin optionnelle) — distinct de l'unité de rattachement principale de sa fiche.",
+    answer: "Menu **Configuration → Agents → Affectations**. Une affectation trace l'historique des postes occupés par un agent dans une unité (poste, date de début, date de fin) — distinct de l'unité de rattachement principale de sa fiche. Une date de fin ne signifie pas que l'agent a quitté le système : elle peut simplement marquer la fin d'un poste avant une nouvelle affectation.",
     anchor: 'affectations'
   },
   {
@@ -70,7 +84,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'ministeres',
     keywords: ['ministere', 'creer ministere', 'structure', 'nouveau ministere'],
     question: 'Comment créer un ministère ?',
-    answer: "Menu **Configuration → Structures**, réservé au SUPER_ADMIN. Cliquez sur « Nouveau ministère » puis renseignez code, libellé, sigle et description. Rappel : chaque ministère est cloisonné, sauf pour le SUPER_ADMIN qui a une vue transversale.",
+    answer: "Menu **Configuration → Structures**, réservé au SUPER_ADMIN. Cliquez sur « Nouveau ministère » puis renseignez code, libellé, sigle et description. Rappel : chaque ministère est cloisonné, sauf pour le SUPER_ADMIN qui a une vue transversale. Sa suppression est définitive et refusée tant qu'une unité administrative y est encore rattachée.",
     anchor: 'ministeres'
   },
   {
@@ -98,7 +112,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'processus',
     keywords: ['processus', 'mission', 'creer processus', 'nouveau processus', 'finalite'],
     question: 'Comment créer un processus ?',
-    answer: "Menu **Formalisation du risque inhérent → Processus/Mission**. Cliquez sur « Nouveau processus », renseignez le libellé, le type, l'unité administrative propriétaire, et au moins une finalité. Un propriétaire (manager) peut être désigné en option.",
+    answer: "Menu **Formalisation du risque inhérent → Processus/Mission**. Cliquez sur « Nouveau processus », renseignez le libellé, le type, l'unité administrative propriétaire, et au moins une finalité (obligatoire). Le propriétaire (un manager au profil Pilote de processus) est également obligatoire. Dans la liste, 3 icônes permettent de consulter, modifier ou supprimer un processus — la suppression est bloquée s'il a déjà des risques, indicateurs ou plans d'audit rattachés.",
     anchor: 'processus'
   },
   {
@@ -112,35 +126,35 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'evaluations',
     keywords: ['evaluation', 'evaluer risque', 'impact', 'probabilite', 'criticite', 'noter un risque'],
     question: 'Comment évaluer un risque ?',
-    answer: "Menu **Évaluations → Évaluer Risque**. Sélectionnez le risque, renseignez l'impact et la probabilité inhérents (1 à 5), décrivez les bonnes pratiques existantes/manquantes et indiquez si le risque est déjà survenu.",
+    answer: "Menu **Évaluations → Évaluer Risque**. Sélectionnez le risque, renseignez l'impact et la probabilité inhérents (1 à 5), décrivez les bonnes pratiques existantes/manquantes et indiquez si le risque est déjà survenu. Le score inhérent (impact × probabilité) est classé Faible (1-7), Moyen (8-14) ou Élevé (15-25).",
     anchor: 'evaluations'
   },
   {
     id: 'matrice',
     keywords: ['matrice', 'heatmap', 'carte de chaleur', 'niveau de risque', 'faible moyen eleve'],
     question: "Qu'est-ce que la matrice des risques ?",
-    answer: "Menu **Évaluations → Matrice**. Vue croisée probabilité × impact de tous les risques évalués, colorée par criticité (faible/moyen/élevé). Cliquez sur une case pour voir le détail des risques concernés.",
+    answer: "Menu **Évaluations → Matrice**. Vue croisée probabilité × impact de tous les risques évalués, colorée par criticité (faible/moyen/élevé). Cliquez sur une case pour voir le détail des risques concernés — seules les cases contenant au moins une évaluation sont affichées dans le détail.",
     anchor: 'matrice'
   },
   {
     id: 'mitigation',
     keywords: ['mitigation', 'plan de mitigation', 'creer plan', 'nouveau plan'],
     question: 'Comment créer un plan de mitigation ?',
-    answer: "Menu **Mitigation → Plans de mitigation**. Cliquez sur « Nouveau plan », renseignez le libellé, le statut, le risque associé et une description.",
+    answer: "Menu **Mitigation → Plans de mitigation**. Cliquez sur « Nouveau plan », renseignez le libellé, le statut (Planifié, En cours, Terminé ou Annulé), le risque associé et une description.",
     anchor: 'mitigation'
   },
   {
     id: 'actions',
     keywords: ['action', 'creer action', 'nouvelle action', 'action corrective', 'responsable action'],
     question: 'Comment créer une action ?',
-    answer: "Menu **Mitigation → Actions**. Sélectionnez le plan de mitigation et le risque associé, ajoutez un ou plusieurs libellés d'actions, un statut, des dates et un responsable.",
+    answer: "Menu **Mitigation → Actions**. Sélectionnez le plan de mitigation, le risque associé et la bonne pratique inexistante visée (obligatoire, issue des contrôles inexistants de l'évaluation), ajoutez un ou plusieurs libellés d'actions (obligatoire), un statut (En cours, Terminée, En retard, Annulée), des dates et un responsable. Un filtre par plan de mitigation est disponible sur la liste.",
     anchor: 'mitigation'
   },
   {
     id: 'indicateurs',
     keywords: ['indicateur', 'kpi', 'creer indicateur', 'nouvel indicateur', 'seuil alerte', 'valeur cible'],
     question: 'Comment créer un indicateur de performance ?',
-    answer: "Menu **Mitigation → Indicateurs**. Renseignez le libellé et la fréquence, rattachez-le à un processus/risque/plan/action, choisissez une unité de mesure, puis définissez dates, seuil d'alerte, valeur cible et valeur obtenue. Si aucune unité de mesure n'est disponible, contactez le SUPER_ADMIN.",
+    answer: "Menu **Mitigation → Indicateurs**. Renseignez le libellé et la fréquence, rattachez-le à un processus/risque/plan/action, choisissez une unité de mesure, puis définissez dates, seuil d'alerte, valeur cible et valeur obtenue. Si aucune unité de mesure n'est disponible, contactez le SUPER_ADMIN. La page affiche aussi un tableau de bord : compteurs par statut (En cours, Attention, En retard), graphiques valeurs vs cibles et jauge circulaire par indicateur.",
     anchor: 'mitigation'
   },
   {
@@ -154,7 +168,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'cartographie-vues',
     keywords: ['cartographie differee', 'cartographie rejetee', 'cartographie validee', 'cartographie definitif', 'retrouver dossier'],
     question: "Où retrouver mes dossiers de cartographie ?",
-    answer: "Trois vues : **Cartographie définitif des risques** (tous les dossiers transmis, à toute étape), **Cartographie différée et rejetée** (dossiers renvoyés en arrière ou clôturés, avec motif) et **Cartographie validée** (uniquement ceux validés par le CMMR).",
+    answer: "Trois vues : **Cartographie définitif des risques** (tous les dossiers transmis, à toute étape, avec compteurs Validé/Différé/Rejeté), **Cartographie différée et rejetée** (dossiers renvoyés en arrière ou clôturés, avec motif) et **Cartographie validée** (uniquement ceux validés par le CMMR). Le bouton « Cartographie définitive » génère le document final.",
     anchor: 'cartographie'
   },
   {
@@ -168,7 +182,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'plan-audit',
     keywords: ['plan audit', 'audit', 'mission audit', 'creer audit'],
     question: 'Comment créer un plan d\'audit ?',
-    answer: "Menu **Audit → Plan d'audit**. Renseignez le libellé, la date de création, l'unité administrative, puis en pré-planification le processus, le risque inhérent, le type d'audit, le type de revue, l'objectif et l'effort indicatif.",
+    answer: "Menu **Audit → Plan d'audit**. Renseignez le libellé, la date de création, l'unité administrative, puis en pré-planification le processus, le risque inhérent, le type d'audit, le type de revue, l'objectif et l'effort indicatif. Le choix du processus n'est possible qu'après avoir sélectionné l'unité administrative, et le risque inhérent qu'après le processus.",
     anchor: 'audit'
   },
   {

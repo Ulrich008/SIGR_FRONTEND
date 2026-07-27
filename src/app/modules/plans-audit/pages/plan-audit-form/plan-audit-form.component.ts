@@ -1,12 +1,13 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { PlanAuditService } from '../../../../core/services/plan-audit.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
@@ -16,11 +17,13 @@ import { UniteAdministrativeResponse } from '../../../../core/models/unite-admin
 import { ProcessusResponse } from '../../../../core/models/processus.model';
 import { RisqueResponse } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { planAuditSchema } from './plan-audit-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-plan-audit-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './plan-audit-form.component.html'
 })
 export class PlanAuditFormComponent implements OnInit {
@@ -64,27 +67,24 @@ export class PlanAuditFormComponent implements OnInit {
     this.menuItems = this.menuService.items;
 
     this.form = this.fb.group({
-      libelle: ['', [
-        Validators.required,
-        Validators.maxLength(200)
-      ]],
-
-      dateCreation: ['', [Validators.required]],
-
-      codeUniteAdministrative: ['', [Validators.required]],
-
-      codeProcessus: ['', [Validators.required]],
-
+      libelle: [''],
+      dateCreation: [''],
+      codeUniteAdministrative: [''],
+      codeProcessus: [''],
       codeRisque: [''],
-
-      auditPropose: ['', [Validators.required]],
-
-      typeRevue: ['', [Validators.required]],
-
-      objectifAudit: ['', [Validators.required, Validators.maxLength(1000)]],
-
-      effetAuditIndicatif: ['', [Validators.required, Validators.maxLength(1000)]]
+      auditPropose: [''],
+      typeRevue: [''],
+      objectifAudit: [''],
+      effetAuditIndicatif: ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, planAuditSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(planAuditSchema, field);
   }
 
   ngOnInit(): void {
@@ -243,7 +243,8 @@ export class PlanAuditFormComponent implements OnInit {
 
   onSubmit(): void {
 
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, planAuditSchema, this.form.getRawValue());
+    if (!valid) {
 
       this.form.markAllAsTouched();
       return;
@@ -331,24 +332,7 @@ export class PlanAuditFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-
-    const field = this.form.get(fieldName);
-
-    if (!field || !field.errors || !field.touched) {
-      return '';
-    }
-
-    const errors = field.errors;
-
-    if (errors['required']) {
-      return 'Ce champ est requis';
-    }
-
-    if (errors['maxlength']) {
-      return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    }
-
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   private formatDateForInput(date: string): string {

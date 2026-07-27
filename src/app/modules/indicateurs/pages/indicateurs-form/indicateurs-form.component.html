@@ -44,7 +44,7 @@
 
               <!-- Libellé -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé <span *ngIf="isRequired('libelle')" class="text-red-500">*</span></label>
                 <input
                   formControlName="libelle"
                   type="text"
@@ -59,7 +59,7 @@
 
               <!-- Fréquence -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Fréquence</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Fréquence <span *ngIf="isRequired('frequence')" class="text-red-500">*</span></label>
                 <select
                   formControlName="frequence"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
@@ -75,7 +75,7 @@
 
               <!-- Processus -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Processus</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Processus <span *ngIf="isRequired('codeProcessus')" class="text-red-500">*</span></label>
                 <select
                   formControlName="codeProcessus"
                   (ngModelChange)="onProcessusChange($event)"
@@ -161,7 +161,7 @@
               </div>
 
               <!-- Unité de mesure -->
-              <div>
+              <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Unité de mesure</label>
                 <select
                   formControlName="codeUniteMesure"
@@ -190,31 +190,19 @@
               <!-- Date de début -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début</label>
-                <input
-                  formControlName="dateDebut"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <app-date-picker formControlName="dateDebut"></app-date-picker>
               </div>
 
               <!-- Date de fin -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin</label>
-                <input
-                  formControlName="dateFin"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <app-date-picker formControlName="dateFin"></app-date-picker>
               </div>
 
               <!-- Seuil d'alerte -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil d'alerte</label>
-                <input
-                  formControlName="seuilAlerte"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <app-date-picker formControlName="seuilAlerte"></app-date-picker>
               </div>
 
             </div>
@@ -230,13 +218,16 @@
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Valeur cible</label>
                 <div class="relative">
-                  <input
-                    formControlName="valeurCible"
-                    [type]="isDateUnite() ? 'date' : 'number'"
-                    [step]="isDateUnite() ? undefined : '0.01'"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    [placeholder]="isDateUnite() ? '' : '0'"
-                  />
+                  <app-date-picker *ngIf="isDateUnite(); else valeurCibleNombre" formControlName="valeurCible"></app-date-picker>
+                  <ng-template #valeurCibleNombre>
+                    <input
+                      formControlName="valeurCible"
+                      type="number"
+                      step="0.01"
+                      class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                      placeholder="0"
+                    />
+                  </ng-template>
                   <span *ngIf="!isDateUnite()" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
                     {{ getUniteSymbole(form.get('codeUniteMesure')?.value) }}
                   </span>
@@ -251,13 +242,16 @@
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Valeur obtenue</label>
                 <div class="relative">
-                  <input
-                    formControlName="valeurObtenue"
-                    [type]="isDateUnite() ? 'date' : 'number'"
-                    [step]="isDateUnite() ? undefined : '0.01'"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    [placeholder]="isDateUnite() ? '' : '0'"
-                  />
+                  <app-date-picker *ngIf="isDateUnite(); else valeurObtenueNombre" formControlName="valeurObtenue"></app-date-picker>
+                  <ng-template #valeurObtenueNombre>
+                    <input
+                      formControlName="valeurObtenue"
+                      type="number"
+                      step="0.01"
+                      class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                      placeholder="0"
+                    />
+                  </ng-template>
                   <span *ngIf="!isDateUnite()" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
                     {{ getUniteSymbole(form.get('codeUniteMesure')?.value) }}
                   </span>

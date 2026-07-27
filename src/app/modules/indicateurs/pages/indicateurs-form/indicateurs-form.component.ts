@@ -1,8 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  FormBuilder, FormGroup, Validators, ReactiveFormsModule,
-  AbstractControl, ValidationErrors, ValidatorFn
+  FormBuilder, FormGroup, ReactiveFormsModule
 } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -10,6 +9,7 @@ import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { IndicateurPerformanceService } from '../../../../core/services/indicateur-performance.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
 import { UniteMesureService } from '../../../../core/services/unite-mesure.service';
@@ -23,31 +23,13 @@ import { RisqueResponse } from '../../../../core/models/risque.model';
 import { PlanMitigationResponse } from '../../../../core/models/plan-mitigation.model';
 import { ActionResponse } from '../../../../core/models/action.model';
 import { AuthService } from '../../../../core/services/auth.service';
-
-function obtenueLequaleCible(): ValidatorFn {
-  return (group: AbstractControl): ValidationErrors | null => {
-    const cible   = group.get('valeurCible')?.value;
-    const obtenue = group.get('valeurObtenue')?.value;
-    // Validation uniquement pour les valeurs numériques
-    if (cible && obtenue) {
-      try {
-        const cibleNum = parseFloat(cible);
-        const obtenueNum = parseFloat(obtenue);
-        if (!isNaN(cibleNum) && !isNaN(obtenueNum) && obtenueNum > cibleNum) {
-          return { obtenueSuperieureCible: true };
-        }
-      } catch (e) {
-        // Si ce n'est pas un nombre, on ne valide pas
-      }
-    }
-    return null;
-  };
-}
+import { indicateurBaseSchema, indicateurSchema } from './indicateurs-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-indicateurs-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './indicateurs-form.component.html'
 })
 export class IndicateursFormComponent implements OnInit {
@@ -85,24 +67,29 @@ export class IndicateursFormComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {
     this.menuItems = this.menuService.items;
-    this.form = this.fb.group(
-      {
-        code:          [{ value: '', disabled: true }],
-        libelle:       ['', [Validators.required, Validators.maxLength(200)]],
-        frequence:     ['', [Validators.required]],
-        valeurCible:   [''],
-        valeurObtenue: [''],
-        seuilAlerte:   [''],
-        codeUniteMesure: [''],
-        dateDebut:     [''],
-        dateFin:       [''],
-        codeProcessus: ['', [Validators.required]],
-        codeRisque:    [''],
-        codePlanMitigation: [''],
-        codeAction:    ['']
-      },
-      { validators: obtenueLequaleCible() }
+    this.form = this.fb.group({
+      code:          [{ value: '', disabled: true }],
+      libelle:       [''],
+      frequence:     [''],
+      valeurCible:   [''],
+      valeurObtenue: [''],
+      seuilAlerte:   [''],
+      codeUniteMesure: [''],
+      dateDebut:     [''],
+      dateFin:       [''],
+      codeProcessus: [''],
+      codeRisque:    [''],
+      codePlanMitigation: [''],
+      codeAction:    ['']
+    });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, indicateurSchema, this.form.getRawValue())
     );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(indicateurBaseSchema, field);
   }
 
   ngOnInit(): void {
@@ -292,11 +279,9 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, indicateurSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
-      if (this.form.errors?.['obtenueSuperieureCible']) {
-        this.error = 'La valeur obtenue ne peut pas être supérieure à la valeur cible.';
-      }
       return;
     }
     this.loading = true;
@@ -365,19 +350,12 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-    const errors = field.errors;
-    if (errors['required'])  return 'Ce champ est requis';
-    if (errors['min'])       return 'La valeur ne peut pas être négative';
-    if (errors['max'])       return 'La valeur ne peut pas dépasser 100%';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
+
   get erreurObtenueSuperieureCible(): boolean {
-    return this.form.errors?.['obtenueSuperieureCible'] &&
-           (this.form.get('valeurCible')?.touched || this.form.get('valeurObtenue')?.touched)
-           ? true : false;
+    return !!zodError(this.form, 'valeurObtenue') &&
+           !!(this.form.get('valeurCible')?.touched || this.form.get('valeurObtenue')?.touched);
   }
 
   private formatDateForInput(date: string | undefined): string {

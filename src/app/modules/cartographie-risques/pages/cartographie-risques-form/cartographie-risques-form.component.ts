@@ -1,21 +1,24 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { CartographieRisquesService } from '../../../../core/services/cartographie-risques.service';
 import { CartographieRisquesRequest, CartographieRisquesResponse, StatutCartographie } from '../../../../core/models/cartographie-risques.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
+import { cartographieRisquesSchema } from './cartographie-risques-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-cartographie-risques-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './cartographie-risques-form.component.html'
 })
 export class CartographieRisquesFormComponent implements OnInit {
@@ -48,14 +51,22 @@ export class CartographieRisquesFormComponent implements OnInit {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
       code:                     [{ value: '', disabled: true }],
-      titre:                    ['', [Validators.required, Validators.maxLength(200)]],
-      periode:                  ['', [Validators.required]],
-      seuilFaible:              [7, [Validators.required, Validators.min(0)]],
-      seuilMoyen:               [14, [Validators.required, Validators.min(0)]],
-      seuilEleve:               [25, [Validators.required, Validators.min(0)]],
-      statut:                   ['', [Validators.required]],
-      codeUniteAdministrative:  ['', [Validators.required]]
+      titre:                    [''],
+      periode:                  [''],
+      seuilFaible:              [7],
+      seuilMoyen:               [14],
+      seuilEleve:               [25],
+      statut:                   [''],
+      codeUniteAdministrative:  ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, cartographieRisquesSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(cartographieRisquesSchema, field);
   }
 
   ngOnInit(): void {
@@ -118,7 +129,8 @@ export class CartographieRisquesFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, cartographieRisquesSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -185,13 +197,6 @@ export class CartographieRisquesFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    if (errors['min']) return `Minimum ${errors['min'].min}`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 }

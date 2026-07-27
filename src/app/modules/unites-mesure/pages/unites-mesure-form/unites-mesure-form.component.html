@@ -39,7 +39,9 @@
 
           <!-- Code -->
           <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">
+              Code <span *ngIf="isRequired('code')" class="text-red-500">*</span>
+            </label>
             <input
               formControlName="code"
               type="text"
@@ -54,7 +56,9 @@
 
           <!-- Libellé -->
           <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé</label>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">
+              Libellé <span *ngIf="isRequired('libelle')" class="text-red-500">*</span>
+            </label>
             <input
               formControlName="libelle"
               type="text"

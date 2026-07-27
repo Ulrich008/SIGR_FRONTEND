@@ -60,7 +60,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Nom <span class="text-red-500">*</span></label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Nom <span *ngIf="isRequired('nom')" class="text-red-500">*</span></label>
                 <input formControlName="nom" type="text"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm uppercase focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
                 <p *ngIf="nomControl?.invalid && nomControl?.touched" class="mt-1 text-xs text-red-600">
@@ -69,7 +69,7 @@
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Prénoms <span class="text-red-500">*</span></label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Prénoms <span *ngIf="isRequired('prenoms')" class="text-red-500">*</span></label>
                 <input formControlName="prenoms" type="text"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
                 <p *ngIf="prenomsControl?.invalid && prenomsControl?.touched" class="mt-1 text-xs text-red-600">
@@ -78,7 +78,7 @@
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Sexe <span class="text-red-500">*</span></label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Sexe <span *ngIf="isRequired('sexe')" class="text-red-500">*</span></label>
                 <select formControlName="sexe"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
                   <option value="MASCULIN">Masculin</option>
@@ -87,7 +87,7 @@
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Rôle <span class="text-red-500">*</span></label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Rôle <span *ngIf="isRequired('role')" class="text-red-500">*</span></label>
                 <select formControlName="role"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors">
                   <option value="AGENT">Agent</option>
@@ -97,18 +97,16 @@
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de naissance <span class="text-red-500">*</span></label>
-                <input formControlName="dateNaissance" type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de naissance <span *ngIf="isRequired('dateNaissance')" class="text-red-500">*</span></label>
+                <app-date-picker formControlName="dateNaissance"></app-date-picker>
                 <p *ngIf="dateNaissanceControl?.invalid && dateNaissanceControl?.touched" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('dateNaissance') }}
                 </p>
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de prise de service <span class="text-red-500">*</span></label>
-                <input formControlName="datePriseService" type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de prise de service <span *ngIf="isRequired('datePriseService')" class="text-red-500">*</span></label>
+                <app-date-picker formControlName="datePriseService"></app-date-picker>
                 <p *ngIf="datePriseServiceControl?.invalid && datePriseServiceControl?.touched" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('datePriseService') }}
                 </p>
@@ -133,10 +131,11 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
-              <!-- Ministère -->
-              <div>
+              <!-- Ministère : seul champ visible de la section pour ADMIN/SUPER_ADMIN
+                   (unité et profil réservés au rôle AGENT) — s'étend alors sur toute la largeur. -->
+              <div [class.md:col-span-2]="!uniteRequise">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  Ministère <span class="text-red-500">*</span>
+                  Ministère <span *ngIf="isRequired('codeMinistere')" class="text-red-500">*</span>
                 </label>
                 <select formControlName="codeMinistere"
                   [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition-colors ' +
@@ -208,10 +207,13 @@
               <!-- NPI -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  NPI <span class="text-xs font-normal text-gray-400 ml-1">(optionnel)</span>
+                  NPI <span *ngIf="isRequired('npi')" class="text-red-500">*</span>
                 </label>
-                <input formControlName="npi" type="text" placeholder="1234567890"
+                <input formControlName="npi" type="text" inputmode="numeric" maxlength="10" placeholder="1234567890"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>
+                <p *ngIf="npiControl?.invalid && npiControl?.touched" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('npi') }}
+                </p>
               </div>
 
               <!-- Email -->
@@ -230,7 +232,7 @@
               <div class="relative">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Mot de passe
-                  <span *ngIf="!isEditMode" class="text-red-500">*</span>
+                  <span *ngIf="passwordRequis" class="text-red-500">*</span>
                   <span *ngIf="isEditMode" class="text-xs font-normal text-gray-500 ml-1">(laisser vide pour conserver)</span>
                 </label>
                 <div class="relative">
@@ -256,7 +258,7 @@
               <!-- Confirmation mot de passe (création uniquement) -->
               <div class="relative" *ngIf="!isEditMode">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  Confirmation mot de passe <span class="text-red-500">*</span>
+                  Confirmation mot de passe <span *ngIf="passwordRequis" class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <input formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" placeholder="Confirmer le mot de passe"

@@ -3,11 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
-  Validators,
-  ReactiveFormsModule,
-  AbstractControl,
-  ValidationErrors,
-  ValidatorFn
+  ReactiveFormsModule
 } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -15,6 +11,7 @@ import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { AgentService } from '../../../../core/services/agent.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { ProfilService } from '../../../../core/services/profil.service';             // ← nouveau
@@ -24,11 +21,13 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { ProfilResponse } from '../../../../core/models/profil.model';                // ← nouveau
 import { MinistereResponse } from '../../../../core/models/ministere.model';           // ← nouveau pour multi-ministères
+import { agentBaseSchema, agentSchema } from './agent-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-agent-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './agent-form.component.html'
 })
 export class AgentFormComponent implements OnInit, OnDestroy {
@@ -70,37 +69,38 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   private initForm(): void {
     this.form = this.fb.group({
       matricule:        [{ value: '', disabled: true }],
-      password:         ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword:  ['', [Validators.required, this.passwordMatchValidator()]],
-      npi:              ['', [Validators.maxLength(20), this.noSpacesValidator()]],
-      email:            ['', [Validators.email, Validators.maxLength(150)]],
-      nom:              ['', [Validators.required, Validators.maxLength(50),  this.noSpecialCharsValidator()]],
-      prenoms:          ['', [Validators.required, Validators.maxLength(100), this.noSpecialCharsValidator()]],
-      sexe:             ['MASCULIN' as Sexe, Validators.required],
-      role:             ['AGENT'    as Role,  Validators.required],
-      codeProfil:       ['', Validators.required],   // ← requis uniquement pour le rôle AGENT
-      dateNaissance:    ['', Validators.required],
-      datePriseService: ['', Validators.required],
-      codeMinistere:    ['', Validators.required],  // ← nouveau champ pour multi-ministères
-      codeUnite:        ['', Validators.required]
+      password:         [''],
+      confirmPassword:  [''],
+      npi:              [''],
+      email:            [''],
+      nom:              [''],
+      prenoms:          [''],
+      sexe:             ['MASCULIN' as Sexe],
+      role:             ['AGENT'    as Role],
+      codeProfil:       [''],
+      dateNaissance:    [''],
+      datePriseService: [''],
+      codeMinistere:    [''],
+      codeUnite:        ['']
     });
 
-    // Le profil métier n'a de sens (et n'est obligatoire) que pour un AGENT :
-    // un ADMIN/SUPER_ADMIN n'en a pas besoin, son accès vient de son rôle.
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, agentSchema(this.isEditMode), this.form.getRawValue())
+    );
+
+    // Le profil métier n'a de sens que pour un AGENT : un ADMIN/SUPER_ADMIN
+    // n'en a pas besoin, son accès vient de son rôle (le caractère
+    // obligatoire pour AGENT est porté par le schéma Zod, ceci ne gère que
+    // l'effet de bord métier : proposer de retirer un profil devenu sans objet).
     this.form.get('role')?.valueChanges.subscribe((role: Role) => {
       const codeProfilControl = this.form.get('codeProfil');
 
       if (role === 'AGENT') {
-        codeProfilControl?.setValidators([Validators.required]);
-        codeProfilControl?.updateValueAndValidity();
         return;
       }
 
-      codeProfilControl?.setValidators([]);
-
       const profilActuel = codeProfilControl?.value;
       if (!profilActuel) {
-        codeProfilControl?.updateValueAndValidity();
         return;
       }
 
@@ -120,7 +120,6 @@ export class AgentFormComponent implements OnInit, OnDestroy {
         if (result.isConfirmed) {
           codeProfilControl?.setValue('');
         }
-        codeProfilControl?.updateValueAndValidity();
       });
     });
 
@@ -131,15 +130,8 @@ export class AgentFormComponent implements OnInit, OnDestroy {
     // rattaché de force à une UA dès sa création — sous peine de forcer
     // un choix incohérent quand le ministère n'a encore aucune UA.
     this.form.get('role')?.valueChanges.subscribe((role: Role) => {
-      const codeUniteControl = this.form.get('codeUnite');
-
-      if (role === 'AGENT') {
-        codeUniteControl?.setValidators([Validators.required]);
-        codeUniteControl?.updateValueAndValidity();
-      } else {
-        codeUniteControl?.clearValidators();
-        codeUniteControl?.setValue('');
-        codeUniteControl?.updateValueAndValidity();
+      if (role !== 'AGENT') {
+        this.form.get('codeUnite')?.setValue('');
       }
     });
   }
@@ -152,30 +144,12 @@ export class AgentFormComponent implements OnInit, OnDestroy {
     return this.form.get('role')?.value === 'AGENT';
   }
 
-  // ================= VALIDATORS =================
-
-  passwordMatchValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.parent) return null;
-      const password = control.parent.get('password')?.value;
-      return password === control.value ? null : { passwordMismatch: true };
-    };
+  get passwordRequis(): boolean {
+    return !this.isEditMode;
   }
 
-  noSpacesValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      return value && /\s/.test(value) ? { hasSpaces: true } : null;
-    };
-  }
-
-  noSpecialCharsValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      if (!value) return null;
-      const validPattern = /^[a-zA-ZàâäéèêëïîôùûüÿçÀÂÄÉÈÊËÏÎÔÙÛÜŸÇ\s\-']+$/;
-      return !validPattern.test(value) ? { hasSpecialChars: true } : null;
-    };
+  isRequired(field: string): boolean {
+    return isRequired(agentBaseSchema, field);
   }
 
   // ================= LIFECYCLE =================
@@ -311,7 +285,8 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   // ================= SOUMISSION =================
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, agentSchema(this.isEditMode), this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       this.scrollToFirstError();
       return;
@@ -379,17 +354,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-    const e = field.errors;
-    if (e['required'])        return 'Ce champ est requis';
-    if (e['minlength'])       return `Minimum ${e['minlength'].requiredLength} caractères`;
-    if (e['maxlength'])       return `Maximum ${e['maxlength'].requiredLength} caractères`;
-    if (e['passwordMismatch'])return 'Les mots de passe ne correspondent pas';
-    if (e['hasSpaces'])       return 'Les espaces ne sont pas autorisés';
-    if (e['hasSpecialChars']) return 'Caractères spéciaux non autorisés';
-    if (e['email'])           return 'Adresse email invalide';
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   togglePasswordVisibility():        void { this.showPassword        = !this.showPassword; }
@@ -414,6 +379,7 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   get passwordControl()         { return this.form.get('password'); }
   get nomControl()              { return this.form.get('nom'); }
   get emailControl()            { return this.form.get('email'); }
+  get npiControl()              { return this.form.get('npi'); }
   get prenomsControl()          { return this.form.get('prenoms'); }
   get codeMinistereControl()    { return this.form.get('codeMinistere'); }  // ← nouveau pour multi-ministères
   get codeUniteControl()        { return this.form.get('codeUnite'); }

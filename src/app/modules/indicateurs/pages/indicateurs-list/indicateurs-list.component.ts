@@ -269,16 +269,15 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     const enCours = this.countByStatut('Plan de mitigation en cours conformément au calendrier');
     const attention = this.countByStatut('Attention : échéance proche, suivi renforcé requis');
     const enRetard = this.countByStatut('Échéance dépassée - Action de mitigation en retard');
-    const nonDisponible = this.countByStatut('Informations de suivi non disponibles');
 
     this.statutChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: ['En cours', 'Attention', 'En retard', 'Non disponible'],
+        labels: ['En cours', 'Attention', 'En retard'],
         datasets: [{
-          data: [enCours, attention, enRetard, nonDisponible],
-          backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#94a3b8'],
-          borderColor: ['#fff', '#fff', '#fff', '#fff'],
+          data: [enCours, attention, enRetard],
+          backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+          borderColor: ['#fff', '#fff', '#fff'],
           borderWidth: 3,
           hoverOffset: 8
         }]

@@ -83,4 +83,8 @@ export interface RisqueResponse {
   motif?: string;
   transmis?: boolean;
   etapeValidation?: EtapeValidation;
+  emetteurAvisMatricule?: string;
+  emetteurAvisNomComplet?: string;
+  emetteurAvisCodeProfil?: string;
+  emetteurAvisLibelleProfil?: string;
 }

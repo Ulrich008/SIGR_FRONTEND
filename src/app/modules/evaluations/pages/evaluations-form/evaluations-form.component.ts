@@ -1,12 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { EvaluationService } from '../../../../core/services/evaluation.service';
 import { RisqueService } from '../../../../core/services/risque.service';
 import { AgentService } from '../../../../core/services/agent.service';
@@ -14,40 +15,13 @@ import { EvaluationRequest, EvaluationResponse } from '../../../../core/models/e
 import { RisqueResponse } from '../../../../core/models/risque.model';
 import { AgentResponse } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
-
-function dateFinSuperieureDateDebut(group: AbstractControl): ValidationErrors | null {
-  const dateDebut = group.get('dateDebut')?.value;
-  const dateFin = group.get('dateFin')?.value;
-  if (!dateDebut || !dateFin) return null;
-  return new Date(dateFin) > new Date(dateDebut)
-    ? null
-    : { dateFinInvalide: true };
-}
-
-function protectionPreventionInferieures(group: AbstractControl): ValidationErrors | null {
-  const impactInherent = Number(group.get('impactInherent')?.value);
-  const probabiliteInherente = Number(group.get('probabiliteInherente')?.value);
-  const protection = Number(group.get('protection')?.value);
-  const prevention = Number(group.get('prevention')?.value);
-
-  if (!impactInherent || !probabiliteInherente || !protection || !prevention) return null;
-
-  const errors: ValidationErrors = {};
-
-  if (protection >= impactInherent) {
-    errors['protectionTropElevee'] = { max: impactInherent - 1, actual: protection };
-  }
-  if (prevention >= probabiliteInherente) {
-    errors['preventionTropElevee'] = { max: probabiliteInherente - 1, actual: prevention };
-  }
-
-  return Object.keys(errors).length > 0 ? errors : null;
-}
+import { evaluationBaseSchema, evaluationSchema } from './evaluations-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-evaluations-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './evaluations-form.component.html'
 })
 export class EvaluationsFormComponent implements OnInit {
@@ -87,23 +61,27 @@ export class EvaluationsFormComponent implements OnInit {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
       code: [{ value: '', disabled: true }],
-      impactInherent: [{ value: 5, disabled: true }, [Validators.required, Validators.min(1), Validators.max(5)]],
-      probabiliteInherente: [{ value: 5, disabled: true }, [Validators.required, Validators.min(1), Validators.max(5)]],
-      protection: [{ value: '', disabled: true }, [Validators.required, Validators.min(0), Validators.max(3)]],
-      prevention: [{ value: '', disabled: true }, [Validators.required, Validators.min(0), Validators.max(3)]],
-      controleExistants: ['', [Validators.required]],
-      controleInexistants: ['', [Validators.required]],
+      impactInherent: [{ value: 5, disabled: true }],
+      probabiliteInherente: [{ value: 5, disabled: true }],
+      protection: [{ value: 0, disabled: true }],
+      prevention: [{ value: 0, disabled: true }],
+      controleExistants: [''],
+      controleInexistants: [''],
       dejaSurvenu: [false],
-      dateDebut: ['', [Validators.required]],
-      dateFin: ['', [Validators.required]],
-      recommandation: ['', [Validators.maxLength(1000)]],
-      codeRisque: ['', [Validators.required]],
+      dateDebut: [''],
+      dateFin: [''],
+      recommandation: [''],
+      codeRisque: [''],
       matriculeAgent: ['']
-    }, {
-      validators: [
-        dateFinSuperieureDateDebut
-      ]
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, evaluationSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(evaluationBaseSchema, field);
   }
 
   ngOnInit(): void {
@@ -276,19 +254,9 @@ export class EvaluationsFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, evaluationSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
-
-      if (this.form.errors?.['dateFinInvalide']) {
-        Swal.fire({
-          title: 'Dates invalides',
-          text: 'La date de fin doit être supérieure à la date de début.',
-          icon: 'warning',
-          confirmButtonText: 'OK'
-        });
-        return;
-      }
-
       return;
     }
 
@@ -487,47 +455,8 @@ export class EvaluationsFormComponent implements OnInit {
     this.sections[section] = !this.sections[section];
   }
 
-  get dateFinError(): boolean {
-    return !!(
-      this.form.errors?.['dateFinInvalide'] &&
-      this.form.get('dateDebut')?.touched &&
-      this.form.get('dateFin')?.touched
-    );
-  }
-
-  get protectionError(): string {
-    if (
-      this.form.errors?.['protectionTropElevee'] &&
-      this.form.get('protection')?.touched &&
-      this.form.get('impactInherent')?.touched
-    ) {
-      const max = this.form.errors['protectionTropElevee'].max;
-      return `La protection doit être inférieure à l'impact inhérent (max autorisé : ${max})`;
-    }
-    return '';
-  }
-
-  get preventionError(): string {
-    if (
-      this.form.errors?.['preventionTropElevee'] &&
-      this.form.get('prevention')?.touched &&
-      this.form.get('probabiliteInherente')?.touched
-    ) {
-      const max = this.form.errors['preventionTropElevee'].max;
-      return `La prévention doit être inférieure à la probabilité inhérente (max autorisé : ${max})`;
-    }
-    return '';
-  }
-
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['min']) return `Minimum ${errors['min'].min}`;
-    if (errors['max']) return `Maximum ${errors['max'].max}`;
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   private formatDateForInput(date?: string): string {

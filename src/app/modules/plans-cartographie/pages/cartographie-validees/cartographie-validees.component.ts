@@ -5,7 +5,7 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
-import { RisqueResponse, EtapeValidation } from '../../../../core/models/risque.model';
+import { RisqueResponse, EtapeValidation, AvisRisque } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -43,9 +43,14 @@ export class CartographieValideesComponent implements OnInit {
     this.error = null;
     this.risqueService.getAll().subscribe({
       next: (data) => {
-        // Validée = validation finale par le CMMR (dernière étape du
-        // circuit), pas seulement un avis "Validé" à une étape intermédiaire.
-        this.risques = data.filter(r => r.etapeValidation === EtapeValidation.VALIDEE);
+        // Validée = avis "Validé" obtenu à une étape intermédiaire du
+        // circuit (Pilote ou CCI). Une fois la validation finale du CMMR
+        // obtenue (etapeValidation = VALIDEE), le dossier est clos et
+        // relève exclusivement de la Cartographie définitive — il ne
+        // doit plus apparaître ici pour éviter le doublon entre les deux pages.
+        this.risques = data.filter(
+          r => r.avis === AvisRisque.VALIDE && r.etapeValidation !== EtapeValidation.VALIDEE
+        );
         this.loading = false;
         this.cdr.detectChanges();
       },

@@ -1,14 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-  AbstractControl,
-  ValidationErrors,
-  ValidatorFn
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -18,6 +10,8 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { ProfilService } from '../../../../core/services/profil.service';
 import { ProfilRequest, ProfilResponse } from '../../../../core/models/profil.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { profilSchema } from './profil-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
@@ -48,43 +42,18 @@ export class ProfilFormComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.form = this.fb.group({
-      code: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(50),
-          this.noSpacesValidator(),
-          this.uppercaseAlphanumericValidator()
-        ]
-      ],
-      libelle: [
-        '',
-        [
-          Validators.required,
-          Validators.maxLength(100)
-        ]
-      ],
-      description: [
-        '',
-        [Validators.maxLength(300)]
-      ]
+      code: [''],
+      libelle: [''],
+      description: ['']
     });
+
+    this.form.valueChanges.subscribe(value =>
+      applyZodValidation(this.form, profilSchema, this.form.getRawValue())
+    );
   }
 
-  noSpacesValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      return value && /\s/.test(value) ? { hasSpaces: true } : null;
-    };
-  }
-
-  uppercaseAlphanumericValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      if (!value) return null;
-      const validPattern = /^[A-Z0-9_\-]+$/;
-      return !validPattern.test(value) ? { invalidCode: true } : null;
-    };
+  isRequired(field: string): boolean {
+    return isRequired(profilSchema, field);
   }
 
   ngOnInit(): void {
@@ -133,7 +102,8 @@ export class ProfilFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, profilSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       this.scrollToFirstError();
       return;
@@ -228,14 +198,7 @@ export class ProfilFormComponent implements OnInit, OnDestroy {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-    const errors = field.errors;
-    if (errors['required'])   return 'Ce champ est requis';
-    if (errors['maxlength'])  return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    if (errors['hasSpaces'])  return 'Les espaces ne sont pas autorisés';
-    if (errors['invalidCode']) return 'Le code doit être en majuscules (lettres, chiffres, _ ou -)';
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   private scrollToFirstError(): void {

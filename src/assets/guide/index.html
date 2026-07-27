@@ -438,6 +438,10 @@
           et l'encart <b>« Activités récentes »</b> liste les dernières actions effectuées sur le système
           (risques identifiés, évaluations complétées…).
         </p>
+        <div class="callout tip">
+          <span class="icon">👑</span>
+          <div><b>Vue étendue pour les administrateurs.</b>Un <b>ADMIN</b> voit en plus un tableau « Unités administratives de mon ministère » (nombre d'agents par unité). Un <b>SUPER_ADMIN</b> voit un tableau « Répartition par ministère » (unités administratives et agents, tous ministères confondus).</div>
+        </div>
       </div>
 
       <div class="subsection">
@@ -447,6 +451,17 @@
           <img src="images/04-sidebar-menu.png" alt="Menu latéral déplié sur la rubrique Configuration">
           <figcaption>📂 La rubrique « Configuration » dépliée, avec ses sous-pages</figcaption>
         </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Champs obligatoires et sélecteur de date</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Deux conventions valables sur <b>tous</b> les formulaires de l'application :
+        </p>
+        <ul class="steps">
+          <li>Un champ obligatoire est toujours signalé par un <b>astérisque rouge</b> à côté de son libellé ; si vous le laissez vide, un message précis (et non un simple « Ce champ est requis ») indique quoi corriger.</li>
+          <li>Tous les champs de type date s'ouvrent via un <b>calendrier</b> (jour/mois/année) au clic, plutôt qu'une saisie libre — cliquez simplement sur le champ pour choisir une date au lieu de la taper.</li>
+        </ul>
       </div>
 
       <div class="subsection">
@@ -542,17 +557,44 @@
         <h3>Créer un nouvel agent</h3>
         <ol class="steps">
           <li>Cliquez sur <b>« Nouvel agent »</b> en haut de la liste.</li>
-          <li>Renseignez l'état civil, puis choisissez le <b>ministère</b> et l'<b>unité administrative</b> de rattachement.</li>
+          <li>Renseignez l'état civil (dont le <b>NPI</b>, exactement 10 chiffres, sans lettre), puis choisissez le <b>ministère</b> et l'<b>unité administrative</b> de rattachement.</li>
           <li>Si le rôle choisi est <b>AGENT</b>, sélectionnez obligatoirement un <b>profil métier</b>.</li>
-          <li>Définissez le matricule et le mot de passe initial, puis enregistrez.</li>
+          <li>Définissez le mot de passe initial de l'agent, puis enregistrez.</li>
         </ol>
         <figure class="shot">
           <img src="images/06-agent-form.png" alt="Formulaire de création d'un agent">
           <figcaption>📝 Formulaire « Nouvel agent »</figcaption>
         </figure>
         <div class="callout tip">
+          <span class="icon">🔑</span>
+          <div><b>Le matricule n'est pas saisi.</b>Il est généré automatiquement par le système à la création : ce champ n'existe pas dans le formulaire de création.</div>
+        </div>
+        <div class="callout tip">
           <span class="icon">📄</span>
           <div><b>Export PDF.</b>Depuis la liste, le bouton « Exporter PDF » génère un répertoire imprimable des agents, filtrable par ministère et par unité administrative.</div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Importer plusieurs agents depuis un fichier Excel</h3>
+        <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Depuis la liste des agents, le bouton <b>« Importer »</b> permet de créer plusieurs agents
+          d'un coup à partir d'un fichier Excel (.xlsx), sans les saisir un par un.
+        </p>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Télécharger le modèle »</b> (à côté du bouton Importer) pour récupérer le fichier Excel avec les colonnes attendues et une ligne d'exemple.</li>
+          <li>Remplissez une ligne par agent, en respectant les colonnes du modèle (NPI, nom, prénoms, sexe, rôle, profil, dates, unité, ministère, email, mot de passe…).</li>
+          <li>Cliquez sur <b>« Importer »</b> et sélectionnez votre fichier rempli.</li>
+          <li>Un résumé s'affiche à la fin : nombre de lignes importées avec succès, et le détail des lignes en erreur (numéro de ligne et motif).</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/41-agents-import.png" alt="Import Excel des agents et résultat">
+          <figcaption>📥 Boutons Importer / Télécharger le modèle, et résumé après import</figcaption>
+        </figure>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Aucune ligne ne bloque les autres.</b>Si une ligne contient une erreur (NPI déjà utilisé, unité introuvable…), seule cette ligne échoue : les autres agents valides du fichier sont bien créés.</div>
         </div>
       </div>
 
@@ -581,7 +623,7 @@
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
           Menu <b>Configuration → Agents → Affectations</b>. Une affectation trace
           l'<b>historique des postes</b> occupés par un agent au sein d'une unité
-          administrative (poste, date de début, date de fin optionnelle) — distinct
+          administrative (poste, date de début, date de fin) — distinct
           de l'unité de rattachement principale définie sur la fiche de l'agent.
         </p>
         <figure class="shot">
@@ -591,7 +633,7 @@
         <ol class="steps">
           <li>Cliquez sur <b>« Nouvelle affectation »</b>.</li>
           <li>Sélectionnez l'<b>agent</b> et l'<b>unité administrative</b> concernés.</li>
-          <li>Renseignez le <b>poste</b> occupé et la <b>date de début</b> (la date de fin est optionnelle).</li>
+          <li>Renseignez le <b>poste</b> occupé, ainsi que la <b>date de début</b> et la <b>date de fin</b> (toutes deux obligatoires).</li>
           <li>Enregistrez.</li>
         </ol>
         <figure class="shot">
@@ -702,6 +744,14 @@
           <img src="images/31-unite-administrative-form.png" alt="Formulaire de création d'une unité administrative">
           <figcaption>📝 Formulaire « Nouvelle unité administrative »</figcaption>
         </figure>
+        <figure class="shot">
+          <img src="images/43-unites-import.png" alt="Import Excel des unités administratives">
+          <figcaption>📥 Boutons Importer / Télécharger le modèle pour les unités administratives</figcaption>
+        </figure>
+        <div class="callout tip">
+          <span class="icon">📥</span>
+          <div><b>Import en masse.</b>Le bouton « Importer » (haut de la liste des unités administratives) permet de créer plusieurs unités d'un coup depuis un fichier Excel, selon le même principe que pour les agents (modèle téléchargeable, rapport ligne par ligne). Une unité parente référencée dans le fichier doit déjà exister, en base ou sur une ligne précédente du même fichier.</div>
+        </div>
       </div>
 
       <div class="subsection">
@@ -784,7 +834,7 @@
           <li>Cliquez sur <b>« Nouveau processus »</b>.</li>
           <li>Renseignez le <b>libellé</b>, le <b>type de processus</b> et l'<b>unité administrative</b> propriétaire.</li>
           <li>Ajoutez une ou plusieurs <b>finalités</b> (saisir puis « Ajouter ») — <b>au moins une finalité est obligatoire</b>.</li>
-          <li>Un <b>propriétaire</b> peut être désigné parmi les managers de l'unité (optionnel).</li>
+          <li>Sélectionnez un <b>propriétaire</b> parmi les managers de l'unité (obligatoire, profil Pilote de processus).</li>
           <li>Enregistrez.</li>
         </ol>
         <figure class="shot">
@@ -827,7 +877,7 @@
     <!-- EVALUATIONS -->
     <section class="doc" id="evaluations">
       <h2>Évaluer les risques</h2>
-      <p class="lead">Menu <b>Évaluations → Évaluer Risque</b>. Chaque risque formalisé est noté (probabilité × impact) pour déterminer sa criticité, visible ensuite sous forme de matrice.</p>
+      <p class="lead">Menu <b>Évaluations → Évaluer Risque</b>. Chaque risque formalisé est noté selon sa probabilité et son impact, ce qui détermine automatiquement son niveau de criticité, visible ensuite sous forme de matrice.</p>
       <figure class="shot">
         <img src="images/11-evaluations-list.png" alt="Liste des évaluations">
         <figcaption>📊 Évaluations des risques</figcaption>
@@ -840,15 +890,18 @@
       <div class="subsection">
         <h3>Créer une évaluation</h3>
         <table class="compact">
-          <thead><tr><th>Échelle</th><th>Valeurs</th><th>Classement du score inhérent (impact × probabilité)</th></tr></thead>
+          <thead><tr><th>Échelle</th><th>Valeurs</th></tr></thead>
           <tbody>
-            <tr><td>Impact / Probabilité</td><td>1 (très faible) à 5 (très élevé)</td><td rowspan="2">Faible : 1-7 · Moyen : 8-14 · Élevé : 15-25</td></tr>
+            <tr><td>Impact / Probabilité</td><td>1 (très faible) à 5 (très élevé)</td></tr>
             <tr><td>Protection / Prévention</td><td>0 (aucun) à 3 (élevé)</td></tr>
           </tbody>
         </table>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin:10px 0 0;">
+          Le niveau de criticité (<b>Faible</b>, <b>Moyen</b> ou <b>Élevé</b>) est déterminé automatiquement à partir de ces valeurs — vous n'avez rien à calculer vous-même.
+        </p>
         <ol class="steps">
           <li>Sélectionnez le <b>risque</b> à évaluer et, si besoin, l'<b>agent évaluateur</b> (optionnel).</li>
-          <li>Renseignez la <b>période d'évaluation</b> (date de début et de fin, toutes deux optionnelles).</li>
+          <li>Renseignez la <b>période d'évaluation</b> : <b>date de début</b> et <b>date de fin</b> (toutes deux obligatoires).</li>
           <li>Renseignez l'<b>impact</b> et la <b>probabilité</b> inhérents (échelle 1 à 5).</li>
           <li>Décrivez les <b>bonnes pratiques existantes</b> et <b>manquantes</b>, et cochez si le risque <b>est déjà survenu</b>.</li>
           <li>Ajoutez, si nécessaire, une <b>recommandation</b> (1000 caractères maximum).</li>
@@ -858,20 +911,20 @@
           <img src="images/36-evaluation-form.png" alt="Formulaire de nouvelle évaluation">
           <figcaption>📝 Formulaire « Nouvelle évaluation »</figcaption>
         </figure>
-        <div class="callout tip">
-          <span class="icon">🧮</span>
-          <div><b>Protection et Prévention calculées automatiquement.</b>Ces deux scores (0 à 3) ne se saisissent pas directement : ils sont déduits des bonnes pratiques existantes sélectionnées, selon la formule <code>(nombre de bonnes pratiques sélectionnées du type × 3) / nombre total de bonnes pratiques de ce type</code>.</div>
-        </div>
       </div>
 
       <div class="subsection" id="matrice">
         <h3>Matrice des risques</h3>
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Menu <b>Évaluations → Matrice</b>. Vue croisée <b>probabilité × impact</b> de
-          tous les risques évalués : chaque case affiche un score et se colore selon
-          la criticité (faible, moyen, élevé). Cliquez sur une case pour voir le détail
+          Menu <b>Évaluations → Matrice</b>. Vue croisée <b>probabilité / impact</b> de
+          tous les risques évalués : chaque case se colore selon la criticité
+          (faible, moyen, élevé). Cliquez sur une case pour voir le détail
           des risques qu'elle contient.
         </p>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Score résiduel, pas inhérent.</b>Le positionnement et la couleur des cases se basent sur le <b>score résiduel</b> du risque (impact et probabilité après prise en compte des mesures de prévention/protection), et non sur le score inhérent affiché dans le formulaire d'évaluation.</div>
+        </div>
         <figure class="shot">
           <img src="images/25-matrices-list.png" alt="Matrice des risques">
           <figcaption>🟩🟨🟥 Matrice d'évaluation des risques — code couleur par niveau de criticité</figcaption>
@@ -912,7 +965,7 @@
         </p>
         <ol class="steps">
           <li>Depuis <b>Plans de mitigation</b>, cliquez sur <b>« Nouveau plan »</b>.</li>
-          <li>Renseignez le <b>libellé</b>, le <b>statut</b>, le <b>risque associé</b> et une description.</li>
+          <li>Renseignez le <b>libellé</b>, la <b>date de création</b>, le <b>statut</b>, le <b>risque associé</b> et une description.</li>
           <li>Enregistrez.</li>
         </ol>
         <figure class="shot">
@@ -930,9 +983,9 @@
         </p>
         <ol class="steps">
           <li>Depuis <b>Actions</b>, cliquez sur <b>« Nouvelle action »</b>.</li>
-          <li>Sélectionnez le <b>plan de mitigation</b>, le <b>risque associé</b> et, si pertinent, la <b>bonne pratique</b> visée.</li>
+          <li>Sélectionnez le <b>plan de mitigation</b>, le <b>risque associé</b> et la <b>bonne pratique inexistante</b> visée (obligatoire) — issue des contrôles inexistants relevés lors de l'évaluation du risque.</li>
           <li>Ajoutez un ou plusieurs <b>libellés d'actions</b> — <b>au moins un est obligatoire</b>.</li>
-          <li>Sélectionnez un <b>statut</b>, renseignez les <b>dates de début/fin</b> et choisissez un <b>responsable</b>.</li>
+          <li>Sélectionnez un <b>statut</b>, renseignez les <b>dates de début/fin</b> et choisissez un <b>responsable</b> (seuls les agents rattachés à une unité administrative apparaissent dans cette liste).</li>
           <li>Enregistrez.</li>
         </ol>
         <figure class="shot">
@@ -946,7 +999,7 @@
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
           La page <b>Indicateurs</b> combine une liste de gestion et un véritable tableau de
           bord de suivi. En haut, des compteurs indiquent le nombre d'indicateurs par statut :
-          <b>En cours</b>, <b>Attention</b>, <b>En retard</b>, <b>Non disponible</b>. Trois
+          <b>En cours</b>, <b>Attention</b>, <b>En retard</b>. Trois
           graphiques complètent la vue : <b>« Vue d'ensemble »</b> (valeurs obtenues vs cibles),
           <b>« Répartition par Statut »</b> (proportion d'indicateurs par statut) et
           <b>« Taux d'Atteinte par Indicateur »</b> (performance relative par rapport à la cible).
@@ -1154,11 +1207,49 @@
     <!-- PROFIL -->
     <section class="doc" id="profil">
       <h2>Mon profil</h2>
-      <p class="lead">Cliquez sur votre <b>avatar</b> (haut droite) pour consulter vos informations : matricule, rôle, profil métier, ministère et unité de rattachement.</p>
+      <p class="lead">
+        Cliquez sur votre <b>avatar</b> (haut droite) pour consulter vos informations :
+        état civil, matricule, rôle, profil métier, ministère et unité de rattachement.
+        Cette page permet aussi de modifier vous-même votre <b>email</b> et votre
+        <b>mot de passe</b>, sans passer par un administrateur.
+      </p>
       <figure class="shot">
         <img src="images/19-mon-profil.png" alt="Page Mon profil">
-        <figcaption>🙍 Mon profil</figcaption>
+        <figcaption>🙍 Mon profil — identité, informations personnelles et affectation</figcaption>
       </figure>
+
+      <div class="subsection">
+        <h3>Modifier mon email</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
+          Dans la section « Compte », l'email est modifiable directement — il sert uniquement
+          à recevoir les notifications critiques et hautes par email, en plus de l'in-app.
+        </p>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Modifier »</b> à côté de votre email.</li>
+          <li>Saisissez la nouvelle adresse, puis cliquez sur <b>« Enregistrer »</b> (ou « Annuler » pour abandonner).</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/33-mon-profil-email.png" alt="Modification de l'email dans Mon profil">
+          <figcaption>✉️ Modifier son email depuis « Mon profil »</figcaption>
+        </figure>
+      </div>
+
+      <div class="subsection">
+        <h3>Changer mon mot de passe</h3>
+        <ol class="steps">
+          <li>Cliquez sur <b>« Changer mon mot de passe »</b>, dans la section « Compte ».</li>
+          <li>Saisissez votre <b>mot de passe actuel</b>, puis le <b>nouveau mot de passe</b> et sa confirmation.</li>
+          <li>Cliquez sur <b>« Changer le mot de passe »</b> pour valider.</li>
+        </ol>
+        <figure class="shot">
+          <img src="images/33b-mon-profil-mot-de-passe.png" alt="Fenêtre de changement de mot de passe">
+          <figcaption>🔒 Changer son mot de passe soi-même, sans passer par un administrateur</figcaption>
+        </figure>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Ancien mot de passe requis.</b>Le changement est refusé si le mot de passe actuel saisi est incorrect, ou si le nouveau mot de passe et sa confirmation ne correspondent pas.</div>
+        </div>
+      </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 

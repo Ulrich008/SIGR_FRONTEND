@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -14,6 +14,8 @@ import { UniteAdministrativeRequest, UniteAdministrativeResponse } from '../../.
 import { TypeUniteResponse } from '../../../../core/models/type-unite.model';
 import { MinistereResponse } from '../../../../core/models/ministere.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { uniteAdministrativeSchema } from './unite-administrative-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
@@ -48,13 +50,21 @@ export class UniteAdministrativeFormComponent implements OnInit {
   ) {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
-      code:                ['', [Validators.required, Validators.maxLength(50)]],
-      libelle:             ['', [Validators.required, Validators.maxLength(200)]],
-      idTypeUnite:         ['', [Validators.required]],
-      codeMinistere:       ['', [Validators.required]],
+      code:                [''],
+      libelle:             [''],
+      idTypeUnite:         [''],
+      codeMinistere:       [''],
       idUniteParent:       [''],
-      niveauHierarchique:  [{ value: 1, disabled: true }, [Validators.required, Validators.min(1), Validators.max(10)]]
+      niveauHierarchique:  [{ value: 1, disabled: true }]
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, uniteAdministrativeSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(uniteAdministrativeSchema, field);
   }
 
   ngOnInit(): void {
@@ -203,7 +213,8 @@ export class UniteAdministrativeFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, uniteAdministrativeSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -264,14 +275,6 @@ export class UniteAdministrativeFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    if (errors['min']) return `Minimum ${errors['min'].min}`;
-    if (errors['max']) return `Maximum ${errors['max'].max}`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 }

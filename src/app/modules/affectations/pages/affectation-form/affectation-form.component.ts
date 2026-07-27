@@ -1,11 +1,12 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { AffectationService } from '../../../../core/services/affectation.service';
 import { AffectationRequest, AffectationResponse } from '../../../../core/models/affectation.model';
 import { AgentService } from '../../../../core/services/agent.service';
@@ -13,11 +14,13 @@ import { AgentResponse } from '../../../../core/models/agent.model';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { affectationSchema } from './affectation-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-affectation-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './affectation-form.component.html'
 })
 export class AffectationFormComponent implements OnInit {
@@ -53,13 +56,21 @@ export class AffectationFormComponent implements OnInit {
       agentsItem.expanded = true;
     }
     this.form = this.fb.group({
-      code:                ['', [Validators.required, Validators.maxLength(50)]],
-      matriculeAgent:      ['', [Validators.required]],
-      codeUnite:           ['', [Validators.required]],
-      poste:               ['', [Validators.required, Validators.maxLength(100)]],
-      dateAffectation:     ['', [Validators.required]],
+      code:                [''],
+      matriculeAgent:      [''],
+      codeUnite:           [''],
+      poste:               [''],
+      dateAffectation:     [''],
       dateFinAffectation:  ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, affectationSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(affectationSchema, field);
   }
 
   ngOnInit(): void {
@@ -116,7 +127,8 @@ export class AffectationFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, affectationSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -177,13 +189,7 @@ export class AffectationFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   // ================= RECHERCHE DYNAMIQUE : AGENT =================

@@ -35,7 +35,10 @@
             <div class="grid grid-cols-1 gap-4">
               <!-- Code -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Code (max 50 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Code <span *ngIf="isRequired('code')" class="text-red-500">*</span>
+                  <span class="text-xs font-normal text-gray-400 ml-1">(max 50 caractères)</span>
+                </label>
                 <input
                   formControlName="code"
                   type="text"
@@ -50,7 +53,10 @@
 
               <!-- Libellé -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé (max 200 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Libellé <span *ngIf="isRequired('libelle')" class="text-red-500">*</span>
+                  <span class="text-xs font-normal text-gray-400 ml-1">(max 200 caractères)</span>
+                </label>
                 <input
                   formControlName="libelle"
                   type="text"

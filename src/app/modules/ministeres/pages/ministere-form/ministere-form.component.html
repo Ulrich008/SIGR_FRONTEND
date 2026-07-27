@@ -22,26 +22,34 @@
       <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5 rounded-3xl bg-white p-6 shadow-sm">
         <div class="grid gap-4 md:grid-cols-2">
           <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Code</label>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">
+              Code <span *ngIf="isRequired('code')" class="text-red-500">*</span>
+            </label>
             <input formControlName="code" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"/>
             <p *ngIf="form.get('code')?.invalid && form.get('code')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('code') }}</p>
           </div>
 
           <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Libelle</label>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">
+              Libelle <span *ngIf="isRequired('nom')" class="text-red-500">*</span>
+            </label>
             <input formControlName="nom" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"/>
             <p *ngIf="form.get('nom')?.invalid && form.get('nom')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('nom') }}</p>
           </div>
         </div>
 
         <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-700">Sigle</label>
+          <label class="mb-2 block text-sm font-semibold text-slate-700">
+            Sigle <span *ngIf="isRequired('sigle')" class="text-red-500">*</span>
+          </label>
           <input formControlName="sigle" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"/>
           <p *ngIf="form.get('sigle')?.invalid && form.get('sigle')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('sigle') }}</p>
         </div>
 
         <div>
-          <label class="mb-2 block text-sm font-semibold text-slate-700">Description</label>
+          <label class="mb-2 block text-sm font-semibold text-slate-700">
+            Description <span *ngIf="isRequired('description')" class="text-red-500">*</span>
+          </label>
           <textarea formControlName="description" rows="4" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"></textarea>
           <p *ngIf="form.get('description')?.invalid && form.get('description')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('description') }}</p>
         </div>

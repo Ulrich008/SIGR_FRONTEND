@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 
 import { RisqueService } from '../../../../core/services/risque.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
@@ -24,11 +25,13 @@ import {
 import { ProcessusResponse } from '../../../../core/models/processus.model';
 
 import { AuthService } from '../../../../core/services/auth.service';
+import { risqueSchema } from './risques-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-risques-form',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './risques-form.component.html'
 })
 export class RisquesFormComponent implements OnInit {
@@ -138,20 +141,20 @@ export class RisquesFormComponent implements OnInit {
 
     this.form = this.fb.group({
       code: [{ value: '', disabled: true }],
-
-      libelle: ['', [
-        Validators.required,
-        Validators.maxLength(200)
-      ]],
-
-      statut: [StatutRisque.ACTIF, [Validators.required]],
-
-      dateIdentification: ['', [Validators.required]],
-
-      codeProcessus: ['', [Validators.required]],
-
-      typeRisque: ['', [Validators.required]]
+      libelle: [''],
+      statut: [StatutRisque.ACTIF],
+      dateIdentification: [''],
+      codeProcessus: [''],
+      typeRisque: ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, risqueSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(risqueSchema, field);
   }
 
   ngOnInit(): void {
@@ -267,7 +270,8 @@ export class RisquesFormComponent implements OnInit {
 
   onSubmit(): void {
 
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, risqueSchema, this.form.getRawValue());
+    if (!valid) {
 
       this.form.markAllAsTouched();
       return;
@@ -503,24 +507,7 @@ export class RisquesFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-
-    const field = this.form.get(fieldName);
-
-    if (!field || !field.errors || !field.touched) {
-      return '';
-    }
-
-    const errors = field.errors;
-
-    if (errors['required']) {
-      return 'Ce champ est requis';
-    }
-
-    if (errors['maxlength']) {
-      return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    }
-
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   private formatDateForInput(date: string): string {

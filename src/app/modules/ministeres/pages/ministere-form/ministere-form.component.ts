@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -7,6 +7,8 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MinistereService } from '../../../../core/services/ministere.service';
 import { MinistereRequest, MinistereResponse } from '../../../../core/models/ministere.model';
+import { ministereSchema } from './ministere-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
@@ -39,11 +41,19 @@ export class MinistereFormComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.form = this.fb.group({
-      code: ['', [Validators.required, Validators.maxLength(50)]],
-      nom: ['', [Validators.required, Validators.maxLength(200)]],
-      sigle: ['', [Validators.maxLength(20)]],
-      description: ['', [Validators.maxLength(1000)]]
+      code: [''],
+      nom: [''],
+      sigle: [''],
+      description: ['']
     });
+
+    this.form.valueChanges.subscribe(value =>
+      applyZodValidation(this.form, ministereSchema, value)
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(ministereSchema, field);
   }
 
   ngOnInit(): void {
@@ -70,7 +80,8 @@ export class MinistereFormComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, ministereSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -110,14 +121,6 @@ export class MinistereFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const control = this.form.get(fieldName);
-    if (control?.hasError('required')) {
-      return 'Ce champ est obligatoire';
-    }
-    if (control?.hasError('maxlength')) {
-      const max = control.getError('maxlength').requiredLength;
-      return `Maximum ${max} caractères`;
-    }
-    return '';
+    return zodError(this.form, fieldName);
   }
 }

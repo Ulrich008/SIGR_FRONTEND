@@ -82,7 +82,7 @@
               </div>
 
               <!-- Unité administrative -->
-              <div class="relative">
+              <div class="relative md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Unité administrative <span class="text-red-500">*</span>
                 </label>
@@ -189,18 +189,22 @@
               <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Propriétaire
-                  <span class="ml-1 text-xs font-normal text-slate-400">— Managers uniquement (optionnel)</span>
+                  <span class="ml-1 text-xs font-normal text-slate-400">— Managers uniquement</span>
                 </label>
                 <select
                   formControlName="idProprietaire"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                 >
-                  <option value="">Aucun propriétaire</option>
+                  <option value="">Sélectionner un propriétaire</option>
                   <option *ngIf="loadingAgents" value="" disabled>Chargement...</option>
                   <option *ngFor="let manager of managers" [value]="manager.matricule">
                     {{ manager.nom }} {{ manager.prenoms }} ({{ manager.matricule }})
                   </option>
                 </select>
+                <p *ngIf="form.get('idProprietaire')?.invalid && form.get('idProprietaire')?.touched"
+                   class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('idProprietaire') }}
+                </p>
                 <p *ngIf="managers.length === 0 && !loadingAgents"
                    class="mt-1 text-xs text-amber-600">
                   Aucun manager disponible.

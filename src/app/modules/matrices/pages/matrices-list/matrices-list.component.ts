@@ -70,7 +70,7 @@ export class MatricesListComponent implements OnInit {
   }
 
   getEvaluationsForCell(impact: number, probabilite: number): EvaluationResponse[] {
-    return this.filteredEvaluations.filter(e => e.impactInherent === impact && e.probabiliteInherente === probabilite);
+    return this.filteredEvaluations.filter(e => e.impactResiduel === impact && e.probabiliteResiduelle === probabilite);
   }
 
   getCellColor(impact: number, probabilite: number): string {
@@ -98,7 +98,7 @@ export class MatricesListComponent implements OnInit {
 
   countByScore(min: number, max: number): number {
     return this.filteredEvaluations.filter(e => {
-      const score = e.impactInherent * e.probabiliteInherente;
+      const score = e.impactResiduel * e.probabiliteResiduelle;
       return score >= min && score <= max;
     }).length;
   }

@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  FormBuilder, FormGroup, Validators, ReactiveFormsModule
+  FormBuilder, FormGroup, ReactiveFormsModule
 } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -11,6 +11,8 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { UniteMesureService } from '../../../../core/services/unite-mesure.service';
 import { UniteMesureRequest, UniteMesureResponse } from '../../../../core/models/unite-mesure.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { uniteMesureSchema } from './unites-mesure-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
@@ -37,11 +39,19 @@ export class UnitesMesureFormComponent implements OnInit {
   ) {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
-      code: ['', [Validators.required, Validators.maxLength(20)]],
-      libelle: ['', [Validators.required, Validators.maxLength(200)]],
-      symbole: ['', [Validators.maxLength(10)]],
-      description: ['', [Validators.maxLength(500)]]
+      code: [''],
+      libelle: [''],
+      symbole: [''],
+      description: ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, uniteMesureSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(uniteMesureSchema, field);
   }
 
   ngOnInit(): void {
@@ -79,7 +89,8 @@ export class UnitesMesureFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, uniteMesureSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -134,11 +145,6 @@ export class UnitesMesureFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 }

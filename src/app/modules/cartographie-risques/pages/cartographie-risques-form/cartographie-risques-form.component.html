@@ -45,7 +45,7 @@
               <!-- Code -->
               <!-- Titre -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Titre (max 200 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Titre <span *ngIf="isRequired('titre')" class="text-red-500">*</span> <span class="text-xs font-normal text-gray-400 ml-1">(max 200 caractères)</span></label>
                 <input
                   formControlName="titre"
                   type="text"
@@ -60,7 +60,7 @@
 
               <!-- Unité administrative -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative <span *ngIf="isRequired('codeUniteAdministrative')" class="text-red-500">*</span></label>
                 <select
                   formControlName="codeUniteAdministrative"
                   class="w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition
@@ -80,12 +80,8 @@
 
               <!-- Période -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Période</label>
-                <input
-                  formControlName="periode"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Période <span *ngIf="isRequired('periode')" class="text-red-500">*</span></label>
+                <app-date-picker formControlName="periode"></app-date-picker>
                 <p *ngIf="form.get('periode')?.invalid && form.get('periode')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('periode') }}
@@ -94,7 +90,7 @@
 
               <!-- Statut -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut <span *ngIf="isRequired('statut')" class="text-red-500">*</span></label>
                 <select
                   formControlName="statut"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
@@ -112,7 +108,7 @@
 
               <!-- Seuil Faible -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil faible</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil faible <span *ngIf="isRequired('seuilFaible')" class="text-red-500">*</span></label>
                 <input
                   formControlName="seuilFaible"
                   type="number"
@@ -127,7 +123,7 @@
 
               <!-- Seuil Moyen -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil moyen</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil moyen <span *ngIf="isRequired('seuilMoyen')" class="text-red-500">*</span></label>
                 <input
                   formControlName="seuilMoyen"
                   type="number"
@@ -142,7 +138,7 @@
 
               <!-- Seuil Élevé -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil élevé</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Seuil élevé <span *ngIf="isRequired('seuilEleve')" class="text-red-500">*</span></label>
                 <input
                   formControlName="seuilEleve"
                   type="number"

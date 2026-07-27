@@ -36,7 +36,10 @@
 
               <!-- Code -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Code (max 50 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Code <span *ngIf="isRequired('code')" class="text-red-500">*</span>
+                  <span class="text-xs font-normal text-gray-400 ml-1">(max 50 caractères)</span>
+                </label>
                 <input
                   formControlName="code"
                   type="text"
@@ -51,7 +54,9 @@
 
               <!-- Matricule agent -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Matricule de l'agent</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Matricule de l'agent <span *ngIf="isRequired('matriculeAgent')" class="text-red-500">*</span>
+                </label>
                 <div class="relative">
                   <input
                     #agentInput
@@ -91,7 +96,9 @@
 
               <!-- Code unité -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Code de l'unité</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Code de l'unité <span *ngIf="isRequired('codeUnite')" class="text-red-500">*</span>
+                </label>
                 <div class="relative">
                   <input
                     #uniteInput
@@ -131,7 +138,10 @@
 
               <!-- Poste -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Poste (max 100 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Poste <span *ngIf="isRequired('poste')" class="text-red-500">*</span>
+                  <span class="text-xs font-normal text-gray-400 ml-1">(max 100 caractères)</span>
+                </label>
                 <input
                   formControlName="poste"
                   type="text"
@@ -143,23 +153,20 @@
 
               <!-- Date d'affectation -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date d'affectation</label>
-                <input
-                  formControlName="dateAffectation"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Date d'affectation <span *ngIf="isRequired('dateAffectation')" class="text-red-500">*</span>
+                </label>
+                <app-date-picker formControlName="dateAffectation"></app-date-picker>
                 <p *ngIf="form.get('dateAffectation')?.invalid && form.get('dateAffectation')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('dateAffectation') }}</p>
               </div>
 
               <!-- Date de fin d'affectation -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin d'affectation (optionnel)</label>
-                <input
-                  formControlName="dateFinAffectation"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Date de fin d'affectation <span *ngIf="isRequired('dateFinAffectation')" class="text-red-500">*</span>
+                </label>
+                <app-date-picker formControlName="dateFinAffectation"></app-date-picker>
+                <p *ngIf="form.get('dateFinAffectation')?.invalid && form.get('dateFinAffectation')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('dateFinAffectation') }}</p>
               </div>
 
             </div>

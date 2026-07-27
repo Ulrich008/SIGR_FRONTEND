@@ -161,7 +161,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
           <div>
             <h3 class="font-semibold text-gray-800 text-sm">Risques identifiés par processus</h3>
-            <p class="text-xs text-gray-400 mt-0.5">Nombre de risques par processus métier</p>
+            <p class="text-xs text-gray-400 mt-0.5">Nombre de risques par processus</p>
           </div>
           <button type="button"
                   class="text-xs bg-[var(--sigr-700)] text-white px-3 py-1.5 rounded-lg font-medium hover:bg-[var(--sigr-900)] transition-colors w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-100)]">
@@ -221,6 +221,64 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- Répartition par ministère (SUPER_ADMIN) -->
+    <div *ngIf="isSuperAdmin" class="sigr-fade-in-up bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 mt-4" style="animation-delay: 0.4s;">
+      <h3 class="font-semibold text-gray-800 text-sm">Répartition par ministère</h3>
+      <p class="text-xs text-gray-400 mt-0.5 mb-4">Unités administratives et agents, tous ministères confondus</p>
+
+      <div *ngIf="statsParMinistere.length" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-100">
+              <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Ministère</th>
+              <th class="px-3 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Unités administratives</th>
+              <th class="px-3 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Agents</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            <tr *ngFor="let m of statsParMinistere">
+              <td class="px-3 py-2.5 text-gray-800 font-medium whitespace-nowrap">{{ m.nom }} <span class="text-gray-400 font-normal">({{ m.code }})</span></td>
+              <td class="px-3 py-2.5 text-right">
+                <span class="inline-block rounded-full px-2.5 py-1 text-xs font-semibold" style="background: var(--sigr-100); color: var(--sigr-700);">{{ m.nbUnites }}</span>
+              </td>
+              <td class="px-3 py-2.5 text-right">
+                <span class="inline-block rounded-full bg-purple-100 text-purple-700 px-2.5 py-1 text-xs font-semibold">{{ m.nbAgents }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p *ngIf="!statsParMinistere.length" class="text-sm text-gray-400 text-center py-6">Aucun ministère enregistré.</p>
+    </div>
+
+    <!-- Répartition par unité administrative (ADMIN, son propre ministère) -->
+    <div *ngIf="isAdmin" class="sigr-fade-in-up bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 mt-4" style="animation-delay: 0.4s;">
+      <h3 class="font-semibold text-gray-800 text-sm">Unités administratives de mon ministère</h3>
+      <p class="text-xs text-gray-400 mt-0.5 mb-4">Répartition des agents par unité, {{ ministereNom || 'mon ministère' }}</p>
+
+      <div *ngIf="statsParUnite.length" class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-100">
+              <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Unité administrative</th>
+              <th class="px-3 py-2 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Agents</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            <tr *ngFor="let u of statsParUnite">
+              <td class="px-3 py-2.5 text-gray-800 font-medium whitespace-nowrap">{{ u.libelle }} <span class="text-gray-400 font-normal">({{ u.code }})</span></td>
+              <td class="px-3 py-2.5 text-right">
+                <span class="inline-block rounded-full bg-purple-100 text-purple-700 px-2.5 py-1 text-xs font-semibold">{{ u.nbAgents }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p *ngIf="!statsParUnite.length" class="text-sm text-gray-400 text-center py-6">Aucune unité administrative enregistrée dans ce ministère.</p>
     </div>
   </div>
 

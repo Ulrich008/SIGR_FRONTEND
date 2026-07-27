@@ -12,6 +12,7 @@ import { ActionService } from '../../core/services/action.service';
 import { ProcessusService } from '../../core/services/processus.service';
 import { AgentService } from '../../core/services/agent.service';
 import { MinistereService } from '../../core/services/ministere.service';
+import { UniteAdministrativeService } from '../../core/services/unite-administrative.service';
 import { AuthService } from '../../core/services/auth.service';
 import Chart from 'chart.js/auto';
 import { forkJoin } from 'rxjs';
@@ -49,6 +50,12 @@ export class DashboardComponent implements AfterViewInit {
 
   activities: { type: 'risques' | 'evaluations' | 'mitigation' | 'actions'; label: string; user: string; time: string }[] = [];
 
+  // Statistiques par ministère (SUPER_ADMIN uniquement)
+  statsParMinistere: { code: string; nom: string; nbUnites: number; nbAgents: number }[] = [];
+
+  // Statistiques par unité administrative, limitées au ministère courant (ADMIN uniquement)
+  statsParUnite: { code: string; libelle: string; nbAgents: number }[] = [];
+
   loading = true;
 
   constructor(
@@ -62,6 +69,7 @@ export class DashboardComponent implements AfterViewInit {
     private processusService: ProcessusService,
     private agentService: AgentService,
     private ministereService: MinistereService,
+    private uniteAdministrativeService: UniteAdministrativeService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -70,30 +78,21 @@ export class DashboardComponent implements AfterViewInit {
     this.menuItems = this.menuService.items;
   }
 
+  get isSuperAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === 'SUPER_ADMIN';
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === 'ADMIN';
+  }
+
   ngAfterViewInit(): void {
     if (!this.isBrowser) return;
     this.loadDashboardData();
   }
 
   loadDashboardData(): void {
-    // Récupérer le ministère de l'utilisateur connecté
     const currentUser = this.authService.getCurrentUser();
-    if (currentUser && currentUser.codeMinistere) {
-      this.ministereService.getAll().subscribe({
-        next: (ministeres) => {
-          const ministere = ministeres.find(m => m.code === currentUser.codeMinistere);
-          if (ministere) {
-            this.ministereNom = ministere.nom;
-            this.ministereCode = ministere.code;
-            this.ministereDescription = ministere.description || '';
-            this.cdr.detectChanges();
-          }
-        },
-        error: (err: any) => {
-          console.error('Erreur chargement ministère:', err);
-        }
-      });
-    }
 
     forkJoin({
       risques: this.risqueService.getAll(),
@@ -102,9 +101,41 @@ export class DashboardComponent implements AfterViewInit {
       plansMitigation: this.planMitigationService.getAll(),
       actions: this.actionService.getAll(),
       processus: this.processusService.getAll(),
-      agents: this.agentService.getAll()
+      agents: this.agentService.getAll(),
+      ministeres: this.ministereService.getAll(),
+      unitesAdministratives: this.uniteAdministrativeService.getAll()
     }).subscribe({
       next: (data) => {
+        // Ministère de l'utilisateur connecté (déjà chargé ci-dessus,
+        // plus besoin d'un appel réseau séparé pour le retrouver).
+        if (currentUser?.codeMinistere) {
+          const ministere = data.ministeres.find(m => m.code === currentUser.codeMinistere);
+          if (ministere) {
+            this.ministereNom = ministere.nom;
+            this.ministereCode = ministere.code;
+            this.ministereDescription = ministere.description || '';
+          }
+        }
+
+        // SUPER_ADMIN : répartition des unités administratives et des
+        // agents par ministère (vue transversale, tous ministères confondus
+        // — les deux listes ne sont filtrées côté backend que pour ADMIN/AGENT).
+        this.statsParMinistere = data.ministeres.map(m => ({
+          code: m.code,
+          nom: m.nom,
+          nbUnites: data.unitesAdministratives.filter(u => u.codeMinistere === m.code).length,
+          nbAgents: data.agents.filter(a => a.codeMinistere === m.code).length
+        }));
+
+        // ADMIN : répartition des agents par unité administrative, au sein
+        // de son propre ministère uniquement (les deux listes arrivent déjà
+        // scopées à ce ministère par le filtre Hibernate côté backend).
+        this.statsParUnite = data.unitesAdministratives.map(u => ({
+          code: u.code,
+          libelle: u.libelle,
+          nbAgents: data.agents.filter(a => a.codeUnite === u.code).length
+        }));
+
         // Un risque est "critique" quand son évaluation le classe au rang de
         // priorité le plus élevé (3 = "Zone d'audit et de traitement des
         // risques prioritaires", même échelle que celle utilisée dans

@@ -1,22 +1,25 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
 import { RisqueService } from '../../../../core/services/risque.service';
 import { PlanMitigationRequest, PlanMitigationResponse, StatutPlanMitigation } from '../../../../core/models/plan-mitigation.model';
 import { RisqueResponse } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { planMitigationSchema } from './plans-mitigation-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-plans-mitigation-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './plans-mitigation-form.component.html'
 })
 export class PlansMitigationFormComponent implements OnInit {
@@ -44,13 +47,20 @@ export class PlansMitigationFormComponent implements OnInit {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
       code: [{ value: '', disabled: true }],
-      // ✅ Champ libellé ajouté
-      libelle: ['', [Validators.required, Validators.maxLength(255)]],
-      description: ['', [Validators.maxLength(1000)]],
-      dateCreation: ['', [Validators.required]],
-      statut: ['', [Validators.required]],
-      codeRisque: ['', [Validators.required]]
+      libelle: [''],
+      description: [''],
+      dateCreation: [''],
+      statut: [''],
+      codeRisque: ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, planMitigationSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(planMitigationSchema, field);
   }
 
   ngOnInit(): void {
@@ -114,7 +124,8 @@ export class PlansMitigationFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, planMitigationSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -179,13 +190,7 @@ export class PlansMitigationFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   private formatDateForInput(date: string): string {

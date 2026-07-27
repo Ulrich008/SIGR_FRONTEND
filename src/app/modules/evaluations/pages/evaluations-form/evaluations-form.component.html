@@ -33,10 +33,10 @@
           <!-- SECTION 1: Informations générales -->
           <div class="space-y-4">
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
-            <div class=" md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Risque -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque *</label>
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque <span class="text-red-500">*</span></label>
                 <select formControlName="codeRisque"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
                   <option value="">Sélectionner un risque</option>
@@ -47,8 +47,6 @@
                 <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
                   class="mt-1 text-xs text-red-600">{{ getFieldError('codeRisque') }}</p>
               </div>
-              <!-- Agent -->
-            
             </div>
           </div>
 
@@ -66,26 +64,23 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Date début -->
                 <div>
-                  <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début (optionnel)</label>
-                  <input formControlName="dateDebut" type="date" [class.border-red-400]="dateFinError"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début <span *ngIf="isRequired('dateDebut')" class="text-red-500">*</span></label>
+                  <app-date-picker formControlName="dateDebut"></app-date-picker>
+                  <p *ngIf="form.get('dateDebut')?.invalid && form.get('dateDebut')?.touched"
+                     class="mt-1 text-xs text-red-600">
+                    {{ getFieldError('dateDebut') }}
+                  </p>
                 </div>
                 <!-- Date fin -->
                 <div>
-                  <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin (optionnel)</label>
-                  <input formControlName="dateFin" type="date" [class.border-red-400]="dateFinError"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
+                  <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin <span *ngIf="isRequired('dateFin')" class="text-red-500">*</span></label>
+                  <app-date-picker formControlName="dateFin"></app-date-picker>
+                  <p *ngIf="form.get('dateFin')?.invalid && form.get('dateFin')?.touched"
+                     class="mt-1 text-xs text-red-600">
+                    {{ getFieldError('dateFin') }}
+                  </p>
                 </div>
               </div>
-              <!-- Erreur date -->
-              <p *ngIf="dateFinError" class="text-xs text-red-600 flex items-center gap-1">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clip-rule="evenodd" />
-                </svg>
-                La date de fin doit être supérieure à la date de début.
-              </p>
             </div>
           </div>
 
@@ -166,7 +161,7 @@
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques existants *</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques existants <span class="text-red-500">*</span></label>
                 <textarea formControlName="controleExistants" rows="2"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                   placeholder="Décrivez les bonnes pratiques existants..."></textarea>
@@ -174,7 +169,7 @@
                   class="mt-1 text-xs text-red-600">Ce champ est requis</p>
               </div>
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques inexistant *</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonnes pratiques inexistant <span class="text-red-500">*</span></label>
                 <textarea formControlName="controleInexistants" rows="2"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
                   placeholder="Décrivez les bonnes pratiques manquants..."></textarea>

@@ -35,7 +35,10 @@
 
               <!-- Sigle -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Sigle (max 50 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Sigle <span *ngIf="isRequired('code')" class="text-red-500">*</span>
+                  <span class="text-xs font-normal text-gray-400 ml-1">(max 50 caractères)</span>
+                </label>
                 <input
                   formControlName="code"
                   type="text"
@@ -50,7 +53,10 @@
 
               <!-- Libellé -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé (max 200 caractères)</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Libellé <span *ngIf="isRequired('libelle')" class="text-red-500">*</span>
+                  <span class="text-xs font-normal text-gray-400 ml-1">(max 200 caractères)</span>
+                </label>
                 <input
                   formControlName="libelle"
                   type="text"
@@ -62,7 +68,9 @@
 
               <!-- Type d'unité -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Type d'unité</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Type d'unité <span *ngIf="isRequired('idTypeUnite')" class="text-red-500">*</span>
+                </label>
                 <select
                   formControlName="idTypeUnite"
                   [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
@@ -81,7 +89,9 @@
 
               <!-- Code ministère -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Ministère</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">
+                  Ministère <span *ngIf="isRequired('codeMinistere')" class="text-red-500">*</span>
+                </label>
                 <select
                   formControlName="codeMinistere"
                   [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +

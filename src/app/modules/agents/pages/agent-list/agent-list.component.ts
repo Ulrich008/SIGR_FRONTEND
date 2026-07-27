@@ -9,6 +9,7 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { AgentService } from '../../../../core/services/agent.service';
 import { MinistereService } from '../../../../core/services/ministere.service';
 import { AgentResponse } from '../../../../core/models/agent.model';
+import { ImportResult } from '../../../../core/models/import-result.model';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -32,6 +33,7 @@ export class AgentListComponent implements OnInit {
   totalPages = 1;
 
   exportingPdf = false;
+  importing = false;
 
   constructor(
     private agentService: AgentService,
@@ -49,6 +51,11 @@ export class AgentListComponent implements OnInit {
   }
 
   get canExportPdf(): boolean {
+    const role = this.authService.getCurrentUser()?.role;
+    return role === 'ADMIN' || role === 'SUPER_ADMIN';
+  }
+
+  get canImport(): boolean {
     const role = this.authService.getCurrentUser()?.role;
     return role === 'ADMIN' || role === 'SUPER_ADMIN';
   }
@@ -309,5 +316,75 @@ export class AgentListComponent implements OnInit {
 
   getStatusBadgeClass(enabled: boolean): string {
     return enabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+  }
+
+  triggerImport(fileInput: HTMLInputElement): void {
+    fileInput.value = '';
+    fileInput.click();
+  }
+
+  onImportFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.importing = true;
+    this.agentService.importExcel(file).subscribe({
+      next: (result) => {
+        this.importing = false;
+        this.loadAgents();
+        this.afficherResultatImport(result);
+      },
+      error: (err) => {
+        this.importing = false;
+        this.cdr.detectChanges();
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: err?.message || "Impossible d'importer le fichier",
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    });
+  }
+
+  private afficherResultatImport(result: ImportResult): void {
+    const listeErreurs = result.echecs.length
+      ? `<div style="text-align:left;max-height:200px;overflow-y:auto;margin-top:12px;">
+          <ul style="list-style:disc;padding-left:20px;">
+            ${result.echecs.map(e => `<li>Ligne ${e.ligne} : ${e.message}</li>`).join('')}
+          </ul>
+        </div>`
+      : '';
+
+    Swal.fire({
+      icon: result.echecs.length ? 'warning' : 'success',
+      title: 'Import terminé',
+      html: `${result.succes} / ${result.totalLignes} agent(s) importé(s) avec succès.${listeErreurs}`,
+      confirmButtonColor: '#047857'
+    });
+  }
+
+  downloadImportTemplate(): void {
+    this.agentService.downloadImportTemplate().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'modele_import_agents.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      },
+      error: (err) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: err?.message || 'Impossible de télécharger le modèle',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    });
   }
 }

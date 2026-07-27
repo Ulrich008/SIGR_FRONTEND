@@ -67,7 +67,7 @@
             <div>
               <label class="mb-1.5 block text-xs sm:text-sm font-semibold text-slate-700">
                 Code
-                <span *ngIf="!isEditMode" class="text-red-500">*</span>
+                <span *ngIf="isRequired('code') && !isEditMode" class="text-red-500">*</span>
                 <span *ngIf="isEditMode" class="text-xs font-normal text-gray-400 ml-1">(non modifiable)</span>
               </label>
               <input
@@ -90,7 +90,7 @@
             <!-- Libellé -->
             <div>
               <label class="mb-1.5 block text-xs sm:text-sm font-semibold text-slate-700">
-                Libellé <span class="text-red-500">*</span>
+                Libellé <span *ngIf="isRequired('libelle')" class="text-red-500">*</span>
               </label>
               <input
                 formControlName="libelle"

@@ -44,7 +44,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Plan de mitigation -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Plan de mitigation</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Plan de mitigation <span *ngIf="isRequired('codePlan')" class="text-red-500">*</span></label>
                 <select
                   formControlName="codePlan"
                   (change)="onPlanChange()"
@@ -64,7 +64,7 @@
 
               <!-- Risque (rempli automatiquement) -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé <span *ngIf="isRequired('codeRisque')" class="text-red-500">*</span></label>
                 <select
                   formControlName="codeRisque"
                   (change)="onRisqueChange()"
@@ -82,15 +82,15 @@
                 </p>
               </div>
 
-              <!-- Bonne pratique -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonne pratique</label>
+              <!-- Bonne pratique inexistante -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Bonne pratique inexistante <span *ngIf="isRequired('bonnePratique')" class="text-red-500">*</span></label>
                 <select
                   formControlName="bonnePratique"
                   [disabled]="bonnesPratiques.length === 0"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                 >
-                  <option value="">Sélectionner une bonne pratique</option>
+                  <option value="">Sélectionner une bonne pratique inexistante</option>
                   <option *ngIf="loadingBonnesPratiques" value="" disabled>Chargement...</option>
                   <option *ngFor="let pratique of bonnesPratiques" [value]="pratique">
                     {{ cleanPratiqueText(pratique) }}
@@ -176,7 +176,7 @@
 
               <!-- Statut -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut <span *ngIf="isRequired('statut')" class="text-red-500">*</span></label>
                 <select
                   formControlName="statut"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
@@ -194,12 +194,8 @@
 
               <!-- Date de début -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début</label>
-                <input
-                  formControlName="dateDebut"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de début <span *ngIf="isRequired('dateDebut')" class="text-red-500">*</span></label>
+                <app-date-picker formControlName="dateDebut"></app-date-picker>
                 <p *ngIf="form.get('dateDebut')?.invalid && form.get('dateDebut')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('dateDebut') }}
@@ -208,12 +204,8 @@
 
               <!-- Date de fin -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin</label>
-                <input
-                  formControlName="dateFin"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de fin <span *ngIf="isRequired('dateFin')" class="text-red-500">*</span></label>
+                <app-date-picker formControlName="dateFin"></app-date-picker>
                 <p *ngIf="form.get('dateFin')?.invalid && form.get('dateFin')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('dateFin') }}
@@ -222,7 +214,7 @@
 
               <!-- Responsable -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Responsable</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Responsable <span *ngIf="isRequired('matriculeResponsable')" class="text-red-500">*</span></label>
                 <select
                   formControlName="matriculeResponsable"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"

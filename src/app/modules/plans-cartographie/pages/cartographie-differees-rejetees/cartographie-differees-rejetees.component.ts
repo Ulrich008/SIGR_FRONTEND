@@ -20,6 +20,9 @@ export class CartographieDiffereesRejeteesComponent implements OnInit {
   error: string | null = null;
   menuItems: MenuItem[];
 
+  showMotifModal = false;
+  selectedRisque: RisqueResponse | null = null;
+
   constructor(
     private risqueService: RisqueService,
     private router: Router,
@@ -71,5 +74,15 @@ export class CartographieDiffereesRejeteesComponent implements OnInit {
       case AvisRisque.REJETE: return 'Rejeté';
       default: return '—';
     }
+  }
+
+  ouvrirMotif(risque: RisqueResponse): void {
+    this.selectedRisque = risque;
+    this.showMotifModal = true;
+  }
+
+  fermerMotif(): void {
+    this.showMotifModal = false;
+    this.selectedRisque = null;
   }
 }

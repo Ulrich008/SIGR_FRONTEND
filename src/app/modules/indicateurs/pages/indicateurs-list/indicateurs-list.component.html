@@ -40,7 +40,7 @@
       </div>
 
       <!-- Statistiques -->
-      <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
           <div class="flex items-center gap-3">
             <div class="rounded-xl bg-green-50 p-3">
@@ -82,20 +82,6 @@
             </div>
           </div>
         </div>
-
-        <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
-          <div class="flex items-center gap-3">
-            <div class="rounded-xl bg-slate-50 p-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Non disponible</p>
-              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('Informations de suivi non disponibles') }}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Filtre dynamique -->
@@ -124,7 +110,7 @@
 
         <div class="rounded-3xl bg-white p-6 shadow-sm">
           <h3 class="text-lg font-semibold text-slate-900 mb-1">Répartition par Statut</h3>
-          <p class="text-xs text-slate-400 mb-6">Distribution En cours / Attention / En retard / Non disponible</p>
+          <p class="text-xs text-slate-400 mb-6">Distribution En cours / Attention / En retard</p>
           <div class="h-64 flex items-center justify-center">
             <canvas #statutChart></canvas>
           </div>

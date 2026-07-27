@@ -45,7 +45,7 @@
 
               <!-- ✅ Libellé -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Libellé <span *ngIf="isRequired('libelle')" class="text-red-500">*</span></label>
                 <input
                   formControlName="libelle"
                   type="text"
@@ -60,7 +60,7 @@
 
               <!-- Statut -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut <span *ngIf="isRequired('statut')" class="text-red-500">*</span></label>
                 <select
                   formControlName="statut"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
@@ -78,12 +78,8 @@
 
               <!-- Date de création -->
               <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de création</label>
-                <input
-                  formControlName="dateCreation"
-                  type="date"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                />
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date de création <span *ngIf="isRequired('dateCreation')" class="text-red-500">*</span></label>
+                <app-date-picker formControlName="dateCreation"></app-date-picker>
                 <p *ngIf="form.get('dateCreation')?.invalid && form.get('dateCreation')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('dateCreation') }}
@@ -92,7 +88,7 @@
 
               <!-- Risque -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé</label>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé <span *ngIf="isRequired('codeRisque')" class="text-red-500">*</span></label>
                 <select
                   formControlName="codeRisque"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"

@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
@@ -9,6 +9,8 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { TypeUniteService } from '../../../../core/services/type-unite.service';
 import { TypeUniteRequest, TypeUniteResponse } from '../../../../core/models/type-unite.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { typeUniteSchema } from './type-unite-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
@@ -40,10 +42,18 @@ export class TypeUniteFormComponent implements OnInit {
       uniteAdminItem.expanded = true;
     }
     this.form = this.fb.group({
-      code:        ['', [Validators.required, Validators.maxLength(50)]],
-      libelle:     ['', [Validators.required, Validators.maxLength(200)]],
-      description: ['', [Validators.maxLength(1000)]]
+      code:        [''],
+      libelle:     [''],
+      description: ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, typeUniteSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(typeUniteSchema, field);
   }
 
   ngOnInit(): void {
@@ -83,7 +93,8 @@ export class TypeUniteFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, typeUniteSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -144,12 +155,6 @@ export class TypeUniteFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 }

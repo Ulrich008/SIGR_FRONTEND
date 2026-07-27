@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -15,6 +15,8 @@ import { ProcessusRequest, TypeProcessus } from '../../../../core/models/process
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { AgentResponse } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { processusSchema } from './processus-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
@@ -59,11 +61,19 @@ export class ProcessusFormComponent implements OnInit {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
       code:           [{ value: '', disabled: true }],
-      libelle:        ['', [Validators.required, Validators.maxLength(200)]],
-      typeProcessus:  ['', [Validators.required]],
-      idUnite:        ['', [Validators.required]],
+      libelle:        [''],
+      typeProcessus:  [''],
+      idUnite:        [''],
       idProprietaire: ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, processusSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(processusSchema, field);
   }
 
   ngOnInit(): void {
@@ -158,7 +168,8 @@ export class ProcessusFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    const valid = applyZodValidation(this.form, processusSchema, this.form.getRawValue());
+    if (!valid) {
       this.form.markAllAsTouched();
       return;
     }
@@ -264,12 +275,7 @@ export class ProcessusFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-    const errors = field.errors;
-    if (errors['required'])  return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   onUniteSearch(event: Event): void {

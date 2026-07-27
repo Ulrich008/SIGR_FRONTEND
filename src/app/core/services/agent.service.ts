@@ -5,6 +5,7 @@ import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AgentRequest, AgentResponse } from '../models/agent.model';
+import { ImportResult } from '../models/import-result.model';
 import { AuthService } from './auth.service';
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -74,6 +75,20 @@ export class AgentService {
     );
   }
 
+  /** Changer mon propre mot de passe (self-service, "Mon profil"). */
+  changerMonMotDePasse(ancienMotDePasse: string, nouveauMotDePasse: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/me/password`, { ancienMotDePasse, nouveauMotDePasse }, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Modifier mon propre email (self-service, "Mon profil"). */
+  modifierMonEmail(email: string): Observable<AgentResponse> {
+    return this.http.patch<AgentResponse>(`${this.apiUrl}/me/email`, { email }, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
   delete(matricule: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${matricule}`, this.headers).pipe(
       catchError(error => this.handleError(error))
@@ -89,6 +104,25 @@ export class AgentService {
     return this.http.get(`${this.apiUrl}/export/pdf`, {
       headers: this.authService.getAuthHeaders(),
       params: codeMinistere ? { codeMinistere } : undefined,
+      responseType: 'blob' as const
+    }).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Import en masse d'agents depuis un fichier Excel (.xlsx). */
+  importExcel(file: File): Observable<ImportResult> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ImportResult>(`${this.apiUrl}/import`, formData, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Modèle Excel attendu par importExcel(). */
+  downloadImportTemplate(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/import/modele`, {
+      headers: this.authService.getAuthHeaders(),
       responseType: 'blob' as const
     }).pipe(
       catchError(error => this.handleError(error))

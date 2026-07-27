@@ -1,13 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
 import { ActionService } from '../../../../core/services/action.service';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
 import { AgentService } from '../../../../core/services/agent.service';
@@ -19,11 +20,13 @@ import { AgentResponse } from '../../../../core/models/agent.model';
 import { RisqueResponse } from '../../../../core/models/risque.model';
 import { EvaluationResponse } from '../../../../core/models/evaluation.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { actionBaseSchema, actionSchema } from './actions-form.schema';
+import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-actions-form',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
   templateUrl: './actions-form.component.html'
 })
 export class ActionsFormComponent implements OnInit {
@@ -63,14 +66,22 @@ export class ActionsFormComponent implements OnInit {
   ) {
     this.menuItems = this.menuService.items;
     this.form = this.fb.group({
-      dateDebut: ['', [Validators.required]],
-      dateFin: ['', [Validators.required]],
-      statut: ['', [Validators.required]],
-      codePlan: ['', [Validators.required]],
-      codeRisque: ['', [Validators.required]],
-      bonnePratique: ['', [Validators.required]],
-      matriculeResponsable: ['', [Validators.required]]
+      dateDebut: [''],
+      dateFin: [''],
+      statut: [''],
+      codePlan: [''],
+      codeRisque: [''],
+      bonnePratique: [''],
+      matriculeResponsable: ['']
     });
+
+    this.form.valueChanges.subscribe(() =>
+      applyZodValidation(this.form, actionSchema, this.form.getRawValue())
+    );
+  }
+
+  isRequired(field: string): boolean {
+    return isRequired(actionBaseSchema, field);
   }
 
   ngOnInit(): void {
@@ -91,7 +102,7 @@ export class ActionsFormComponent implements OnInit {
       }).subscribe({
         next: (data) => {
           this.plans = data.plans;
-          this.agents = data.agents;
+          this.agents = this.filtrerAgentsAvecUnite(data.agents);
           this.patchForm(data.action);
           this.loading = false;
           this.cdr.detectChanges();
@@ -107,6 +118,16 @@ export class ActionsFormComponent implements OnInit {
     }
   }
 
+  /**
+   * Le champ "Responsable" ne doit proposer que des agents réellement
+   * rattachés à une unité administrative (donc, transitivement, à un
+   * ministère) : un compte ADMIN/SUPER_ADMIN sans unité assignée ne peut
+   * pas se voir confier une action.
+   */
+  private filtrerAgentsAvecUnite(agents: AgentResponse[]): AgentResponse[] {
+    return agents.filter(a => !!a.codeUnite);
+  }
+
   loadReferenceData(): void {
     this.loading = true;
     forkJoin({
@@ -115,7 +136,7 @@ export class ActionsFormComponent implements OnInit {
     }).subscribe({
       next: (data) => {
         this.plans = data.plans;
-        this.agents = data.agents;
+        this.agents = this.filtrerAgentsAvecUnite(data.agents);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -268,7 +289,8 @@ export class ActionsFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid || this.libelles.length === 0) {
+    const valid = applyZodValidation(this.form, actionSchema, this.form.getRawValue());
+    if (!valid || this.libelles.length === 0) {
       this.form.markAllAsTouched();
       if (this.libelles.length === 0) {
         this.errorLibelle = 'Au moins un libellé est requis';
@@ -277,19 +299,6 @@ export class ActionsFormComponent implements OnInit {
     }
 
     this.errorLibelle = '';
-
-    const dateDebut = this.form.get('dateDebut')?.value;
-    const dateFin = this.form.get('dateFin')?.value;
-
-    if (new Date(dateFin) < new Date(dateDebut)) {
-      Swal.fire({
-        title: 'Erreur',
-        text: 'La date de fin doit être supérieure à la date de début',
-        icon: 'error'
-      });
-      return;
-    }
-
     this.loading = true;
     this.error = null;
 
@@ -352,13 +361,7 @@ export class ActionsFormComponent implements OnInit {
   }
 
   getFieldError(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    if (!field || !field.errors || !field.touched) return '';
-
-    const errors = field.errors;
-    if (errors['required']) return 'Ce champ est requis';
-    if (errors['maxlength']) return `Maximum ${errors['maxlength'].requiredLength} caractères`;
-    return 'Champ invalide';
+    return zodError(this.form, fieldName);
   }
 
   private formatDateForInput(date: string): string {

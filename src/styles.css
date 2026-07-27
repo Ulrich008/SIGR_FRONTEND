@@ -1,3 +1,38 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/* ===== Flatpickr : accord avec les couleurs de l'application (vert émeraude) ===== */
+.flatpickr-calendar {
+  font-family: inherit;
+  box-shadow: 0 10px 30px rgba(16, 40, 26, 0.12);
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover,
+.flatpickr-day.selected:focus {
+  background: #047857; /* emerald-700 */
+  border-color: #047857;
+}
+.flatpickr-day.today {
+  border-color: #10b981; /* emerald-500 */
+}
+.flatpickr-day.today:hover,
+.flatpickr-day.today:focus {
+  background: #d1fae5; /* emerald-100 */
+  border-color: #10b981;
+  color: #047857;
+}
+.flatpickr-day:hover {
+  background: #ecfdf5; /* emerald-50 */
+}
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+span.flatpickr-weekday {
+  color: #1a4731;
+}
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+  fill: #047857;
+}
