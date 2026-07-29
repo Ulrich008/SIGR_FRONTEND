@@ -5,15 +5,17 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
+import { MenuService } from '../../../../core/services/menu.service';
 import { MinistereService } from '../../../../core/services/ministere.service';
 import { MinistereRequest, MinistereResponse } from '../../../../core/models/ministere.model';
 import { ministereSchema } from './ministere-form.schema';
 import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-ministere-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './ministere-form.component.html'
 })
 export class MinistereFormComponent implements OnInit {
@@ -22,24 +24,17 @@ export class MinistereFormComponent implements OnInit {
   error: string | null = null;
   ministereId: string | null = null;
 
-  menuItems: MenuItem[] = [
-    { icon: 'fas fa-th', label: 'Tableau de bord', path: '/dashboard' },
-    { icon: 'fas fa-building', label: 'Structures', path: '/ministeres' },
-    { icon: 'fas fa-columns', label: 'Sections' },
-    { icon: 'fas fa-chart-line', label: 'Processus' },
-    { icon: 'fas fa-exclamation-triangle', label: 'Risques' },
-    { icon: 'fas fa-table', label: 'Matrice' },
-    { icon: 'fas fa-chart-simple', label: 'Indicateurs' },
-    { icon: 'fas fa-book', label: 'Bibliothèque' },
-    { icon: 'fas fa-users', label: 'Utilisateurs' },
-  ];
+  menuItems: MenuItem[];
 
   constructor(
     private fb: FormBuilder,
     private ministereService: MinistereService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private menuService: MenuService
   ) {
+    this.menuItems = this.menuService.items;
+
     this.form = this.fb.group({
       code: [''],
       nom: [''],

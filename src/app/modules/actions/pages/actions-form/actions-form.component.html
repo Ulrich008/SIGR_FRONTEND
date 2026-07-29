@@ -9,20 +9,18 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des risques</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier l\'action' : 'Nouvelle action' }}
-          </h1>
-        </div>
+      <app-page-header subtitle="Gestion des risques" [title]="isEditMode ? 'Modifier l\'action' : 'Nouvelle action'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
         <button
+          actions
           (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
         >
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -45,17 +43,8 @@
               <!-- Plan de mitigation -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Plan de mitigation <span *ngIf="isRequired('codePlan')" class="text-red-500">*</span></label>
-                <select
-                  formControlName="codePlan"
-                  (change)="onPlanChange()"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner un plan</option>
-                  <option *ngIf="loadingPlans" value="" disabled>Chargement...</option>
-                  <option *ngFor="let plan of plans" [value]="plan.code">
-                    {{ plan.code }} - {{ plan.libelleRisque }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codePlan"
+                  [options]="planOptions" placeholder="Rechercher un plan par code ou risque..."></app-searchable-select>
                 <p *ngIf="form.get('codePlan')?.invalid && form.get('codePlan')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('codePlan') }}
@@ -85,17 +74,8 @@
               <!-- Bonne pratique inexistante -->
               <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Bonne pratique inexistante <span *ngIf="isRequired('bonnePratique')" class="text-red-500">*</span></label>
-                <select
-                  formControlName="bonnePratique"
-                  [disabled]="bonnesPratiques.length === 0"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                >
-                  <option value="">Sélectionner une bonne pratique inexistante</option>
-                  <option *ngIf="loadingBonnesPratiques" value="" disabled>Chargement...</option>
-                  <option *ngFor="let pratique of bonnesPratiques" [value]="pratique">
-                    {{ cleanPratiqueText(pratique) }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="bonnePratique"
+                  [options]="bonnePratiqueOptions" placeholder="Rechercher une bonne pratique inexistante..."></app-searchable-select>
                 <p *ngIf="form.get('bonnePratique')?.invalid && form.get('bonnePratique')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('bonnePratique') }}
@@ -215,16 +195,8 @@
               <!-- Responsable -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Responsable <span *ngIf="isRequired('matriculeResponsable')" class="text-red-500">*</span></label>
-                <select
-                  formControlName="matriculeResponsable"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner un responsable</option>
-                  <option *ngIf="loadingAgents" value="" disabled>Chargement...</option>
-                  <option *ngFor="let agent of agents" [value]="agent.matricule">
-                    {{ agent.nom }} ({{ agent.matricule }})
-                  </option>
-                </select>
+                <app-searchable-select formControlName="matriculeResponsable"
+                  [options]="agentOptions" placeholder="Rechercher un responsable par nom ou matricule..."></app-searchable-select>
                 <p *ngIf="form.get('matriculeResponsable')?.invalid && form.get('matriculeResponsable')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('matriculeResponsable') }}

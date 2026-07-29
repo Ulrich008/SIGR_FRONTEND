@@ -8,12 +8,14 @@ import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { EvaluationService } from '../../../../core/services/evaluation.service';
 import { EvaluationResponse } from '../../../../core/models/evaluation.model';
+import { EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-evaluations-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './evaluations-list.component.html'
 })
 export class EvaluationsListComponent implements OnInit {
@@ -129,6 +131,23 @@ export class EvaluationsListComponent implements OnInit {
   // module Évaluation : ni création, ni modification, ni suppression.
   get canWrite(): boolean {
     return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+  }
+
+  /**
+   * Le risque parent transmis (hors Formalisation) verrouille aussi son
+   * évaluation pour le Responsable des risques, jusqu'à son retour à
+   * Formalisation. Le SUPER_ADMIN n'est jamais bloqué par ce verrou.
+   */
+  estVerrouillee(evaluation: EvaluationResponse): boolean {
+    if (this.authService.hasAnyRole(['SUPER_ADMIN'])) return false;
+    if (!this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) return false;
+    return !!(evaluation.risqueTransmis && evaluation.risqueEtapeValidation !== EtapeValidation.FORMALISATION);
+  }
+
+  canEditEvaluation(evaluation: EvaluationResponse): boolean {
+    if (!this.canWrite) return false;
+    if (this.authService.hasAnyRole(['SUPER_ADMIN'])) return true;
+    return !this.estVerrouillee(evaluation);
   }
 
   createEvaluation(): void {

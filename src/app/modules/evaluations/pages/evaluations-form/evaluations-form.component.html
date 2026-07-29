@@ -4,18 +4,17 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des évaluations</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier l\'évaluation' : 'Nouvelle évaluation' }}
-          </h1>
-        </div>
-        <button (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+      <app-page-header subtitle="Gestion des évaluations" [title]="isEditMode ? 'Modifier l\'évaluation' : 'Nouvelle évaluation'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <path d="M9 14l2 2 4-4"/>
+        </svg>
+        <button actions (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20">
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -26,41 +25,33 @@
       <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
+      <!-- Étapes -->
+      <app-form-stepper *ngIf="!loading" class="mt-8" [steps]="steps" [currentStep]="currentStep" [maxReachedStep]="maxReachedStep"
+        (stepClick)="goToStep($event)"></app-form-stepper>
+
       <!-- Formulaire -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
 
           <!-- SECTION 1: Informations générales -->
-          <div class="space-y-4">
+          <div class="space-y-4" *ngIf="currentStep === 0">
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Risque -->
               <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque <span class="text-red-500">*</span></label>
-                <select formControlName="codeRisque"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
-                  <option value="">Sélectionner un risque</option>
-                  <option *ngFor="let risque of risques" [value]="risque.code">
-                    {{ risque.code }} - {{ risque.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeRisque"
+                  [options]="risqueOptions" placeholder="Rechercher un risque par code ou libellé..."></app-searchable-select>
                 <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
                   class="mt-1 text-xs text-red-600">{{ getFieldError('codeRisque') }}</p>
               </div>
             </div>
           </div>
 
-          <!-- SECTION 2: Période d'évaluation (togglable) -->
-          <div class="space-y-4 border-t border-slate-100 pt-4">
-            <button type="button" (click)="toggleSection('period')"
-              class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Période d'évaluation</h3>
-              <svg [class.rotate-180]="sections.period" class="w-5 h-5 text-slate-500 transition-transform duration-200"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div *ngIf="sections.period" class="space-y-3 pt-2">
+          <!-- SECTION 2: Période d'évaluation -->
+          <div class="space-y-4" *ngIf="currentStep === 1">
+            <h3 class="text-lg font-semibold text-slate-900">Période d'évaluation</h3>
+            <div class="space-y-3 pt-2">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Date début -->
                 <div>
@@ -84,18 +75,10 @@
             </div>
           </div>
 
-          <!-- SECTION 3: Risque inhérent (togglable) -->
-          <div class="space-y-4 border-t border-slate-100 pt-4">
-            <button type="button" (click)="toggleSection('inherent')"
-              class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Risque inhérent</h3>
-              <svg [class.rotate-180]="sections.inherent"
-                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div *ngIf="sections.inherent" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <!-- SECTION 3: Risque inhérent -->
+          <div class="space-y-4" *ngIf="currentStep === 2">
+            <h3 class="text-lg font-semibold text-slate-900">Risque inhérent</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <!-- Impact inhérent -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Impact inhérent</label>
@@ -113,18 +96,10 @@
             </div>
           </div>
 
-          <!-- SECTION 4: Bonnes pratiques (togglable) -->
-          <div class="space-y-4 border-t border-slate-100 pt-4">
-            <button type="button" (click)="toggleSection('additional')"
-              class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Bonnes pratiques</h3>
-              <svg [class.rotate-180]="sections.additional"
-                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div *ngIf="sections.additional" class="grid grid-cols-1 gap-4 pt-2">
+          <!-- SECTION 4: Bonnes pratiques -->
+          <div class="space-y-4" *ngIf="currentStep === 3">
+            <h3 class="text-lg font-semibold text-slate-900">Bonnes pratiques</h3>
+            <div class="grid grid-cols-1 gap-4 pt-2">
               <!-- Sélection des bonnes pratiques du risque -->
               <div *ngIf="bonnesPratiquesRisque.length > 0" class="rounded-xl bg-blue-50 p-4 border border-blue-200">
                 <h4 class="text-sm font-semibold text-blue-900 mb-3">Bonnes pratiques du risque sélectionné</h4>
@@ -186,18 +161,10 @@
             </div>
           </div>
 
-          <!-- SECTION 5: Maturité (togglable) -->
-          <div class="space-y-4 border-t border-slate-100 pt-4">
-            <button type="button" (click)="toggleSection('controles')"
-              class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Maturité</h3>
-              <svg [class.rotate-180]="sections.controles"
-                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div *ngIf="sections.controles" class="space-y-3 pt-2">
+          <!-- SECTION 5: Maturité -->
+          <div class="space-y-4" *ngIf="currentStep === 4">
+            <h3 class="text-lg font-semibold text-slate-900">Maturité</h3>
+            <div class="space-y-3 pt-2">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Protection -->
                 <div>
@@ -219,18 +186,10 @@
             </div>
           </div>
 
-          <!-- SECTION 6: Recommandation (togglable) -->
-          <div class="space-y-4 border-t border-slate-100 pt-4">
-            <button type="button" (click)="toggleSection('recommendations')"
-              class="flex items-center justify-between w-full text-left">
-              <h3 class="text-lg font-semibold text-slate-900">Recommandation</h3>
-              <svg [class.rotate-180]="sections.recommendations"
-                class="w-5 h-5 text-slate-500 transition-transform duration-200" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div *ngIf="sections.recommendations" class="grid grid-cols-1 gap-4 pt-2">
+          <!-- SECTION 6: Recommandation -->
+          <div class="space-y-4" *ngIf="currentStep === 5">
+            <h3 class="text-lg font-semibold text-slate-900">Recommandation</h3>
+            <div class="grid grid-cols-1 gap-4 pt-2">
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Recommandation (optionnel, max 1000
                   caractères)</label>
@@ -244,15 +203,25 @@
           </div>
 
           <!-- Actions -->
-          <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <button type="button" (click)="cancel()"
+          <div class="flex justify-between gap-3 pt-4 border-t border-slate-100">
+            <button type="button" *ngIf="currentStep > 0" (click)="previousStep()"
               class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-              Annuler
+              Précédent
             </button>
-            <button type="submit" [disabled]="loading"
-              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
-              {{ isEditMode ? 'Modifier' : 'Créer' }}
-            </button>
+            <div class="flex gap-3 ml-auto">
+              <button type="button" (click)="cancel()"
+                class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                Annuler
+              </button>
+              <button type="button" *ngIf="currentStep < steps.length - 1" (click)="nextStep()"
+                class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600">
+                Suivant
+              </button>
+              <button type="submit" *ngIf="currentStep === steps.length - 1" [disabled]="loading"
+                class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
+                {{ isEditMode ? 'Modifier' : 'Créer' }}
+              </button>
+            </div>
           </div>
 
         </form>

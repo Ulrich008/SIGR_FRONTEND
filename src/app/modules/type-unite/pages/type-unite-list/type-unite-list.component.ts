@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { TypeUniteService } from '../../../../core/services/type-unite.service';
 import { TypeUniteResponse } from '../../../../core/models/type-unite.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-type-unite-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './type-unite-list.component.html'
 })
 export class TypeUniteListComponent implements OnInit {

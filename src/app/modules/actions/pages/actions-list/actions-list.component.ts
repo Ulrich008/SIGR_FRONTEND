@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { ActionService } from '../../../../core/services/action.service';
 import { ActionResponse, StatutAction } from '../../../../core/models/action.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-actions-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './actions-list.component.html'
 })
 export class ActionsListComponent implements OnInit {

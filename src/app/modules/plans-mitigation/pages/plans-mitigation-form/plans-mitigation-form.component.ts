@@ -8,9 +8,11 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
 import { RisqueService } from '../../../../core/services/risque.service';
-import { PlanMitigationRequest, PlanMitigationResponse, StatutPlanMitigation } from '../../../../core/models/plan-mitigation.model';
+import { PlanMitigationRequest, PlanMitigationResponse } from '../../../../core/models/plan-mitigation.model';
 import { RisqueResponse } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { planMitigationSchema } from './plans-mitigation-form.schema';
@@ -19,7 +21,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-plans-mitigation-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent],
   templateUrl: './plans-mitigation-form.component.html'
 })
 export class PlansMitigationFormComponent implements OnInit {
@@ -32,7 +34,6 @@ export class PlansMitigationFormComponent implements OnInit {
 
   risques: RisqueResponse[] = [];
   loadingRisques = false;
-  statutOptions = Object.values(StatutPlanMitigation);
 
   constructor(
     private fb: FormBuilder,
@@ -50,13 +51,16 @@ export class PlansMitigationFormComponent implements OnInit {
       libelle: [''],
       description: [''],
       dateCreation: [''],
-      statut: [''],
       codeRisque: ['']
     });
 
     this.form.valueChanges.subscribe(() =>
       applyZodValidation(this.form, planMitigationSchema, this.form.getRawValue())
     );
+  }
+
+  get risqueOptions(): SearchableSelectOption[] {
+    return this.risques.map(r => ({ value: r.code, label: `${r.code} - ${r.libelle}` }));
   }
 
   isRequired(field: string): boolean {
@@ -118,7 +122,6 @@ export class PlansMitigationFormComponent implements OnInit {
       libelle: plan.libelle,
       description: plan.description,
       dateCreation: this.formatDateForInput(plan.dateCreation),
-      statut: plan.statut,
       codeRisque: plan.codeRisque
     });
   }
@@ -140,7 +143,6 @@ export class PlansMitigationFormComponent implements OnInit {
       libelle: raw.libelle,
       description: raw.description,
       dateCreation: raw.dateCreation,
-      statut: raw.statut,
       codeRisque: raw.codeRisque
     };
 

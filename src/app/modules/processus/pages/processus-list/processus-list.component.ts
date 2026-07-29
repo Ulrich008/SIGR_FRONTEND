@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
 import { ProcessusResponse, TypeProcessus } from '../../../../core/models/processus.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-processus-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './processus-list.component.html'
 })
 export class ProcessusListComponent implements OnInit {

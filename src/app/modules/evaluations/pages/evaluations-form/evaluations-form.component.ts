@@ -8,6 +8,9 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { FormStepperComponent, FormStepDef } from '../../../../shared/form-stepper/form-stepper.component';
 import { EvaluationService } from '../../../../core/services/evaluation.service';
 import { RisqueService } from '../../../../core/services/risque.service';
 import { AgentService } from '../../../../core/services/agent.service';
@@ -21,7 +24,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-evaluations-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent, FormStepperComponent],
   templateUrl: './evaluations-form.component.html'
 })
 export class EvaluationsFormComponent implements OnInit {
@@ -39,13 +42,54 @@ export class EvaluationsFormComponent implements OnInit {
   /** Risque actuellement sélectionné (pour les calculs automatiques) */
   private currentRisque: RisqueResponse | null = null;
 
-  sections = {
-    period: true,
-    inherent: true,
-    controles: true,
-    additional: true,
-    recommendations: true
-  };
+  steps: FormStepDef[] = [
+    { label: 'Informations générales' },
+    { label: 'Période' },
+    { label: 'Risque inhérent' },
+    { label: 'Bonnes pratiques' },
+    { label: 'Maturité' },
+    { label: 'Recommandation' }
+  ];
+  currentStep = 0;
+  maxReachedStep = 0;
+
+  private stepFields: string[][] = [
+    ['codeRisque'],
+    ['dateDebut', 'dateFin'],
+    [],
+    ['controleExistants', 'controleInexistants'],
+    [],
+    ['recommandation']
+  ];
+
+  isStepValid(step: number): boolean {
+    return this.stepFields[step].every(field => this.form.get(field)?.valid);
+  }
+
+  goToStep(step: number): void {
+    if (step <= this.maxReachedStep) {
+      this.currentStep = step;
+    }
+  }
+
+  nextStep(): void {
+    applyZodValidation(this.form, evaluationSchema, this.form.getRawValue());
+    this.stepFields[this.currentStep].forEach(field => this.form.get(field)?.markAsTouched());
+    if (!this.isStepValid(this.currentStep)) {
+      return;
+    }
+
+    this.currentStep++;
+    if (this.currentStep > this.maxReachedStep) {
+      this.maxReachedStep = this.currentStep;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -82,6 +126,10 @@ export class EvaluationsFormComponent implements OnInit {
 
   isRequired(field: string): boolean {
     return isRequired(evaluationBaseSchema, field);
+  }
+
+  get risqueOptions(): SearchableSelectOption[] {
+    return this.risques.map(r => ({ value: r.code, label: `${r.code} - ${r.libelle}` }));
   }
 
   ngOnInit(): void {
@@ -449,10 +497,6 @@ export class EvaluationsFormComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/evaluations']);
-  }
-
-  toggleSection(section: keyof typeof this.sections): void {
-    this.sections[section] = !this.sections[section];
   }
 
   getFieldError(fieldName: string): string {

@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
 import { RisqueResponse, AvisRisque, EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-plans-cartographie-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './plans-cartographie-list.component.html'
 })
 export class PlansCartographieListComponent implements OnInit {
@@ -98,7 +99,10 @@ export class PlansCartographieListComponent implements OnInit {
       return etape !== EtapeValidation.VALIDEE && etape !== EtapeValidation.REJETEE;
     }
     if (this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) {
-      return etape === EtapeValidation.FORMALISATION;
+      // Un risque non évalué ne peut pas être transmis : il n'apparaît donc
+      // pas encore dans le projet de cartographie (voir aussi le contrôle
+      // équivalent côté backend, RisqueServiceImpl.transmettre()).
+      return etape === EtapeValidation.FORMALISATION && risque.evalue;
     }
     if (this.authService.hasAnyRole(['PILOTE'])) {
       return etape === EtapeValidation.PILOTE;

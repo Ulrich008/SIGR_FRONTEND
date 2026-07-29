@@ -9,20 +9,18 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des risques</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier le plan' : 'Nouveau plan de mitigation' }}
-          </h1>
-        </div>
+      <app-page-header subtitle="Gestion des risques" [title]="isEditMode ? 'Modifier le plan' : 'Nouveau plan de mitigation'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
         <button
+          actions
           (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
         >
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -58,24 +56,6 @@
                 </p>
               </div>
 
-              <!-- Statut -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Statut <span *ngIf="isRequired('statut')" class="text-red-500">*</span></label>
-                <select
-                  formControlName="statut"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner un statut</option>
-                  <option *ngFor="let statut of statutOptions" [value]="statut">
-                    {{ statut }}
-                  </option>
-                </select>
-                <p *ngIf="form.get('statut')?.invalid && form.get('statut')?.touched"
-                   class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('statut') }}
-                </p>
-              </div>
-
               <!-- Date de création -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Date de création <span *ngIf="isRequired('dateCreation')" class="text-red-500">*</span></label>
@@ -89,16 +69,8 @@
               <!-- Risque -->
               <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé <span *ngIf="isRequired('codeRisque')" class="text-red-500">*</span></label>
-                <select
-                  formControlName="codeRisque"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner un risque</option>
-                  <option *ngIf="loadingRisques" value="" disabled>Chargement...</option>
-                  <option *ngFor="let risque of risques" [value]="risque.code">
-                    {{ risque.code }} - {{ risque.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeRisque"
+                  [options]="risqueOptions" placeholder="Rechercher un risque par code ou libellé..."></app-searchable-select>
                 <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('codeRisque') }}

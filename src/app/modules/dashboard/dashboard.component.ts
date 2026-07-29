@@ -2,6 +2,7 @@ import { Component, AfterViewInit, ChangeDetectionStrategy, Inject, PLATFORM_ID,
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../layout/main-layout/main-layout.component';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { MenuItem } from '../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../core/services/menu.service';
 import { RisqueService } from '../../core/services/risque.service';
@@ -19,7 +20,7 @@ import { forkJoin } from 'rxjs';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, MainLayoutComponent, PageHeaderComponent],
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush

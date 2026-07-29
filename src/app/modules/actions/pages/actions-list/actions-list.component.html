@@ -6,19 +6,19 @@
   userInitials="AD">
 
   <div class="p-4 md:p-6">
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
 
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des risques</p>
-          <h1 class="text-2xl font-semibold text-slate-900">Actions</h1>
-        </div>
+      <app-page-header subtitle="Gestion des risques" title="Actions">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
         <button
+          actions
           (click)="createAction()"
           [disabled]="!canCreateOrDelete"
           [title]="!canCreateOrDelete ? 'Vous n\'avez pas les droits pour créer une action' : ''"
-          class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition"
-          [ngClass]="canCreateOrDelete ? 'bg-emerald-700 text-white hover:bg-emerald-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
+          class="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition"
+          [ngClass]="canCreateOrDelete ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-white/10 text-slate-400 cursor-not-allowed'"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -26,7 +26,7 @@
           </svg>
           Nouvelle action
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -105,7 +105,7 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="applyFilter()"
           placeholder="Rechercher par code, libellé, plan, responsable..."
-          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
         />
       </div>
 

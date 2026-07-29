@@ -8,11 +8,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-plan-audit-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, RouterModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './plan-audit-list.component.html',
   styleUrls: ['./plan-audit-list.component.css']
 })

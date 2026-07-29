@@ -6,20 +6,21 @@
   userInitials="AD">
 
   <div class="p-4 md:p-6">
-    <div class="max-w-6xl mx-auto space-y-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Tableau de bord</p>
-          <h1 class="text-2xl font-semibold text-slate-900">Indicateurs de Performance</h1>
-        </div>
+      <app-page-header subtitle="Tableau de bord" title="Indicateurs de Performance">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18"/>
+          <path d="M18 17V9m-5 8V5M8 17v-4"/>
+        </svg>
         <button
+          actions
           (click)="createIndicateur()"
           [disabled]="!canCreateOrDelete"
           [title]="!canCreateOrDelete ? 'Vous n\'avez pas les droits pour créer un indicateur' : ''"
-          class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition"
-          [ngClass]="canCreateOrDelete ? 'bg-emerald-700 text-white hover:bg-emerald-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
+          class="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition"
+          [ngClass]="canCreateOrDelete ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-white/10 text-slate-400 cursor-not-allowed'"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -27,7 +28,7 @@
           </svg>
           Nouvel indicateur
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -40,7 +41,21 @@
       </div>
 
       <!-- Statistiques -->
-      <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div *ngIf="!loading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="rounded-xl bg-emerald-50 p-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Objectif atteint</p>
+              <p class="text-2xl font-bold text-slate-900">{{ countByStatut('Objectif atteint') }}</p>
+            </div>
+          </div>
+        </div>
+
         <div class="rounded-2xl bg-white p-4 shadow-sm border border-slate-100">
           <div class="flex items-center gap-3">
             <div class="rounded-xl bg-green-50 p-3">
@@ -92,7 +107,7 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="applyFilter()"
           placeholder="Rechercher par code, libellé, processus, statut..."
-          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
         />
       </div>
 

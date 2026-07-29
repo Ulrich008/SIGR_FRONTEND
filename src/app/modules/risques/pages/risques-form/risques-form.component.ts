@@ -10,6 +10,9 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { FormStepperComponent, FormStepDef } from '../../../../shared/form-stepper/form-stepper.component';
 
 import { RisqueService } from '../../../../core/services/risque.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
@@ -17,7 +20,6 @@ import { ProcessusService } from '../../../../core/services/processus.service';
 import {
   RisqueRequest,
   RisqueResponse,
-  StatutRisque,
   StrategieRisque,
   TypeRisque
 } from '../../../../core/models/risque.model';
@@ -31,7 +33,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-risques-form',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent, FormStepperComponent],
   templateUrl: './risques-form.component.html'
 })
 export class RisquesFormComponent implements OnInit {
@@ -68,13 +70,13 @@ export class RisquesFormComponent implements OnInit {
 
   loadingProcessus = false;
 
-  statutOptions = [
-    { value: StatutRisque.ACTIF, label: 'Actif' },
-    { value: StatutRisque.EN_COURS, label: 'En cours' },
-    { value: StatutRisque.MAITRISE, label: 'Maîtrisé' },
-    { value: StatutRisque.CLOTURE, label: 'Clôturé' },
-    { value: StatutRisque.SUPPRIME, label: 'Supprimé' }
+  steps: FormStepDef[] = [
+    { label: 'Identification' },
+    { label: 'Causes & conséquences' },
+    { label: 'Bonnes pratiques' }
   ];
+  currentStep = 0;
+  maxReachedStep = 0;
 
   strategieRisqueOptions = [
     { value: StrategieRisque.TRAITER, label: 'Traiter (ou réduire)', description: 'Mettre en place des dispositifs de contrôle interne pour réduire le risque' },
@@ -142,7 +144,6 @@ export class RisquesFormComponent implements OnInit {
     this.form = this.fb.group({
       code: [{ value: '', disabled: true }],
       libelle: [''],
-      statut: [StatutRisque.ACTIF],
       dateIdentification: [''],
       codeProcessus: [''],
       typeRisque: ['']
@@ -151,10 +152,18 @@ export class RisquesFormComponent implements OnInit {
     this.form.valueChanges.subscribe(() =>
       applyZodValidation(this.form, risqueSchema, this.form.getRawValue())
     );
+
+    // "Processus" est devenu un app-searchable-select (pas d'événement
+    // (change) natif) : on réagit au changement de valeur du FormControl.
+    this.form.get('codeProcessus')?.valueChanges.subscribe(() => this.onProcessusChange());
   }
 
   isRequired(field: string): boolean {
     return isRequired(risqueSchema, field);
+  }
+
+  get processusOptions(): SearchableSelectOption[] {
+    return this.processus.map(p => ({ value: p.code, label: `${p.code} - ${p.libelle}` }));
   }
 
   ngOnInit(): void {
@@ -231,7 +240,6 @@ export class RisquesFormComponent implements OnInit {
     this.form.patchValue({
       code: risque.code,
       libelle: risque.libelle,
-      statut: risque.statut,
       dateIdentification: this.formatDateForInput(risque.dateIdentification),
       codeProcessus: risque.codeProcessus,
       typeRisque: risque.typeRisque
@@ -266,6 +274,56 @@ export class RisquesFormComponent implements OnInit {
     }
 
     this.cdr.detectChanges();
+  }
+
+  isStep0Valid(): boolean {
+    return ['codeProcessus', 'typeRisque', 'libelle', 'dateIdentification']
+      .every(field => this.form.get(field)?.valid);
+  }
+
+  isStep1Valid(): boolean {
+    return this.causesProbables.length > 0 && this.consequencesProbables.length > 0;
+  }
+
+  isStep2Valid(): boolean {
+    return this.bonnesPratiques.length > 0;
+  }
+
+  goToStep(step: number): void {
+    if (step <= this.maxReachedStep) {
+      this.currentStep = step;
+    }
+  }
+
+  nextStep(): void {
+    applyZodValidation(this.form, risqueSchema, this.form.getRawValue());
+
+    if (this.currentStep === 0) {
+      ['codeProcessus', 'typeRisque', 'libelle', 'dateIdentification'].forEach(field => this.form.get(field)?.markAsTouched());
+      if (!this.isStep0Valid()) {
+        return;
+      }
+    } else if (this.currentStep === 1) {
+      if (this.causesProbables.length === 0) {
+        this.causeProbableError = 'Au moins une cause probable est requise';
+        return;
+      }
+      if (this.consequencesProbables.length === 0) {
+        this.consequenceProbableError = 'Au moins une conséquence probable est requise';
+        return;
+      }
+    }
+
+    this.currentStep++;
+    if (this.currentStep > this.maxReachedStep) {
+      this.maxReachedStep = this.currentStep;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
   }
 
   onSubmit(): void {
@@ -309,7 +367,6 @@ export class RisquesFormComponent implements OnInit {
       causeProbable: this.causesProbables,
       consequenceProbable: this.consequencesProbables,
       bonnesPratiques: this.bonnesPratiques,
-      statut: raw.statut,
       dateIdentification: raw.dateIdentification,
       codeProcessus: raw.codeProcessus,
       typeRisque: raw.typeRisque

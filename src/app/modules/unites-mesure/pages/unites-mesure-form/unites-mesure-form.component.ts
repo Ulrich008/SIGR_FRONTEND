@@ -13,11 +13,12 @@ import { UniteMesureRequest, UniteMesureResponse } from '../../../../core/models
 import { AuthService } from '../../../../core/services/auth.service';
 import { uniteMesureSchema } from './unites-mesure-form.schema';
 import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-unites-mesure-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './unites-mesure-form.component.html'
 })
 export class UnitesMesureFormComponent implements OnInit {

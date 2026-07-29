@@ -9,20 +9,18 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des risques</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier la cartographie' : 'Nouvelle cartographie' }}
-          </h1>
-        </div>
+      <app-page-header subtitle="Gestion des risques" [title]="isEditMode ? 'Modifier la cartographie' : 'Nouvelle cartographie'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
         <button
+          actions
           (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
         >
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -61,17 +59,8 @@
               <!-- Unité administrative -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative <span *ngIf="isRequired('codeUniteAdministrative')" class="text-red-500">*</span></label>
-                <select
-                  formControlName="codeUniteAdministrative"
-                  class="w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition
-                    disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed
-                    enabled:border-slate-200 enabled:bg-slate-50 enabled:focus:border-green-400"
-                >
-                  <option value="">{{ loadingUnites ? 'Chargement...' : 'Sélectionner une unité administrative' }}</option>
-                  <option *ngFor="let unite of unitesAdministratives" [value]="unite.code">
-                    {{ unite.code }} - {{ unite.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeUniteAdministrative"
+                  [options]="uniteOptions" placeholder="Rechercher une unité par code ou libellé..."></app-searchable-select>
                 <p *ngIf="form.get('codeUniteAdministrative')?.invalid && form.get('codeUniteAdministrative')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('codeUniteAdministrative') }}

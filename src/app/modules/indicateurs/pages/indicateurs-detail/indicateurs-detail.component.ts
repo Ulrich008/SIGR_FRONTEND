@@ -82,6 +82,8 @@ export class IndicateursDetailComponent implements OnInit {
 
   getStatutBadgeClass(statut: string): string {
     switch (statut) {
+      case 'Objectif atteint':
+        return 'bg-emerald-100 text-emerald-700';
       case 'Plan de mitigation en cours conformément au calendrier':
         return 'bg-green-100 text-green-700';
       case 'Attention : échéance proche, suivi renforcé requis':
@@ -96,10 +98,7 @@ export class IndicateursDetailComponent implements OnInit {
   }
 
   getPerformanceColor(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined): string {
-    const obtenueNum = typeof valeurObtenue === 'string' ? this.toNumber(valeurObtenue, 0) : (valeurObtenue ?? 0);
-    const cibleNum = typeof valeurCible === 'string' ? this.toNumber(valeurCible, 100) : (valeurCible ?? 100);
-    if (!obtenueNum || !cibleNum) return 'bg-gray-300';
-    const percentage = (obtenueNum / cibleNum) * 100;
+    const percentage = this.getPerformancePercentage(valeurObtenue, valeurCible);
     if (percentage >= 100) return 'bg-green-500';
     if (percentage >= 75) return 'bg-yellow-500';
     return 'bg-red-500';
@@ -108,7 +107,9 @@ export class IndicateursDetailComponent implements OnInit {
   getPerformancePercentage(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined): number {
     const obtenueNum = typeof valeurObtenue === 'string' ? this.toNumber(valeurObtenue, 0) : (valeurObtenue ?? 0);
     const cibleNum = typeof valeurCible === 'string' ? this.toNumber(valeurCible, 100) : (valeurCible ?? 100);
-    if (!obtenueNum || !cibleNum) return 0;
+    // Cible = 0 : une valeur obtenue également nulle atteint exactement la
+    // cible (100%), plutôt que 0% comme le renvoyait l'ancienne garde.
+    if (cibleNum === 0) return obtenueNum === 0 ? 100 : 0;
     return (obtenueNum / cibleNum) * 100;
   }
 

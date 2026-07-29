@@ -99,7 +99,7 @@ export class PlansMitigationDetailComponent implements OnInit {
       case 'PLANIFIE': return 'bg-blue-100 text-blue-700';
       case 'EN_COURS': return 'bg-yellow-100 text-yellow-700';
       case 'TERMINE': return 'bg-green-100 text-green-700';
-      case 'ANNULE': return 'bg-red-100 text-red-700';
+      case 'CLOTURE': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   }
@@ -119,7 +119,7 @@ export class PlansMitigationDetailComponent implements OnInit {
       case 'PLANIFIE': return 'fa-calendar-check';
       case 'EN_COURS': return 'fa-spinner';
       case 'TERMINE': return 'fa-check-circle';
-      case 'ANNULE': return 'fa-times-circle';
+      case 'CLOTURE': return 'fa-lock';
       default: return 'fa-question-circle';
     }
   }

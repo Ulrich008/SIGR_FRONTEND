@@ -6,26 +6,27 @@
   userInitials="AD">
 
   <div class="p-4 md:p-6">
-    <div class="max-w-6xl mx-auto space-y-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Administration</p>
-          <h1 class="text-2xl font-semibold text-slate-900">Types d'unités</h1>
-        </div>
+      <app-page-header subtitle="Administration" title="Types d'unités">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.17H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.82 0l4.59-4.59a2 2 0 0 0 0-2.82z"/>
+          <line x1="7.5" y1="7.5" x2="7.51" y2="7.5"/>
+        </svg>
         <button
+          actions
           (click)="createTypeUnite()"
           [disabled]="!isSuperAdmin"
           [title]="!isSuperAdmin ? 'Seul un super administrateur peut créer un type d\'unité' : ''"
-          class="w-full md:w-auto inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition"
+          class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition"
           [ngClass]="isSuperAdmin
-            ? 'bg-emerald-700 text-white hover:bg-emerald-600'
-            : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
+            ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+            : 'bg-white/10 text-slate-400 cursor-not-allowed'"
         >
           + Nouveau type
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Filtre dynamique -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
@@ -35,7 +36,7 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="applyFilter()"
           placeholder="Rechercher par code, libellé, description..."
-          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
         />
       </div>
 
@@ -115,7 +116,7 @@
       <!-- Vue DESKTOP : tableau -->
       <div *ngIf="!loading" class="hidden md:block overflow-hidden rounded-3xl bg-white shadow-sm">
         <table class="min-w-full table-auto border-collapse text-sm">
-          <thead class="bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-left text-xs uppercase tracking-wide text-slate-200">
             <tr>
               <th class="px-4 py-3">Code</th>
               <th class="px-4 py-3">Libellé</th>

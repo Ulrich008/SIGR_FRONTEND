@@ -10,11 +10,12 @@ import { UniteAdministrativeService } from '../../../../core/services/unite-admi
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { ImportResult } from '../../../../core/models/import-result.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-unite-administrative-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './unite-administrative-list.component.html'
 })
 export class UniteAdministrativeListComponent implements OnInit {

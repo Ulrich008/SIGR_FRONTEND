@@ -52,16 +52,18 @@ export class CartographieRisquesService {
     );
   }
 
-  exportExcel(): Observable<Blob> {
+  exportExcel(annee?: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/export/excel`, {
+      params: annee ? { annee } : undefined,
       responseType: 'blob'
     }).pipe(
       catchError(error => this.handleError(error))
     );
   }
 
-  exportExcelByUnite(codeUnite: string): Observable<Blob> {
+  exportExcelByUnite(codeUnite: string, annee?: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/export/excel/unite/${codeUnite}`, {
+      params: annee ? { annee } : undefined,
       responseType: 'blob'
     }).pipe(
       catchError(error => this.handleError(error))

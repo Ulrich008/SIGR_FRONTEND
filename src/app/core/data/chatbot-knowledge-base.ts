@@ -140,7 +140,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'mitigation',
     keywords: ['mitigation', 'plan de mitigation', 'creer plan', 'nouveau plan'],
     question: 'Comment créer un plan de mitigation ?',
-    answer: "Menu **Mitigation → Plans de mitigation**. Cliquez sur « Nouveau plan », renseignez le libellé, le statut (Planifié, En cours, Terminé ou Annulé), le risque associé et une description.",
+    answer: "Menu **Mitigation → Plans de mitigation**. Cliquez sur « Nouveau plan », renseignez le libellé, la date de création, le risque associé et une description. Le statut (Planifié, En cours, Terminé) se calcule automatiquement selon les actions liées ; seul le CCI peut le faire passer à Clôturé.",
     anchor: 'mitigation'
   },
   {
@@ -154,21 +154,21 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'indicateurs',
     keywords: ['indicateur', 'kpi', 'creer indicateur', 'nouvel indicateur', 'seuil alerte', 'valeur cible'],
     question: 'Comment créer un indicateur de performance ?',
-    answer: "Menu **Mitigation → Indicateurs**. Renseignez le libellé et la fréquence, rattachez-le à un processus/risque/plan/action, choisissez une unité de mesure, puis définissez dates, seuil d'alerte, valeur cible et valeur obtenue. Si aucune unité de mesure n'est disponible, contactez le SUPER_ADMIN. La page affiche aussi un tableau de bord : compteurs par statut (En cours, Attention, En retard), graphiques valeurs vs cibles et jauge circulaire par indicateur.",
+    answer: "Menu **Mitigation → Indicateurs**. Renseignez le libellé et la fréquence, rattachez-le à un processus/risque/plan/action, choisissez une unité de mesure, puis définissez dates, seuil d'alerte, valeur cible et valeur obtenue. Si aucune unité de mesure n'est disponible, contactez le SUPER_ADMIN. La page affiche aussi un tableau de bord : compteurs par statut (Objectif atteint, En cours, Attention, En retard — dès que la valeur obtenue atteint la valeur cible, le statut passe à Objectif atteint quelles que soient les dates), graphiques valeurs vs cibles et jauge circulaire par indicateur.",
     anchor: 'mitigation'
   },
   {
     id: 'cartographie-circuit',
     keywords: ['cartographie', 'circuit', 'valider', 'differer', 'rejeter', 'transmettre', 'motif', 'workflow', 'validation', 'etape'],
     question: 'Comment fonctionne le circuit de validation ?',
-    answer: "Un risque formalisé suit le circuit **Responsable des risques → Pilote → CCI → CMMR** (validation finale). Le Responsable des risques **transmet** les risques cochés depuis « Projet de cartographie de risques ». À chaque étape, Pilote/CCI/CMMR peuvent **Valider** (avance à l'étape suivante), **Différer** (retour à l'étape précédente, motif obligatoire) ou **Rejeter** (clôture définitive, motif obligatoire).",
+    answer: "Un risque formalisé suit le circuit **Responsable des risques → Pilote → CCI → CMMR** (validation finale). Le Responsable des risques **transmet** les risques cochés depuis « Projet de cartographie de risques » — un risque doit d'abord avoir été **évalué** (au moins une évaluation) pour y apparaître et pouvoir être transmis. À chaque étape, Pilote/CCI/CMMR peuvent **Valider** (avance à l'étape suivante), **Différer** (retour à l'étape précédente, motif obligatoire) ou **Rejeter** (clôture définitive, motif obligatoire).",
     anchor: 'cartographie'
   },
   {
     id: 'cartographie-vues',
     keywords: ['cartographie differee', 'cartographie rejetee', 'cartographie validee', 'cartographie definitif', 'retrouver dossier'],
     question: "Où retrouver mes dossiers de cartographie ?",
-    answer: "Trois vues : **Cartographie définitif des risques** (tous les dossiers transmis, à toute étape, avec compteurs Validé/Différé/Rejeté), **Cartographie différée et rejetée** (dossiers renvoyés en arrière ou clôturés, avec motif) et **Cartographie validée** (uniquement ceux validés par le CMMR). Le bouton « Cartographie définitive » génère le document final.",
+    answer: "Trois vues : **Cartographie définitif des risques** (uniquement les dossiers ayant reçu la validation finale du CMMR, avec compteurs par avis), **Cartographie différée et rejetée** (dossiers renvoyés en arrière ou clôturés, avec motif) et **Cartographie validée** (validés à une étape intermédiaire — Pilote ou CCI — mais pas encore par le CMMR). Le bouton « Cartographie définitive » génère le document final en Excel (par unité administrative ou global), avec un choix d'année (ou « Toutes les années »).",
     anchor: 'cartographie'
   },
   {

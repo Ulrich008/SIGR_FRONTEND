@@ -7,13 +7,14 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
-import { RisqueResponse, StatutRisque, TypeRisque } from '../../../../core/models/risque.model';
+import { RisqueResponse, StatutRisque, TypeRisque, EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-risques-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './risques-list.component.html'
 })
 export class RisquesListComponent implements OnInit {
@@ -179,6 +180,41 @@ export class RisquesListComponent implements OnInit {
     });
   }
 
+  cloturerRisque(code: string): void {
+    Swal.fire({
+      title: 'Clôturer ce risque ?',
+      text: 'Confirme que le risque est résolu. Cette action peut être effectuée à n\'importe quelle étape du circuit de validation.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, clôturer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.risqueService.cloturer(code).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Clôturé',
+              text: 'Le risque a bien été clôturé.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            });
+
+            this.loadRisques();
+          },
+          error: (err) => {
+            Swal.fire({
+              title: 'Erreur',
+              text: err?.message || 'Impossible de clôturer le risque',
+              icon: 'error'
+            });
+          }
+        });
+      }
+    });
+  }
+
   getStatutBadgeClass(statut: StatutRisque): string {
     switch (statut) {
       case StatutRisque.ACTIF:
@@ -220,6 +256,55 @@ export class RisquesListComponent implements OnInit {
 
       default:
         return statut;
+    }
+  }
+
+  /**
+   * Indique chez quel profil se trouve actuellement le risque dans le
+   * circuit de validation — permet au Responsable Risque de suivre l'état
+   * d'avancement d'un dossier transmis sans avoir à demander à chacun.
+   */
+  getEtapeLabel(risque: RisqueResponse): string {
+    if (!risque.transmis) {
+      return 'Non transmis';
+    }
+    switch (risque.etapeValidation) {
+      case EtapeValidation.FORMALISATION:
+        return 'Responsable Risque';
+      case EtapeValidation.PILOTE:
+        return 'Pilote';
+      case EtapeValidation.CCI:
+        return 'CCI';
+      case EtapeValidation.CMMR:
+        return 'CMMR';
+      case EtapeValidation.VALIDEE:
+        return 'Validé (terminé)';
+      case EtapeValidation.REJETEE:
+        return 'Rejeté (terminé)';
+      default:
+        return '—';
+    }
+  }
+
+  getEtapeBadgeClass(risque: RisqueResponse): string {
+    if (!risque.transmis) {
+      return 'bg-slate-100 text-slate-500';
+    }
+    switch (risque.etapeValidation) {
+      case EtapeValidation.FORMALISATION:
+        return 'bg-slate-100 text-slate-600';
+      case EtapeValidation.PILOTE:
+        return 'bg-indigo-100 text-indigo-700';
+      case EtapeValidation.CCI:
+        return 'bg-purple-100 text-purple-700';
+      case EtapeValidation.CMMR:
+        return 'bg-amber-100 text-amber-700';
+      case EtapeValidation.VALIDEE:
+        return 'bg-green-100 text-green-700';
+      case EtapeValidation.REJETEE:
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-slate-100 text-slate-500';
     }
   }
 
@@ -309,11 +394,29 @@ export class RisquesListComponent implements OnInit {
     return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
   }
 
-  canEdit(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+  /**
+   * Un risque transmis (hors Formalisation) est verrouillé pour le
+   * Responsable des risques tant qu'il n'est pas revenu à Formalisation
+   * (différé jusqu'au bout par le Pilote). Le SUPER_ADMIN n'est jamais
+   * bloqué par ce verrou.
+   */
+  estVerrouille(risque: RisqueResponse): boolean {
+    if (this.authService.hasAnyRole(['SUPER_ADMIN'])) return false;
+    if (!this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) return false;
+    return !!(risque.transmis && risque.etapeValidation !== EtapeValidation.FORMALISATION);
+  }
+
+  canEdit(risque: RisqueResponse): boolean {
+    if (this.authService.hasAnyRole(['SUPER_ADMIN'])) return true;
+    if (!this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) return false;
+    return !this.estVerrouille(risque);
   }
 
   canDelete(): boolean {
     return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+  }
+
+  canCloturer(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'CCI']);
   }
 }

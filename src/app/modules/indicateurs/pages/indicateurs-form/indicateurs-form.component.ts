@@ -10,6 +10,9 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { FormStepperComponent, FormStepDef } from '../../../../shared/form-stepper/form-stepper.component';
 import { IndicateurPerformanceService } from '../../../../core/services/indicateur-performance.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
 import { UniteMesureService } from '../../../../core/services/unite-mesure.service';
@@ -29,7 +32,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-indicateurs-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent, FormStepperComponent],
   templateUrl: './indicateurs-form.component.html'
 })
 export class IndicateursFormComponent implements OnInit {
@@ -50,6 +53,49 @@ export class IndicateursFormComponent implements OnInit {
   loadingRisques = false;
   loadingPlans = false;
   loadingActions = false;
+
+  steps: FormStepDef[] = [
+    { label: 'Informations générales' },
+    { label: 'Dates' },
+    { label: 'Valeurs' }
+  ];
+  currentStep = 0;
+  maxReachedStep = 0;
+
+  private stepFields: string[][] = [
+    ['libelle', 'frequence', 'codeProcessus', 'codeRisque', 'codePlanMitigation', 'codeAction', 'codeUniteMesure'],
+    ['dateDebut', 'dateFin', 'seuilAlerte'],
+    ['valeurCible', 'valeurObtenue']
+  ];
+
+  isStepValid(step: number): boolean {
+    return this.stepFields[step].every(field => this.form.get(field)?.valid);
+  }
+
+  goToStep(step: number): void {
+    if (step <= this.maxReachedStep) {
+      this.currentStep = step;
+    }
+  }
+
+  nextStep(): void {
+    applyZodValidation(this.form, indicateurSchema, this.form.getRawValue());
+    this.stepFields[this.currentStep].forEach(field => this.form.get(field)?.markAsTouched());
+    if (!this.isStepValid(this.currentStep)) {
+      return;
+    }
+
+    this.currentStep++;
+    if (this.currentStep > this.maxReachedStep) {
+      this.maxReachedStep = this.currentStep;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
   frequenceOptions = Object.values(Frequence);
 
   constructor(
@@ -86,6 +132,37 @@ export class IndicateursFormComponent implements OnInit {
     this.form.valueChanges.subscribe(() =>
       applyZodValidation(this.form, indicateurSchema, this.form.getRawValue())
     );
+
+    // Les selects en cascade sont devenus des app-searchable-select (pas
+    // d'événement (ngModelChange) natif) : on réagit directement au
+    // changement de valeur du FormControl.
+    this.form.get('codeProcessus')?.valueChanges.subscribe(v => this.onProcessusChange(v));
+    this.form.get('codeRisque')?.valueChanges.subscribe(v => this.onRisqueChange(v));
+    this.form.get('codePlanMitigation')?.valueChanges.subscribe(v => this.onPlanMitigationChange(v));
+    this.form.get('codeAction')?.valueChanges.subscribe(v => this.onActionChange(v));
+  }
+
+  get processusOptions(): SearchableSelectOption[] {
+    return this.processus.map(p => ({ value: p.code, label: `${p.code} - ${p.libelle}` }));
+  }
+
+  get risqueOptions(): SearchableSelectOption[] {
+    return this.risques.map(r => ({ value: r.code, label: `${r.code} - ${r.libelle}` }));
+  }
+
+  get planMitigationOptions(): SearchableSelectOption[] {
+    return this.plansMitigation.map(p => ({ value: p.code, label: `${p.code} - ${p.libelle}` }));
+  }
+
+  get actionOptions(): SearchableSelectOption[] {
+    return this.actions.map(a => ({
+      value: a.code,
+      label: `${a.code} - ${a.libelles && a.libelles.length > 0 ? a.libelles[0] : ''}`
+    }));
+  }
+
+  get uniteMesureOptions(): SearchableSelectOption[] {
+    return this.unitesMesure.map(u => ({ value: u.code, label: `${u.code} - ${u.libelle}` }));
   }
 
   isRequired(field: string): boolean {
@@ -354,7 +431,7 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   get erreurObtenueSuperieureCible(): boolean {
-    return !!zodError(this.form, 'valeurObtenue') &&
+    return zodError(this.form, 'valeurObtenue') === 'La valeur obtenue ne peut pas être supérieure à la valeur cible' &&
            !!(this.form.get('valeurCible')?.touched || this.form.get('valeurObtenue')?.touched);
   }
 

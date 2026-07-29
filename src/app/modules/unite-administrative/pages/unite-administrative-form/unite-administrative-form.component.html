@@ -6,20 +6,18 @@
   userInitials="AD">
   <div class="p-6">
     <div class="max-w-4xl mx-auto space-y-6">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Administration</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier l\'unité administrative' : 'Nouvelle unité administrative' }}
-          </h1>
-        </div>
+      <app-page-header subtitle="Administration" [title]="isEditMode ? 'Modifier l\'unité administrative' : 'Nouvelle unité administrative'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M6 21V7l6-4 6 4v14M9 9h1m-1 4h1m4-4h1m-1 4h1"/>
+        </svg>
         <button
+          actions
           (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
         >
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
@@ -71,19 +69,8 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Type d'unité <span *ngIf="isRequired('idTypeUnite')" class="text-red-500">*</span>
                 </label>
-                <select
-                  formControlName="idTypeUnite"
-                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
-                    (isEditMode
-                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'border-slate-200 bg-slate-50 focus:border-green-400')"
-                >
-                  <option value="">Sélectionner un type</option>
-                  <option *ngIf="loadingTypeUnites" value="" disabled>Chargement...</option>
-                  <option *ngFor="let typeUnite of typeUnites" [value]="typeUnite.code">
-                    {{ typeUnite.libelle }} ({{ typeUnite.code }})
-                  </option>
-                </select>
+                <app-searchable-select formControlName="idTypeUnite"
+                  [options]="typeUniteOptions" placeholder="Rechercher un type d'unité..."></app-searchable-select>
                 <p *ngIf="form.get('idTypeUnite')?.invalid && form.get('idTypeUnite')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('idTypeUnite') }}</p>
               </div>
 
@@ -92,36 +79,16 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Ministère <span *ngIf="isRequired('codeMinistere')" class="text-red-500">*</span>
                 </label>
-                <select
-                  formControlName="codeMinistere"
-                  [class]="'w-full rounded-xl border px-4 py-3 text-sm focus:outline-none transition ' +
-                    ((isEditMode || !isSuperAdmin)
-                      ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'border-slate-200 bg-slate-50 focus:border-green-400')"
-                >
-                  <option value="">Sélectionner un ministère</option>
-                  <option *ngIf="loadingMinisteres" value="" disabled>Chargement...</option>
-                  <option *ngFor="let ministere of ministeres" [value]="ministere.code">
-                    {{ ministere.nom }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeMinistere"
+                  [options]="ministereOptions" placeholder="Rechercher un ministère par nom..."></app-searchable-select>
                 <p *ngIf="form.get('codeMinistere')?.invalid && form.get('codeMinistere')?.touched" class="mt-1 text-xs text-red-600">{{ getFieldError('codeMinistere') }}</p>
               </div>
 
               <!-- Unité parent -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Unité parent (optionnel)</label>
-                <select
-                  formControlName="idUniteParent"
-                  (change)="onUniteParentChange(form.get('idUniteParent')?.value)"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Aucune unité parent</option>
-                  <option *ngIf="loadingUnites" value="" disabled>Chargement...</option>
-                  <option *ngFor="let unite of unitesAdministratives" [value]="unite.code">
-                    {{ unite.libelle }} ({{ unite.code }})
-                  </option>
-                </select>
+                <app-searchable-select formControlName="idUniteParent"
+                  [options]="uniteParentOptions" placeholder="Rechercher une unité parent..."></app-searchable-select>
               </div>
 
               <!-- Niveau hiérarchique (calculé automatiquement) -->

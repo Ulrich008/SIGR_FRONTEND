@@ -8,6 +8,9 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { FormStepperComponent, FormStepDef } from '../../../../shared/form-stepper/form-stepper.component';
 import { PlanAuditService } from '../../../../core/services/plan-audit.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
@@ -23,7 +26,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-plan-audit-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent, FormStepperComponent],
   templateUrl: './plan-audit-form.component.html'
 })
 export class PlanAuditFormComponent implements OnInit {
@@ -46,10 +49,46 @@ export class PlanAuditFormComponent implements OnInit {
   auditProposeOptions: string[] = [];
   typeRevueOptions: string[] = [];
 
-  sections = {
-    informationsGenerales: true,
-    prePlanification: true
-  };
+  steps: FormStepDef[] = [
+    { label: 'Informations générales' },
+    { label: 'Pré-planification d\'audit' }
+  ];
+  currentStep = 0;
+  maxReachedStep = 0;
+
+  private stepFields: string[][] = [
+    ['libelle', 'dateCreation', 'codeUniteAdministrative'],
+    ['codeProcessus', 'codeRisque', 'auditPropose', 'typeRevue', 'objectifAudit', 'effetAuditIndicatif']
+  ];
+
+  isStepValid(step: number): boolean {
+    return this.stepFields[step].every(field => this.form.get(field)?.valid);
+  }
+
+  goToStep(step: number): void {
+    if (step <= this.maxReachedStep) {
+      this.currentStep = step;
+    }
+  }
+
+  nextStep(): void {
+    applyZodValidation(this.form, planAuditSchema, this.form.getRawValue());
+    this.stepFields[this.currentStep].forEach(field => this.form.get(field)?.markAsTouched());
+    if (!this.isStepValid(this.currentStep)) {
+      return;
+    }
+
+    this.currentStep++;
+    if (this.currentStep > this.maxReachedStep) {
+      this.maxReachedStep = this.currentStep;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -327,8 +366,12 @@ export class PlanAuditFormComponent implements OnInit {
     this.router.navigate(['/plans-audit']);
   }
 
-  toggleSection(section: keyof typeof this.sections): void {
-    this.sections[section] = !this.sections[section];
+  get processusOptions(): SearchableSelectOption[] {
+    return this.processus.map(p => ({ value: p.code, label: p.libelle }));
+  }
+
+  get risqueOptions(): SearchableSelectOption[] {
+    return this.risques.map(r => ({ value: r.code, label: r.libelle }));
   }
 
   getFieldError(fieldName: string): string {

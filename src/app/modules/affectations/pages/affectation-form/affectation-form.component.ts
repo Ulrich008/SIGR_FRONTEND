@@ -7,6 +7,7 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { AffectationService } from '../../../../core/services/affectation.service';
 import { AffectationRequest, AffectationResponse } from '../../../../core/models/affectation.model';
 import { AgentService } from '../../../../core/services/agent.service';
@@ -20,7 +21,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-affectation-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, PageHeaderComponent],
   templateUrl: './affectation-form.component.html'
 })
 export class AffectationFormComponent implements OnInit {

@@ -11,11 +11,12 @@ import { TypeUniteRequest, TypeUniteResponse } from '../../../../core/models/typ
 import { AuthService } from '../../../../core/services/auth.service';
 import { typeUniteSchema } from './type-unite-form.schema';
 import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-type-unite-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './type-unite-form.component.html'
 })
 export class TypeUniteFormComponent implements OnInit {

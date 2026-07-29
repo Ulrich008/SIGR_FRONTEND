@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { UniteMesureService } from '../../../../core/services/unite-mesure.service';
 import { UniteMesureResponse } from '../../../../core/models/unite-mesure.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-unites-mesure-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './unites-mesure-list.component.html'
 })
 export class UnitesMesureListComponent implements OnInit {

@@ -1,3 +1,4 @@
+import { EtapeValidation } from './risque.model';
 
 export interface EvaluationRequest {
   impactInherent: number;
@@ -51,6 +52,10 @@ export interface EvaluationResponse {
   codeRisque: string;
   libelleRisque: string;
   idRisque: string;
+
+  /** État du risque parent, pour verrouiller l'édition tant qu'il est transmis et hors Formalisation. */
+  risqueTransmis?: boolean;
+  risqueEtapeValidation?: EtapeValidation;
 
   matriculeAgent?: string;
   nomAgent?: string;

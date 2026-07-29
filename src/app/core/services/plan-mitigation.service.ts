@@ -58,4 +58,11 @@ export class PlanMitigationService {
       catchError(error => this.handleError(error))
     );
   }
+
+  /** Clôturer un plan de mitigation (réservé au CCI) */
+  cloturer(code: string): Observable<PlanMitigationResponse> {
+    return this.http.patch<PlanMitigationResponse>(`${this.apiUrl}/${code}/cloturer`, {}, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
 }

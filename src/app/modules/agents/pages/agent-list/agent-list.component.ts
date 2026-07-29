@@ -11,11 +11,12 @@ import { MinistereService } from '../../../../core/services/ministere.service';
 import { AgentResponse } from '../../../../core/models/agent.model';
 import { ImportResult } from '../../../../core/models/import-result.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-agent-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './agent-list.component.html'
 })
 export class AgentListComponent implements OnInit {

@@ -10,12 +10,13 @@
 
     <!-- Breadcrumb + title -->
     <div class="mb-5 sm:mb-6">
-      <p class="text-xs text-gray-400 mb-1">Dashboards <span class="mx-1">›</span> Vue d'ensemble</p>
-      <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Tableau de bord</h1>
-      <p *ngIf="ministereNom" class="text-sm sm:text-base font-bold mt-1" style="color: #1a4731;">
-        {{ ministereNom }} <span class="font-normal text-gray-400">({{ ministereCode }})</span>
-      </p>
-      <p *ngIf="!ministereNom" class="text-xs text-gray-400 mt-0.5 hidden sm:block">Ministère · Gestion des risques</p>
+      <app-page-header subtitle="Vue d'ensemble" title="Tableau de bord"
+        [description]="ministereNom ? (ministereNom + ' (' + ministereCode + ')') : 'Ministère · Gestion des risques'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/>
+          <rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>
+        </svg>
+      </app-page-header>
     </div>
 
     <!-- KPI Cards - Ligne 1 -->

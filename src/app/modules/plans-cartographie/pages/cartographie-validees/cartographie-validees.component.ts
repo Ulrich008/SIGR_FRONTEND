@@ -7,11 +7,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
 import { RisqueResponse, EtapeValidation, AvisRisque } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-cartographie-validees',
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './cartographie-validees.component.html'
 })
 export class CartographieValideesComponent implements OnInit {

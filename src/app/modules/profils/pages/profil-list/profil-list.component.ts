@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { ProfilService } from '../../../../core/services/profil.service';
 import { ProfilResponse } from '../../../../core/models/profil.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-profil-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './profil-list.component.html'
 })
 export class ProfilListComponent implements OnInit {

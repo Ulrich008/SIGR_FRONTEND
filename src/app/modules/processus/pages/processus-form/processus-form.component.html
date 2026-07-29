@@ -9,20 +9,19 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Organisation</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier le processus' : 'Nouveau processus' }}
-          </h1>
-        </div>
+      <app-page-header subtitle="Organisation" [title]="isEditMode ? 'Modifier le processus' : 'Nouveau processus'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="12" r="3"/>
+          <path d="M6 9v6M8.5 7.5L15.5 10.5M8.5 16.5L15.5 13.5"/>
+        </svg>
         <button
+          actions
           (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
         >
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -191,16 +190,8 @@
                   Propriétaire
                   <span class="ml-1 text-xs font-normal text-slate-400">— Managers uniquement</span>
                 </label>
-                <select
-                  formControlName="idProprietaire"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner un propriétaire</option>
-                  <option *ngIf="loadingAgents" value="" disabled>Chargement...</option>
-                  <option *ngFor="let manager of managers" [value]="manager.matricule">
-                    {{ manager.nom }} {{ manager.prenoms }} ({{ manager.matricule }})
-                  </option>
-                </select>
+                <app-searchable-select formControlName="idProprietaire"
+                  [options]="proprietaireOptions" placeholder="Rechercher un manager par nom ou matricule..."></app-searchable-select>
                 <p *ngIf="form.get('idProprietaire')?.invalid && form.get('idProprietaire')?.touched"
                    class="mt-1 text-xs text-red-600">
                   {{ getFieldError('idProprietaire') }}

@@ -7,13 +7,12 @@
 
   <div class="p-6">
     <div class="max-w-3xl mx-auto space-y-6">
-      <div class="flex flex-col gap-2">
-        <p class="text-sm text-gray-500">Administration</p>
-        <h1 class="text-2xl font-semibold text-slate-900">
-          {{ ministereId ? 'Modifier un ministère' : 'Créer un ministère' }}
-        </h1>
-        <p class="text-sm text-slate-500">Remplissez le formulaire pour enregistrer les informations du ministère.</p>
-      </div>
+      <app-page-header subtitle="Administration" [title]="ministereId ? 'Modifier un ministère' : 'Créer un ministère'"
+        description="Remplissez le formulaire pour enregistrer les informations du ministère.">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M4 21V8l8-5 8 5v13M9 21v-6h6v6"/>
+        </svg>
+      </app-page-header>
 
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}

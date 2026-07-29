@@ -9,14 +9,15 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
 import { CartographieRisquesService } from '../../../../core/services/cartographie-risques.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
-import { RisqueResponse, AvisRisque } from '../../../../core/models/risque.model';
+import { RisqueResponse, AvisRisque, EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-cartographie-risques-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './cartographie-risques-list.component.html'
 })
 export class CartographieRisquesListComponent implements OnInit {
@@ -77,8 +78,10 @@ export class CartographieRisquesListComponent implements OnInit {
     this.error = null;
     this.risqueService.getAll().subscribe({
       next: (risques) => {
-        // Filtrer uniquement les risques transmis
-        this.allRisques = risques.filter(r => r.transmis);
+        // La cartographie définitive ne montre que les risques ayant reçu
+        // la validation finale du CMMR — pas simplement "transmis" (ce qui
+        // inclurait des dossiers encore en cours chez Pilote/CCI).
+        this.allRisques = risques.filter(r => r.etapeValidation === EtapeValidation.VALIDEE);
 
         this.applyFilter();
         this.loading = false;
@@ -215,23 +218,48 @@ export class CartographieRisquesListComponent implements OnInit {
 
         btnGlobal?.addEventListener('click', () => {
           Swal.close();
-          this.generateExcelGlobal();
+          this.askAnneeAndGenerateGlobal();
         });
       }
     });
   }
 
+  /** Années disponibles (déduites des risques chargés), les plus récentes en premier. */
+  private getAnneesDisponibles(): number[] {
+    const annees = new Set<number>();
+    this.risques.forEach(r => {
+      if (r.dateIdentification) {
+        const annee = new Date(r.dateIdentification).getFullYear();
+        if (!isNaN(annee)) annees.add(annee);
+      }
+    });
+    return Array.from(annees).sort((a, b) => b - a);
+  }
+
+  private buildAnneeOptionsHtml(): string {
+    return this.getAnneesDisponibles()
+      .map(a => `<option value="${a}">${a}</option>`)
+      .join('');
+  }
+
   askCodeAndGenerate(): void {
-    const uniteOptions = this.unitesAdministratives.map(u => 
+    const uniteOptions = this.unitesAdministratives.map(u =>
       `<option value="${u.code}">${u.code} - ${u.libelle}</option>`
     ).join('');
+    const anneeOptions = this.buildAnneeOptionsHtml();
 
     Swal.fire({
-      title: 'Code de l\'unité administrative',
+      title: 'Filtrer la cartographie',
       html: `
-        <select id="unite-select" class="swal2-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px;">
+        <label class="block text-left text-xs font-semibold text-gray-500 mb-1">Unité administrative</label>
+        <select id="unite-select" class="swal2-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 12px;">
           <option value="">-- Sélectionner une unité administrative --</option>
           ${uniteOptions}
+        </select>
+        <label class="block text-left text-xs font-semibold text-gray-500 mb-1">Année</label>
+        <select id="annee-select" class="swal2-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px;">
+          <option value="">Toutes les années</option>
+          ${anneeOptions}
         </select>
       `,
       showCancelButton: true,
@@ -249,24 +277,55 @@ export class CartographieRisquesListComponent implements OnInit {
       },
       preConfirm: () => {
         const select = document.getElementById('unite-select') as HTMLSelectElement;
+        const anneeSelect = document.getElementById('annee-select') as HTMLSelectElement;
         if (!select || !select.value) {
           Swal.showValidationMessage('Veuillez sélectionner une unité administrative');
           return false;
         }
-        return select.value;
+        return {
+          codeUnite: select.value,
+          annee: anneeSelect?.value ? Number(anneeSelect.value) : undefined
+        };
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        this.generateExcelByUnite(result.value);
+        this.generateExcelByUnite(result.value.codeUnite, result.value.annee);
       }
     });
   }
 
-  generateExcelGlobal(): void {
+  askAnneeAndGenerateGlobal(): void {
+    const anneeOptions = this.buildAnneeOptionsHtml();
+
+    Swal.fire({
+      title: 'Filtrer par année',
+      html: `
+        <select id="annee-select-global" class="swal2-input" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px;">
+          <option value="">Toutes les années</option>
+          ${anneeOptions}
+        </select>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Générer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      preConfirm: () => {
+        const select = document.getElementById('annee-select-global') as HTMLSelectElement;
+        return select?.value ? Number(select.value) : undefined;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.generateExcelGlobal(result.value);
+      }
+    });
+  }
+
+  generateExcelGlobal(annee?: number): void {
     this.loading = true;
-    this.cartographieService.exportExcel().subscribe({
+    this.cartographieService.exportExcel(annee).subscribe({
       next: (blob: Blob) => {
-        this.downloadExcel(blob, 'cartographie-risques-definitive.xlsx');
+        this.downloadExcel(blob, `cartographie-risques-definitive${annee ? '-' + annee : ''}.xlsx`);
       },
       error: (err) => {
         this.loading = false;
@@ -275,11 +334,11 @@ export class CartographieRisquesListComponent implements OnInit {
     });
   }
 
-  generateExcelByUnite(codeUnite: string): void {
+  generateExcelByUnite(codeUnite: string, annee?: number): void {
     this.loading = true;
-    this.cartographieService.exportExcelByUnite(codeUnite).subscribe({
+    this.cartographieService.exportExcelByUnite(codeUnite, annee).subscribe({
       next: (blob: Blob) => {
-        this.downloadExcel(blob, `cartographie-risques-${codeUnite}.xlsx`);
+        this.downloadExcel(blob, `cartographie-risques-${codeUnite}${annee ? '-' + annee : ''}.xlsx`);
       },
       error: (err) => {
         this.loading = false;

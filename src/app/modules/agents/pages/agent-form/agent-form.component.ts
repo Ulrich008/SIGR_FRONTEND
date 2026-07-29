@@ -12,6 +12,9 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { FormStepperComponent, FormStepDef } from '../../../../shared/form-stepper/form-stepper.component';
 import { AgentService } from '../../../../core/services/agent.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { ProfilService } from '../../../../core/services/profil.service';             // ← nouveau
@@ -27,7 +30,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-agent-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent, FormStepperComponent],
   templateUrl: './agent-form.component.html'
 })
 export class AgentFormComponent implements OnInit, OnDestroy {
@@ -136,6 +139,49 @@ export class AgentFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  steps: FormStepDef[] = [
+    { label: 'Informations personnelles' },
+    { label: 'Affectation' },
+    { label: 'Identification & Accès' }
+  ];
+  currentStep = 0;
+  maxReachedStep = 0;
+
+  private stepFields: string[][] = [
+    ['nom', 'prenoms', 'sexe', 'role', 'dateNaissance', 'datePriseService'],
+    ['codeMinistere', 'codeUnite', 'codeProfil'],
+    ['npi', 'email', 'password', 'confirmPassword']
+  ];
+
+  isStepValid(step: number): boolean {
+    return this.stepFields[step].every(field => this.form.get(field)?.valid);
+  }
+
+  goToStep(step: number): void {
+    if (step <= this.maxReachedStep) {
+      this.currentStep = step;
+    }
+  }
+
+  nextStep(): void {
+    applyZodValidation(this.form, agentSchema(this.isEditMode), this.form.getRawValue());
+    this.stepFields[this.currentStep].forEach(field => this.form.get(field)?.markAsTouched());
+    if (!this.isStepValid(this.currentStep)) {
+      return;
+    }
+
+    this.currentStep++;
+    if (this.currentStep > this.maxReachedStep) {
+      this.maxReachedStep = this.currentStep;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
+
   get profilRequis(): boolean {
     return this.form.get('role')?.value === 'AGENT';
   }
@@ -150,6 +196,18 @@ export class AgentFormComponent implements OnInit, OnDestroy {
 
   isRequired(field: string): boolean {
     return isRequired(agentBaseSchema, field);
+  }
+
+  get ministereOptions(): SearchableSelectOption[] {
+    return this.ministeres.map(m => ({ value: m.code, label: `${m.code} — ${m.nom}` }));
+  }
+
+  get uniteOptions(): SearchableSelectOption[] {
+    return this.unites.map(u => ({ value: u.code, label: `${u.code} — ${u.libelle}` }));
+  }
+
+  get profilOptions(): SearchableSelectOption[] {
+    return this.profils.map(p => ({ value: p.code, label: `${p.code} — ${p.libelle}` }));
   }
 
   // ================= LIFECYCLE =================

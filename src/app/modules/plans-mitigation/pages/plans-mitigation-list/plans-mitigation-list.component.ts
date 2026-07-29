@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
 import { PlanMitigationResponse } from '../../../../core/models/plan-mitigation.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-plans-mitigation-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './plans-mitigation-list.component.html'
 })
 export class PlansMitigationListComponent implements OnInit {
@@ -184,7 +185,7 @@ export class PlansMitigationListComponent implements OnInit {
       case 'PLANIFIE': return 'bg-blue-100 text-blue-700';
       case 'EN_COURS': return 'bg-yellow-100 text-yellow-700';
       case 'TERMINE': return 'bg-green-100 text-green-700';
-      case 'ANNULE': return 'bg-red-100 text-red-700';
+      case 'CLOTURE': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   }
@@ -194,13 +195,51 @@ export class PlansMitigationListComponent implements OnInit {
       case 'PLANIFIE': return 'fa-calendar-check';
       case 'EN_COURS': return 'fa-spinner';
       case 'TERMINE': return 'fa-check-circle';
-      case 'ANNULE': return 'fa-times-circle';
+      case 'CLOTURE': return 'fa-lock';
       default: return 'fa-question-circle';
     }
   }
 
   countByStatut(statut: string): number {
-    return this.plans.filter(p => p.statut === statut).length;
+    return this.allPlans.filter(p => p.statut === statut).length;
+  }
+
+  get canCloturer(): boolean {
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'CCI']);
+  }
+
+  cloturerPlan(code: string): void {
+    Swal.fire({
+      title: 'Clôturer ce plan ?',
+      text: 'Confirme que le plan est terminé. Cette action est définitive.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, clôturer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.planMitigationService.cloturer(code).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Clôturé',
+              text: 'Le plan a bien été clôturé.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            });
+            this.loadPlans();
+          },
+          error: (err) => {
+            Swal.fire({
+              title: 'Erreur',
+              text: err?.message || 'Impossible de clôturer le plan',
+              icon: 'error'
+            });
+          }
+        });
+      }
+    });
   }
 
   formatDate(date: string): string {

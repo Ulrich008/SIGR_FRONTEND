@@ -11,6 +11,8 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { ProcessusService } from '../../../../core/services/processus.service';
 import { UniteAdministrativeService } from '../../../../core/services/unite-administrative.service';
 import { AgentService } from '../../../../core/services/agent.service';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { ProcessusRequest, TypeProcessus } from '../../../../core/models/processus.model';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { AgentResponse } from '../../../../core/models/agent.model';
@@ -21,7 +23,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-processus-form',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, SearchableSelectComponent, PageHeaderComponent],
   templateUrl: './processus-form.component.html'
 })
 export class ProcessusFormComponent implements OnInit {
@@ -74,6 +76,10 @@ export class ProcessusFormComponent implements OnInit {
 
   isRequired(field: string): boolean {
     return isRequired(processusSchema, field);
+  }
+
+  get proprietaireOptions(): SearchableSelectOption[] {
+    return this.managers.map(m => ({ value: m.matricule, label: `${m.nom} ${m.prenoms} (${m.matricule})` }));
   }
 
   ngOnInit(): void {

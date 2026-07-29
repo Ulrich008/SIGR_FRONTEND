@@ -17,6 +17,7 @@ import {
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { IndicateurPerformanceService } from '../../../../core/services/indicateur-performance.service';
 import { IndicateurPerformanceResponse } from '../../../../core/models/indicateur-performance.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -33,7 +34,7 @@ Chart.register(
 @Component({
   standalone: true,
   selector: 'app-indicateurs-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './indicateurs-list.component.html'
 })
 export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -266,6 +267,7 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     const canvas = this.statutChartRef?.nativeElement;
     if (!canvas) return;
 
+    const objectifAtteint = this.countByStatut('Objectif atteint');
     const enCours = this.countByStatut('Plan de mitigation en cours conformément au calendrier');
     const attention = this.countByStatut('Attention : échéance proche, suivi renforcé requis');
     const enRetard = this.countByStatut('Échéance dépassée - Action de mitigation en retard');
@@ -273,11 +275,11 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     this.statutChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: ['En cours', 'Attention', 'En retard'],
+        labels: ['Objectif atteint', 'En cours', 'Attention', 'En retard'],
         datasets: [{
-          data: [enCours, attention, enRetard],
-          backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
-          borderColor: ['#fff', '#fff', '#fff'],
+          data: [objectifAtteint, enCours, attention, enRetard],
+          backgroundColor: ['#10b981', '#22c55e', '#f59e0b', '#ef4444'],
+          borderColor: ['#fff', '#fff', '#fff', '#fff'],
           borderWidth: 3,
           hoverOffset: 8
         }]
@@ -557,6 +559,8 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
 
   getStatutBadgeClass(statut: string): string {
     switch (statut) {
+      case 'Objectif atteint':
+        return 'bg-emerald-100 text-emerald-700';
       case 'Plan de mitigation en cours conformément au calendrier':
         return 'bg-green-100 text-green-700';
       case 'Attention : échéance proche, suivi renforcé requis':
@@ -573,7 +577,10 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
   getPerformancePercentage(valeurObtenue: string | number | undefined, valeurCible: string | number | undefined): number {
     const obtenueNum = typeof valeurObtenue === 'string' ? this.toNumber(valeurObtenue, 0) : (valeurObtenue ?? 0);
     const cibleNum = typeof valeurCible === 'string' ? this.toNumber(valeurCible, 100) : (valeurCible ?? 100);
-    if (!obtenueNum || !cibleNum) return 0;
+    // Cible = 0 : une valeur obtenue également nulle atteint exactement la
+    // cible (100%), plutôt que 0% comme le renvoyait l'ancienne garde
+    // `!obtenueNum || !cibleNum` (qui traitait 0 comme une valeur absente).
+    if (cibleNum === 0) return obtenueNum === 0 ? 100 : 0;
     return (obtenueNum / cibleNum) * 100;
   }
 
@@ -593,7 +600,7 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   countByStatut(statut: string): number {
-    return this.indicateurs.filter(i => i.statut === statut).length;
+    return this.allIndicateurs.filter(i => i.statut === statut).length;
   }
 
   formatValue(value: string | number | undefined, uniteMesure?: string): string {

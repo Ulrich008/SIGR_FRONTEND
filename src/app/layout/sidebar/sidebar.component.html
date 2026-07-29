@@ -1,8 +1,8 @@
 <!-- Sidebar unique -->
 <aside
-  class="sigr-sidebar relative flex flex-col shadow-sm border-r border-gray-200 z-30 transition-[width] duration-300 ease-in-out flex-shrink-0"
+  class="sigr-sidebar relative flex flex-col shadow-sm border-r border-black/20 z-30 transition-[width] duration-300 ease-in-out flex-shrink-0"
   [ngClass]="getSidebarClasses()"
-  style="background: var(--sigr-50);"
+  style="background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);"
   (mouseenter)="onMouseEnter()"
   (mouseleave)="onMouseLeave()">
 
@@ -16,15 +16,15 @@
   </button>
 
   <!-- Logo -->
-  <div class="px-4 pt-6 pb-5 border-b border-gray-100 flex items-center gap-3 transition-all duration-300"
+  <div class="px-4 pt-6 pb-5 border-b border-white/10 flex items-center gap-3 transition-all duration-300"
        [class.justify-center]="!showLabels">
     <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-base flex-shrink-0 shadow-sm"
          style="background: linear-gradient(135deg, var(--sigr-600), var(--sigr-900));">
       S
     </div>
     <div *ngIf="showLabels" class="min-w-0 whitespace-nowrap">
-      <p class="text-lg font-extrabold tracking-tight leading-none truncate" style="color: var(--sigr-900);">SIGR</p>
-      <p class="text-[10px] font-semibold text-gray-400 mt-1 tracking-widest uppercase truncate">
+      <p class="text-lg font-extrabold tracking-tight leading-none truncate text-white">SIGR</p>
+      <p class="text-[10px] font-semibold text-emerald-400 mt-1 tracking-widest uppercase truncate">
         Gestion des risques
       </p>
     </div>
@@ -32,7 +32,7 @@
 
   <!-- Menu -->
   <nav class="flex-1 px-3 py-5 overflow-y-auto overflow-x-hidden sigr-scroll" role="navigation" aria-label="Menu principal">
-    <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3 whitespace-nowrap"
+    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3 px-3 whitespace-nowrap"
        *ngIf="showLabels">
       Menu principal
     </p>
@@ -47,7 +47,7 @@
             (click)="onMenuItemClick(item)"
             [attr.aria-expanded]="item.expanded"
             [attr.title]="!showLabels ? item.label : null"
-            class="sigr-item w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+            class="sigr-item w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-300 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
             <div class="flex items-center gap-3 min-w-0">
               <span class="sigr-icon w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0">
                 <i [class]="item.icon" class="text-[15px]"></i>
@@ -60,7 +60,7 @@
           </button>
 
           <!-- SOUS-MENU -->
-          <ul *ngIf="item.expanded && showLabels" class="ml-4 pl-3 mt-1 mb-1 space-y-1 border-l-2 border-gray-100">
+          <ul *ngIf="item.expanded && showLabels" class="ml-4 pl-3 mt-1 mb-1 space-y-1 border-l-2 border-white/10">
             <li *ngFor="let child of visibleChildren(item)">
 
               <!-- SOUS-MENU AVEC ENFANTS -->
@@ -69,7 +69,7 @@
                   type="button"
                   (click)="onMenuItemClick(child)"
                   [attr.aria-expanded]="child.expanded"
-                  class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+                  class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                   <div class="flex items-center gap-3 min-w-0">
                     <i [class]="child.icon" class="w-4 text-center flex-shrink-0 text-[13px]"></i>
                     <span class="truncate">{{ child.label }}</span>
@@ -79,14 +79,14 @@
                 </button>
 
                 <!-- SOUS-SOUS-MENU -->
-                <ul *ngIf="child.expanded" class="ml-3 pl-3 mt-1 space-y-1 border-l-2 border-gray-100">
+                <ul *ngIf="child.expanded" class="ml-3 pl-3 mt-1 space-y-1 border-l-2 border-white/10">
                   <li *ngFor="let subChild of visibleChildren(child)">
                     <a *ngIf="subChild.path"
                        [routerLink]="subChild.path"
                        routerLinkActive="sigr-active"
                        [routerLinkActiveOptions]="{ exact: false }"
                        (click)="onMenuItemClick(subChild)"
-                       class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+                       class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                       {{ subChild.label }}
                     </a>
                   </li>
@@ -99,7 +99,7 @@
                  routerLinkActive="sigr-active"
                  [routerLinkActiveOptions]="{ exact: false }"
                  (click)="onMenuItemClick(child)"
-                 class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+                 class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                 {{ child.label }}
               </a>
             </li>
@@ -114,7 +114,7 @@
            [routerLinkActiveOptions]="{ exact: false }"
            (click)="onMenuItemClick(item)"
            [attr.title]="!showLabels ? item.label : null"
-           class="sigr-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-gray-600 hover:bg-[var(--sigr-100)] hover:text-[var(--sigr-900)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
+           class="sigr-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-300 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
           <span class="sigr-icon w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0">
             <i [class]="item.icon" class="text-[15px]"></i>
           </span>
@@ -181,8 +181,8 @@
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 .sigr-item:hover .sigr-icon {
-  background: var(--sigr-100);
-  color: var(--sigr-800);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
 }
 
 /* Etat actif : pastille pleine et contrastée (l'ancien fond très pâle se
@@ -210,6 +210,6 @@
   bottom: 0.35rem;
   width: 3px;
   border-radius: 999px;
-  background: var(--sigr-900);
+  background: var(--sigr-200);
 }
 </style>

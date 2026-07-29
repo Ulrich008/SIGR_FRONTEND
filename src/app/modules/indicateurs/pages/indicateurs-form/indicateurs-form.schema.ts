@@ -6,8 +6,8 @@ export const indicateurBaseSchema = z.object({
     .max(200, "Le libellé de l'indicateur ne doit pas dépasser 200 caractères"),
   frequence: z.string()
     .min(1, "La fréquence est obligatoire"),
-  valeurCible: z.string().optional(),
-  valeurObtenue: z.string().optional(),
+  valeurCible: z.coerce.string().optional(),
+  valeurObtenue: z.coerce.string().optional(),
   seuilAlerte: z.string().optional(),
   codeUniteMesure: z.string().optional(),
   dateDebut: z.string().optional(),

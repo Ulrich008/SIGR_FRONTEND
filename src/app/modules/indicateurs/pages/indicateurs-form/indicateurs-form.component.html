@@ -8,20 +8,19 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des indicateurs de performance</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier l\'indicateur' : 'Nouvel indicateur de performance' }}
-          </h1>
-        </div>
+      <app-page-header subtitle="Gestion des indicateurs de performance" [title]="isEditMode ? 'Modifier l\'indicateur' : 'Nouvel indicateur de performance'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18"/>
+          <path d="M18 17V9m-5 8V5M8 17v-4"/>
+        </svg>
         <button
+          actions
           (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
         >
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -33,12 +32,16 @@
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
 
+      <!-- Étapes -->
+      <app-form-stepper *ngIf="!loading" class="mt-8" [steps]="steps" [currentStep]="currentStep" [maxReachedStep]="maxReachedStep"
+        (stepClick)="goToStep($event)"></app-form-stepper>
+
       <!-- Formulaire -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
 
           <!-- ── Section : Informations générales ── -->
-          <div class="space-y-4">
+          <div class="space-y-4" *ngIf="currentStep === 0">
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -76,17 +79,8 @@
               <!-- Processus -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Processus <span *ngIf="isRequired('codeProcessus')" class="text-red-500">*</span></label>
-                <select
-                  formControlName="codeProcessus"
-                  (ngModelChange)="onProcessusChange($event)"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner un processus</option>
-                  <option *ngIf="loadingProcessus" value="" disabled>Chargement...</option>
-                  <option *ngFor="let proc of processus" [value]="proc.code">
-                    {{ proc.code }} - {{ proc.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeProcessus"
+                  [options]="processusOptions" placeholder="Rechercher un processus par code ou libellé..."></app-searchable-select>
                 <p *ngIf="!loadingProcessus && processus.length === 0"
                    class="mt-1 text-xs text-amber-600">
                   Aucun processus disponible
@@ -100,18 +94,9 @@
               <!-- Risque -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque</label>
-                <select
-                  formControlName="codeRisque"
-                  (ngModelChange)="onRisqueChange($event)"
-                  [disabled]="!form.get('codeProcessus')?.value"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">Sélectionner un risque</option>
-                  <option *ngIf="loadingRisques" value="" disabled>Chargement...</option>
-                  <option *ngFor="let risque of risques" [value]="risque.code">
-                    {{ risque.code }} - {{ risque.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeRisque"
+                  [options]="risqueOptions" [disabled]="!form.get('codeProcessus')?.value"
+                  placeholder="Rechercher un risque par code ou libellé..."></app-searchable-select>
                 <p *ngIf="!loadingRisques && risques.length === 0 && form.get('codeProcessus')?.value"
                    class="mt-1 text-xs text-amber-600">
                   Aucun risque disponible pour ce processus
@@ -121,18 +106,9 @@
               <!-- Plan de Mitigation -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Plan de Mitigation</label>
-                <select
-                  formControlName="codePlanMitigation"
-                  (ngModelChange)="onPlanMitigationChange($event)"
-                  [disabled]="!form.get('codeRisque')?.value"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">Sélectionner un plan</option>
-                  <option *ngIf="loadingPlans" value="" disabled>Chargement...</option>
-                  <option *ngFor="let plan of plansMitigation" [value]="plan.code">
-                    {{ plan.code }} - {{ plan.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codePlanMitigation"
+                  [options]="planMitigationOptions" [disabled]="!form.get('codeRisque')?.value"
+                  placeholder="Rechercher un plan par code ou libellé..."></app-searchable-select>
                 <p *ngIf="!loadingPlans && plansMitigation.length === 0 && form.get('codeRisque')?.value"
                    class="mt-1 text-xs text-amber-600">
                   Aucun plan de mitigation disponible pour ce risque
@@ -142,18 +118,9 @@
               <!-- Action -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Action</label>
-                <select
-                  formControlName="codeAction"
-                  (ngModelChange)="onActionChange($event)"
-                  [disabled]="!form.get('codePlanMitigation')?.value"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
-                >
-                  <option value="">Sélectionner une action</option>
-                  <option *ngIf="loadingActions" value="" disabled>Chargement...</option>
-                  <option *ngFor="let action of actions" [value]="action.code">
-                    {{ action.code }} - {{ action.libelles && action.libelles.length > 0 ? action.libelles[0] : '' }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeAction"
+                  [options]="actionOptions" [disabled]="!form.get('codePlanMitigation')?.value"
+                  placeholder="Rechercher une action par code ou libellé..."></app-searchable-select>
                 <p *ngIf="!loadingActions && actions.length === 0 && form.get('codePlanMitigation')?.value"
                    class="mt-1 text-xs text-amber-600">
                   Aucune action disponible pour ce plan de mitigation
@@ -163,16 +130,8 @@
               <!-- Unité de mesure -->
               <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Unité de mesure</label>
-                <select
-                  formControlName="codeUniteMesure"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner une unité de mesure</option>
-                  <option *ngIf="loadingUnitesMesure" value="" disabled>Chargement...</option>
-                  <option *ngFor="let unite of unitesMesure" [value]="unite.code">
-                    {{ unite.code }} - {{ unite.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeUniteMesure"
+                  [options]="uniteMesureOptions" placeholder="Rechercher une unité de mesure..."></app-searchable-select>
                 <p *ngIf="!loadingUnitesMesure && unitesMesure.length === 0"
                    class="mt-1 text-xs text-amber-600">
                   Aucune unité de mesure disponible
@@ -183,7 +142,7 @@
           </div>
 
           <!-- ── Section : Dates ── -->
-          <div class="space-y-4">
+          <div class="space-y-4" *ngIf="currentStep === 1">
             <h3 class="text-lg font-semibold text-slate-900">Dates</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
@@ -209,7 +168,7 @@
           </div>
 
           <!-- ── Section : Valeurs ── -->
-          <div class="space-y-4">
+          <div class="space-y-4" *ngIf="currentStep === 2">
             <h3 class="text-lg font-semibold text-slate-900">Valeurs</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -285,21 +244,32 @@
           </div>
 
           <!-- ── Actions ── -->
-          <div class="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              (click)="cancel()"
-              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Annuler
+          <div class="flex justify-between gap-3 pt-4">
+            <button type="button" *ngIf="currentStep > 0" (click)="previousStep()"
+              class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+              Précédent
             </button>
-            <button
-              type="submit"
-              [disabled]="loading"
-              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
-            >
-              {{ isEditMode ? 'Modifier' : 'Créer' }}
-            </button>
+            <div class="flex gap-3 ml-auto">
+              <button
+                type="button"
+                (click)="cancel()"
+                class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Annuler
+              </button>
+              <button type="button" *ngIf="currentStep < steps.length - 1" (click)="nextStep()"
+                class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600">
+                Suivant
+              </button>
+              <button
+                type="submit"
+                *ngIf="currentStep === steps.length - 1"
+                [disabled]="loading"
+                class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50"
+              >
+                {{ isEditMode ? 'Modifier' : 'Créer' }}
+              </button>
+            </div>
           </div>
 
         </form>

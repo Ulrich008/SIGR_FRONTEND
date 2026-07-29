@@ -6,20 +6,19 @@
   userInitials="AD">
 
   <div class="p-4 md:p-6">
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Administration</p>
-          <h1 class="text-xl md:text-2xl font-semibold text-slate-900">Agents</h1>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-2">
+      <app-page-header subtitle="Administration" title="Agents">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+        <div actions class="flex flex-wrap items-center gap-2">
           <button
             *ngIf="canExportPdf"
             (click)="exportPdf()"
             [disabled]="exportingPdf"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:opacity-60"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20 disabled:opacity-60"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -32,7 +31,7 @@
               (click)="triggerImport(importFileInput)"
               [disabled]="importing"
               title="Le modèle Excel attendu peut être téléchargé via le bouton à droite"
-              class="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:opacity-60"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20 disabled:opacity-60"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3"/>
@@ -43,7 +42,7 @@
               (click)="downloadImportTemplate()"
               title="Télécharger le modèle Excel"
               aria-label="Télécharger le modèle Excel"
-              class="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-200"
+              class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 backdrop-blur-sm px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -52,7 +51,7 @@
           </ng-container>
           <button
             (click)="createAgent()"
-            class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -60,7 +59,7 @@
             <span>Nouvel agent</span>
           </button>
         </div>
-      </div>
+      </app-page-header>
 
       <!-- Filtre dynamique -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
@@ -70,7 +69,7 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="applyFilter()"
           placeholder="Rechercher par matricule, nom, rôle, profil, unité..."
-          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
         />
       </div>
 
@@ -87,7 +86,7 @@
       <!-- Tableau -->
       <div class="overflow-x-auto rounded-3xl bg-white shadow-sm">
         <table class="min-w-full table-auto border-collapse text-sm">
-          <thead class="bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-left text-xs uppercase tracking-wide text-slate-200">
             <tr>
               <th class="px-4 py-3 whitespace-nowrap">Matricule</th>
               <th class="px-4 py-3 whitespace-nowrap">Nom &amp; Prénoms</th>

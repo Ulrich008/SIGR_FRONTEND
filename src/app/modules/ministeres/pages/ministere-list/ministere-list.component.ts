@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { MinistereService } from '../../../../core/services/ministere.service';
 import { MinistereResponse } from '../../../../core/models/ministere.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-ministere-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './ministere-list.component.html'
 })
 export class MinistereListComponent implements OnInit {

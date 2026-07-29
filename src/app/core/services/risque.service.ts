@@ -67,6 +67,13 @@ export class RisqueService {
     );
   }
 
+  /** Clôturer un risque (réservé au CCI) */
+  cloturer(code: string): Observable<RisqueResponse> {
+    return this.http.patch<RisqueResponse>(`${this.apiUrl}/${code}/cloturer`, {}, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
   deleteByCode(code: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${code}`, this.headers).pipe(
       catchError(error => this.handleError(error))

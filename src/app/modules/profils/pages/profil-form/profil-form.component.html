@@ -9,26 +9,22 @@
     <div class="max-w-2xl mx-auto space-y-4 sm:space-y-6">
 
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-        <div class="min-w-0 flex-1">
-          <p class="text-xs sm:text-sm text-gray-500">Administration</p>
-          <h1 class="text-xl sm:text-2xl font-semibold text-slate-900 break-words">
-            {{ isEditMode ? 'Modifier le profil' : 'Nouveau profil' }}
-          </h1>
-          <p *ngIf="isEditMode && code" class="text-xs text-gray-500 mt-1">
-            Code : {{ code }}
-          </p>
-        </div>
+      <app-page-header subtitle="Administration" [title]="isEditMode ? 'Modifier le profil' : 'Nouveau profil'"
+        [description]="isEditMode && code ? ('Code : ' + code) : undefined">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.59 22c0-1.5-1-4-4.59-4H8c-3.59 0-4.59 2.5-4.59 4"/><circle cx="12" cy="8" r="4"/>
+        </svg>
         <button
+          actions
           (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 w-full sm:w-auto"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-3 sm:p-4 text-sm text-red-700 break-words">

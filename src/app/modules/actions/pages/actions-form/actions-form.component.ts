@@ -9,6 +9,8 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { ActionService } from '../../../../core/services/action.service';
 import { PlanMitigationService } from '../../../../core/services/plan-mitigation.service';
 import { AgentService } from '../../../../core/services/agent.service';
@@ -26,7 +28,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-actions-form',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent],
   templateUrl: './actions-form.component.html'
 })
 export class ActionsFormComponent implements OnInit {
@@ -78,10 +80,27 @@ export class ActionsFormComponent implements OnInit {
     this.form.valueChanges.subscribe(() =>
       applyZodValidation(this.form, actionSchema, this.form.getRawValue())
     );
+
+    // Le select "Plan de mitigation" étant devenu un app-searchable-select
+    // (pas d'événement (change) natif), on réagit au changement de valeur
+    // du FormControl directement, quelle que soit son origine.
+    this.form.get('codePlan')?.valueChanges.subscribe(() => this.onPlanChange());
   }
 
   isRequired(field: string): boolean {
     return isRequired(actionBaseSchema, field);
+  }
+
+  get planOptions(): SearchableSelectOption[] {
+    return this.plans.map(p => ({ value: p.code, label: `${p.code} - ${p.libelleRisque}` }));
+  }
+
+  get bonnePratiqueOptions(): SearchableSelectOption[] {
+    return this.bonnesPratiques.map(p => ({ value: p, label: this.cleanPratiqueText(p) }));
+  }
+
+  get agentOptions(): SearchableSelectOption[] {
+    return this.agents.map(a => ({ value: a.matricule, label: `${a.nom} (${a.matricule})` }));
   }
 
   ngOnInit(): void {

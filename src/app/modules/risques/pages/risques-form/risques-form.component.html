@@ -5,18 +5,16 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des risques</p>
-          <h1 class="text-2xl font-semibold text-slate-900">
-            {{ isEditMode ? 'Modifier le risque' : 'Nouveau risque' }}
-          </h1>
-        </div>
-        <button (click)="cancel()"
-          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+      <app-page-header subtitle="Gestion des risques" [title]="isEditMode ? 'Modifier le risque' : 'Nouveau risque'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <button actions (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20">
           Retour
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -28,12 +26,16 @@
         <span class="text-sm text-slate-500">Chargement des données...</span>
       </div>
 
+      <!-- Étapes -->
+      <app-form-stepper *ngIf="!loading" class="mt-8" [steps]="steps" [currentStep]="currentStep" [maxReachedStep]="maxReachedStep"
+        (stepClick)="goToStep($event)"></app-form-stepper>
+
       <!-- Formulaire -->
       <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
 
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+          <div class="space-y-4" *ngIf="currentStep === 0">
+            <h3 class="text-lg font-semibold text-slate-900">Identification</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Processus -->
@@ -41,14 +43,8 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
                   Processus <span class="text-red-500">*</span>
                 </label>
-                <select formControlName="codeProcessus" (change)="onProcessusChange()"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
-                  <option value="">Sélectionner un processus</option>
-                  <option *ngIf="loadingProcessus" value="" disabled>Chargement...</option>
-                  <option *ngFor="let proc of processus" [value]="proc.code">
-                    {{ proc.code }} - {{ proc.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeProcessus"
+                  [options]="processusOptions" placeholder="Rechercher un processus par code ou libellé..."></app-searchable-select>
                 <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched"
                   class="mt-1 text-xs text-red-600">
                   {{ getFieldError('codeProcessus') }}
@@ -100,23 +96,6 @@
                 </p>
               </div>
 
-              <!-- Statut -->
-              <div>
-                <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  Statut <span class="text-red-500">*</span>
-                </label>
-                <select formControlName="statut"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none">
-                  <option value="">Sélectionner un statut</option>
-                  <option *ngFor="let option of statutOptions" [value]="option.value">
-                    {{ option.label }}
-                  </option>
-                </select>
-                <p *ngIf="form.get('statut')?.invalid && form.get('statut')?.touched" class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('statut') }}
-                </p>
-              </div>
-
               <!-- Finalités du processus (affichées après sélection) -->
               <div class="md:col-span-2" *ngIf="finalitesProcessus.length > 0">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
@@ -136,9 +115,14 @@
                   Ces finalités peuvent vous aider à définir le libellé du risque.
                 </p>
               </div>
+            </div>
+          </div>
 
+          <div class="space-y-4" *ngIf="currentStep === 1">
+            <h3 class="text-lg font-semibold text-slate-900">Causes & conséquences</h3>
+            <div class="grid grid-cols-1 gap-4">
               <!-- Cause probable -->
-              <div class="md:col-span-2">
+              <div>
                 <div class="flex items-center justify-between mb-2">
                   <label class="block text-sm font-semibold text-slate-700">Cause probable <span
                       class="text-red-500">*</span></label>
@@ -252,9 +236,14 @@
                   Aucune conséquence probable ajoutée. Au moins une conséquence probable est requise.
                 </p>
               </div>
+            </div>
+          </div>
 
+          <div class="space-y-4" *ngIf="currentStep === 2">
+            <h3 class="text-lg font-semibold text-slate-900">Bonnes pratiques</h3>
+            <div class="grid grid-cols-1 gap-4">
               <!-- Bonnes pratiques -->
-              <div class="md:col-span-2">
+              <div>
                 <div class="flex items-center justify-between mb-2">
                   <label class="block text-sm font-semibold text-slate-700">Bonnes pratiques <span
                       class="text-red-500">*</span></label>
@@ -345,15 +334,25 @@
           </div>
 
           <!-- Actions -->
-          <div class="flex justify-end gap-3 pt-4">
-            <button type="button" (click)="cancel()"
+          <div class="flex justify-between gap-3 pt-4">
+            <button type="button" *ngIf="currentStep > 0" (click)="previousStep()"
               class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-              Annuler
+              Précédent
             </button>
-            <button type="submit" [disabled]="loading"
-              class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
-              {{ isEditMode ? 'Modifier' : 'Créer' }}
-            </button>
+            <div class="flex gap-3 ml-auto">
+              <button type="button" (click)="cancel()"
+                class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                Annuler
+              </button>
+              <button type="button" *ngIf="currentStep < steps.length - 1" (click)="nextStep()"
+                class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600">
+                Suivant
+              </button>
+              <button type="submit" *ngIf="currentStep === steps.length - 1" [disabled]="loading"
+                class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
+                {{ isEditMode ? 'Modifier' : 'Créer' }}
+              </button>
+            </div>
           </div>
 
         </form>

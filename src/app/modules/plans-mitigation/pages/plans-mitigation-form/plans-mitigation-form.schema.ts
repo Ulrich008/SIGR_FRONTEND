@@ -9,8 +9,6 @@ export const planMitigationSchema = z.object({
     .optional(),
   dateCreation: z.string()
     .min(1, "La date de création est obligatoire"),
-  statut: z.string()
-    .min(1, "Le statut est obligatoire"),
   codeRisque: z.string()
     .min(1, "Le risque associé est obligatoire")
 });

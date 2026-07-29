@@ -12,11 +12,12 @@ import { ProfilRequest, ProfilResponse } from '../../../../core/models/profil.mo
 import { AuthService } from '../../../../core/services/auth.service';
 import { profilSchema } from './profil-form.schema';
 import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-profil-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './profil-form.component.html'
 })
 export class ProfilFormComponent implements OnInit, OnDestroy {

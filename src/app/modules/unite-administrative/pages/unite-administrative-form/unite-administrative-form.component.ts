@@ -14,13 +14,15 @@ import { UniteAdministrativeRequest, UniteAdministrativeResponse } from '../../.
 import { TypeUniteResponse } from '../../../../core/models/type-unite.model';
 import { MinistereResponse } from '../../../../core/models/ministere.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { uniteAdministrativeSchema } from './unite-administrative-form.schema';
 import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
 
 @Component({
   standalone: true,
   selector: 'app-unite-administrative-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, SearchableSelectComponent, PageHeaderComponent],
   templateUrl: './unite-administrative-form.component.html'
 })
 export class UniteAdministrativeFormComponent implements OnInit {
@@ -61,10 +63,26 @@ export class UniteAdministrativeFormComponent implements OnInit {
     this.form.valueChanges.subscribe(() =>
       applyZodValidation(this.form, uniteAdministrativeSchema, this.form.getRawValue())
     );
+
+    // "Unité parent" est devenu un app-searchable-select (pas d'événement
+    // (change) natif) : on réagit au changement de valeur du FormControl.
+    this.form.get('idUniteParent')?.valueChanges.subscribe(v => this.onUniteParentChange(v));
   }
 
   isRequired(field: string): boolean {
     return isRequired(uniteAdministrativeSchema, field);
+  }
+
+  get typeUniteOptions(): SearchableSelectOption[] {
+    return this.typeUnites.map(t => ({ value: t.code, label: `${t.libelle} (${t.code})` }));
+  }
+
+  get ministereOptions(): SearchableSelectOption[] {
+    return this.ministeres.map(m => ({ value: m.code, label: m.nom }));
+  }
+
+  get uniteParentOptions(): SearchableSelectOption[] {
+    return this.unitesAdministratives.map(u => ({ value: u.code, label: `${u.libelle} (${u.code})` }));
   }
 
   ngOnInit(): void {

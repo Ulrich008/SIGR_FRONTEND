@@ -9,11 +9,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { AffectationService } from '../../../../core/services/affectation.service';
 import { AffectationResponse } from '../../../../core/models/affectation.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-affectation-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './affectation-list.component.html'
 })
 export class AffectationListComponent implements OnInit {

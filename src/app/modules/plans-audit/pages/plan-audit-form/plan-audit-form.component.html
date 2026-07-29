@@ -9,35 +9,31 @@
     <div class="max-w-4xl mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des plans d'audit</p>
-          <h1 class="text-2xl font-semibold text-slate-900">{{ isEditMode ? 'Modifier le plan d\'audit' : 'Nouveau plan d\'audit' }}</h1>
-        </div>
-      </div>
+      <app-page-header subtitle="Gestion des plans d'audit" [title]="isEditMode ? 'Modifier le plan d\'audit' : 'Nouveau plan d\'audit'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/>
+        </svg>
+      </app-page-header>
 
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
         {{ error }}
       </div>
 
+      <!-- Étapes -->
+      <app-form-stepper class="mt-8" [steps]="steps" [currentStep]="currentStep" [maxReachedStep]="maxReachedStep"
+        (stepClick)="goToStep($event)"></app-form-stepper>
+
       <!-- Formulaire -->
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 overflow-visible">
+      <div class="rounded-3xl bg-white shadow-sm border border-slate-100 overflow-visible relative z-40 p-6">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
 
         <!-- Section 1: Informations générales -->
-        <div class="rounded-3xl bg-white shadow-sm border border-slate-100 overflow-visible relative z-40">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
-            <h2 class="text-lg font-semibold text-slate-900">Informations générales</h2>
-            <button
-              type="button"
-              (click)="toggleSection('informationsGenerales')"
-              class="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-            >
-              {{ sections.informationsGenerales ? 'Masquer' : 'Afficher' }}
-            </button>
-          </div>
+        <div class="space-y-4" *ngIf="currentStep === 0">
+          <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
 
-          <div *ngIf="sections.informationsGenerales" class="p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Libellé -->
               <div>
@@ -102,37 +98,19 @@
                 </p>
               </div>
             </div>
-          </div>
         </div>
 
         <!-- Section 2: Pré-planification d'audit -->
-        <div class="rounded-3xl bg-white shadow-sm border border-slate-100 overflow-hidden">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
-            <h2 class="text-lg font-semibold text-slate-900">Pré-planification d'audit</h2>
-            <button
-              type="button"
-              (click)="toggleSection('prePlanification')"
-              class="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-            >
-              {{ sections.prePlanification ? 'Masquer' : 'Afficher' }}
-            </button>
-          </div>
+        <div class="space-y-4" *ngIf="currentStep === 1">
+          <h3 class="text-lg font-semibold text-slate-900">Pré-planification d'audit</h3>
 
-          <div *ngIf="sections.prePlanification" class="p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Processus -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Processus <span class="text-red-500">*</span></label>
-                <select
-                  formControlName="codeProcessus"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  [disabled]="!form.get('codeUniteAdministrative')?.value"
-                >
-                  <option value="">Sélectionner un processus</option>
-                  <option *ngFor="let proc of processus" [value]="proc.code">
-                    {{ proc.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeProcessus"
+                  [options]="processusOptions" [disabled]="!form.get('codeUniteAdministrative')?.value"
+                  placeholder="Rechercher un processus par libellé..."></app-searchable-select>
                 <p *ngIf="!form.get('codeUniteAdministrative')?.value" class="mt-1 text-xs text-slate-400 italic">
                   Sélectionnez d'abord une unité administrative
                 </p>
@@ -144,16 +122,9 @@
               <!-- Risque inhérent -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque inhérent</label>
-                <select
-                  formControlName="codeRisque"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                  [disabled]="!form.get('codeProcessus')?.value"
-                >
-                  <option value="">Sélectionner un risque</option>
-                  <option *ngFor="let risque of risques" [value]="risque.code">
-                    {{ risque.libelle }}
-                  </option>
-                </select>
+                <app-searchable-select formControlName="codeRisque"
+                  [options]="risqueOptions" [disabled]="!form.get('codeProcessus')?.value"
+                  placeholder="Rechercher un risque par libellé..."></app-searchable-select>
                 <p *ngIf="!form.get('codeProcessus')?.value" class="mt-1 text-xs text-slate-400 italic">
                   Sélectionnez d'abord un processus
                 </p>
@@ -223,28 +194,39 @@
                 </p>
               </div>
             </div>
-          </div>
         </div>
 
         <!-- Boutons d'action -->
-        <div class="flex justify-end gap-3">
-          <button
-            type="button"
-            (click)="cancel()"
-            class="px-6 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-sm transition hover:bg-slate-50"
-          >
-            Annuler
+        <div class="flex justify-between gap-3">
+          <button type="button" *ngIf="currentStep > 0" (click)="previousStep()"
+            class="px-6 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-sm transition hover:bg-slate-50">
+            Précédent
           </button>
-          <button
-            type="submit"
-            [disabled]="loading"
-            class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-semibold text-sm transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ loading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
-          </button>
+          <div class="flex gap-3 ml-auto">
+            <button
+              type="button"
+              (click)="cancel()"
+              class="px-6 py-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold text-sm transition hover:bg-slate-50"
+            >
+              Annuler
+            </button>
+            <button type="button" *ngIf="currentStep < steps.length - 1" (click)="nextStep()"
+              class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-semibold text-sm transition hover:bg-emerald-600">
+              Suivant
+            </button>
+            <button
+              type="submit"
+              *ngIf="currentStep === steps.length - 1"
+              [disabled]="loading"
+              class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-semibold text-sm transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ loading ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+            </button>
+          </div>
         </div>
 
       </form>
+      </div>
 
     </div>
   </div>

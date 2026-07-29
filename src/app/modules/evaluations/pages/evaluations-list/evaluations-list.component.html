@@ -6,27 +6,29 @@
   userInitials="AD">
 
   <div class="p-4 md:p-6">
-    <div class="max-w-6xl mx-auto space-y-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
 
       <!-- En-tête -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Gestion des évaluations</p>
-          <h1 class="text-2xl font-semibold text-slate-900">Évaluations</h1>
-        </div>
+      <app-page-header subtitle="Gestion des évaluations" title="Évaluations">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <path d="M9 14l2 2 4-4"/>
+        </svg>
         <button
+          actions
           (click)="createEvaluation()"
           [disabled]="!canWrite"
           [title]="!canWrite ? 'Vous n\'avez pas les droits pour créer une évaluation' : ''"
-          class="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition"
-          [ngClass]="canWrite ? 'bg-emerald-700 text-white hover:bg-emerald-600' : 'bg-slate-200 text-slate-400 cursor-not-allowed'">
+          class="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition"
+          [ngClass]="canWrite ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-white/10 text-slate-400 cursor-not-allowed'">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Nouvelle évaluation
         </button>
-      </div>
+      </app-page-header>
 
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -113,7 +115,7 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="applyFilter()"
           placeholder="Rechercher par code, risque, évaluateur..."
-          class="w-full md:w-96 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
         />
       </div>
 
@@ -129,13 +131,23 @@
           Aucune évaluation trouvée.
         </div>
         <div *ngFor="let evaluation of evaluations"
-          class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 space-y-3">
+          class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 space-y-3"
+          [ngClass]="estVerrouillee(evaluation) ? 'opacity-60 bg-slate-50' : ''">
           <div class="flex items-start justify-between gap-2">
             <span class="inline-block rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
               {{ evaluation.code }}
             </span>
             <span [class]="'inline-block rounded-full px-2 py-0.5 text-xs font-medium ' + getScoreBadgeClass(evaluation.scoreInherent)">
               Inhérent: {{ evaluation.scoreInherent }}
+            </span>
+            <span *ngIf="estVerrouillee(evaluation)"
+              title="Ce risque est transmis et en cours de validation"
+              class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" stroke-width="2"/>
+                <path stroke-width="2" stroke-linecap="round" d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              Transmis
             </span>
           </div>
           <div class="text-sm text-slate-700">
@@ -162,11 +174,11 @@
               </svg>
             </button>
             <button (click)="editEvaluation(evaluation.code)"
-              [disabled]="!canWrite"
-              [title]="!canWrite ? 'Vous n\'avez pas les droits pour modifier une évaluation' : 'Modifier'"
-              [attr.aria-label]="!canWrite ? 'Vous n\'avez pas les droits pour modifier une évaluation' : 'Modifier'"
+              [disabled]="!canEditEvaluation(evaluation)"
+              [title]="!canEditEvaluation(evaluation) ? 'Ce risque est transmis et en cours de validation : évaluation non modifiable' : 'Modifier'"
+              [attr.aria-label]="!canEditEvaluation(evaluation) ? 'Ce risque est transmis et en cours de validation : évaluation non modifiable' : 'Modifier'"
               class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
-              [ngClass]="canWrite ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-100 text-slate-300 cursor-not-allowed'">
+              [ngClass]="canEditEvaluation(evaluation) ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-100 text-slate-300 cursor-not-allowed'">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -194,30 +206,42 @@
       <!-- Vue DESKTOP : tableau -->
       <div *ngIf="!loading" class="hidden md:block rounded-3xl bg-white shadow-sm border border-slate-100 overflow-x-auto">
         <table class="w-full min-w-[800px]">
-          <thead class="bg-slate-50 border-b border-slate-200">
+          <thead class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Code</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Risque</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Score inhérent</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Prévention</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Protection</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Score résiduel</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Période</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Priorité</th>
-              <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Code</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Risque</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Score inhérent</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Prévention</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Protection</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Score résiduel</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Période</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Priorité</th>
+              <th class="px-4 py-3 text-right text-xs font-semibold text-slate-200 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr *ngIf="evaluations.length === 0">
               <td colspan="9" class="px-4 py-8 text-center text-slate-500">Aucune évaluation trouvée.</td>
             </tr>
-            <tr *ngFor="let evaluation of evaluations" class="hover:bg-slate-50 transition">
+            <tr *ngFor="let evaluation of evaluations" class="hover:bg-slate-50 transition"
+              [ngClass]="estVerrouillee(evaluation) ? 'opacity-60 bg-slate-50' : ''">
               <td class="px-4 py-4">
                 <span class="inline-block rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
                   {{ evaluation.code }}
                 </span>
               </td>
-              <td class="px-4 py-4 text-slate-700 font-medium">{{ evaluation.libelleRisque }}</td>
+              <td class="px-4 py-4 text-slate-700 font-medium">
+                {{ evaluation.libelleRisque }}
+                <span *ngIf="estVerrouillee(evaluation)"
+                  title="Ce risque est transmis et en cours de validation"
+                  class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 ml-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="3" y="11" width="18" height="11" rx="2" stroke-width="2"/>
+                    <path stroke-width="2" stroke-linecap="round" d="M7 11V7a5 5 0 0110 0v4"/>
+                  </svg>
+                  Transmis
+                </span>
+              </td>
               <td class="px-4 py-4">
                 <span [class]="'inline-block rounded-full px-3 py-1 text-xs font-medium ' + getScoreBadgeClass(evaluation.scoreInherent)">
                   {{ evaluation.scoreInherent }} - {{ getScoreLabel(evaluation.scoreInherent) }}
@@ -250,11 +274,11 @@
                   </svg>
                 </button>
                 <button (click)="editEvaluation(evaluation.code)"
-                  [disabled]="!canWrite"
-                  [title]="!canWrite ? 'Vous n\'avez pas les droits pour modifier une évaluation' : 'Modifier'"
-                  [attr.aria-label]="!canWrite ? 'Vous n\'avez pas les droits pour modifier une évaluation' : 'Modifier'"
+                  [disabled]="!canEditEvaluation(evaluation)"
+                  [title]="!canEditEvaluation(evaluation) ? 'Ce risque est transmis et en cours de validation : évaluation non modifiable' : 'Modifier'"
+                  [attr.aria-label]="!canEditEvaluation(evaluation) ? 'Ce risque est transmis et en cours de validation : évaluation non modifiable' : 'Modifier'"
                   class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition"
-                  [ngClass]="canWrite ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-100 text-slate-300 cursor-not-allowed'">
+                  [ngClass]="canEditEvaluation(evaluation) ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-100 text-slate-300 cursor-not-allowed'">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>

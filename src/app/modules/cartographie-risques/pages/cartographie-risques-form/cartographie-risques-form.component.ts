@@ -7,6 +7,8 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { DatePickerComponent } from '../../../../shared/date-picker/date-picker.component';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/searchable-select/searchable-select.component';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 import { CartographieRisquesService } from '../../../../core/services/cartographie-risques.service';
 import { CartographieRisquesRequest, CartographieRisquesResponse, StatutCartographie } from '../../../../core/models/cartographie-risques.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -18,7 +20,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-cartographie-risques-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent],
   templateUrl: './cartographie-risques-form.component.html'
 })
 export class CartographieRisquesFormComponent implements OnInit {
@@ -63,6 +65,10 @@ export class CartographieRisquesFormComponent implements OnInit {
     this.form.valueChanges.subscribe(() =>
       applyZodValidation(this.form, cartographieRisquesSchema, this.form.getRawValue())
     );
+  }
+
+  get uniteOptions(): SearchableSelectOption[] {
+    return this.unitesAdministratives.map(u => ({ value: u.code, label: `${u.code} - ${u.libelle}` }));
   }
 
   isRequired(field: string): boolean {

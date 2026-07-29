@@ -461,6 +461,7 @@
         <ul class="steps">
           <li>Un champ obligatoire est toujours signalé par un <b>astérisque rouge</b> à côté de son libellé ; si vous le laissez vide, un message précis (et non un simple « Ce champ est requis ») indique quoi corriger.</li>
           <li>Tous les champs de type date s'ouvrent via un <b>calendrier</b> (jour/mois/année) au clic, plutôt qu'une saisie libre — cliquez simplement sur le champ pour choisir une date au lieu de la taper.</li>
+          <li>Les champs qui font référence à une donnée de la base (risque, processus, agent, unité administrative, ministère, plan de mitigation, action, profil, type d'unité, unité de mesure...) sont des <b>champs de recherche</b> plutôt que des listes déroulantes classiques : tapez quelques lettres pour filtrer, puis cliquez sur le résultat souhaité.</li>
         </ul>
       </div>
 
@@ -870,6 +871,14 @@
           leur répartition par statut (Actif, En cours, Maîtrisé, Clôturé). Le filtre
           « Filtrer par processus » permet d'afficher uniquement les risques d'un processus donné.
         </p>
+        <div class="callout warn">
+          <span class="icon">🔒</span>
+          <div><b>Verrouillé une fois transmis.</b>Dès qu'un risque est transmis (voir <a href="#cartographie">circuit de validation</a>), le Responsable des risques ne peut plus modifier ni le risque ni son évaluation tant qu'il n'est pas revenu à l'étape Formalisation (différé jusqu'au bout par le Pilote). La ligne entière est alors grisée dans les deux listes, avec un badge <b>🔒 Transmis</b> à côté du libellé. Le SUPER_ADMIN n'est pas soumis à ce verrou.</div>
+        </div>
+        <div class="callout tip">
+          <span class="icon">📍</span>
+          <div><b>Suivre l'avancement d'un dossier transmis.</b>La colonne <b>« Étape »</b> de la liste des risques indique en permanence chez quel profil se trouve actuellement le dossier — Responsable Risque, Pilote, CCI, CMMR, ou Validé/Rejeté (terminé) — sans avoir à demander à chacun où en est le traitement.</div>
+        </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
@@ -911,6 +920,10 @@
           <img src="images/36-evaluation-form.png" alt="Formulaire de nouvelle évaluation">
           <figcaption>📝 Formulaire « Nouvelle évaluation »</figcaption>
         </figure>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Protection et prévention sont calculées automatiquement.</b>Ces deux champs sont en lecture seule : ils se déduisent des bonnes pratiques du risque cochées comme « existantes », selon la formule <code>(nombre de bonnes pratiques du type sélectionnées × 3) / nombre total de bonnes pratiques de ce type</code>, arrondie et plafonnée à 3. Ce calcul est vérifié et recalculé côté serveur à l'enregistrement — impossible de le contourner.</div>
+        </div>
       </div>
 
       <div class="subsection" id="matrice">
@@ -961,17 +974,21 @@
         <h3>Créer un plan de mitigation</h3>
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
           Des compteurs, en haut de la liste, indiquent le nombre de plans selon leur statut :
-          <b>Planifié</b>, <b>En cours</b>, <b>Terminé</b>, <b>Annulé</b>.
+          <b>Planifié</b>, <b>En cours</b>, <b>Terminé</b>, <b>Clôturé</b>.
         </p>
         <ol class="steps">
           <li>Depuis <b>Plans de mitigation</b>, cliquez sur <b>« Nouveau plan »</b>.</li>
-          <li>Renseignez le <b>libellé</b>, la <b>date de création</b>, le <b>statut</b>, le <b>risque associé</b> et une description.</li>
+          <li>Renseignez le <b>libellé</b>, la <b>date de création</b>, le <b>risque associé</b> et une description.</li>
           <li>Enregistrez.</li>
         </ol>
         <figure class="shot">
           <img src="images/37-plan-mitigation-form.png" alt="Formulaire de nouveau plan de mitigation">
           <figcaption>📝 Formulaire « Nouveau plan de mitigation »</figcaption>
         </figure>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>Statut entièrement automatique.</b>Il n'y a plus de champ « Statut » à choisir : un plan tout juste créé (sans action liée) est <b>Planifié</b> ; dès qu'une action lui est rattachée et non terminée, il passe à <b>En cours</b> ; une fois toutes ses actions terminées, il passe à <b>Terminé</b>. Seul le <b>CCI</b> (ou un SUPER_ADMIN) peut ensuite le faire passer définitivement à <b>Clôturé</b>, via le bouton dédié sur la liste — après quoi le statut n'évolue plus automatiquement.</div>
+        </div>
       </div>
 
       <div class="subsection">
@@ -999,11 +1016,15 @@
         <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
           La page <b>Indicateurs</b> combine une liste de gestion et un véritable tableau de
           bord de suivi. En haut, des compteurs indiquent le nombre d'indicateurs par statut :
-          <b>En cours</b>, <b>Attention</b>, <b>En retard</b>. Trois
+          <b>Objectif atteint</b>, <b>En cours</b>, <b>Attention</b>, <b>En retard</b>. Trois
           graphiques complètent la vue : <b>« Vue d'ensemble »</b> (valeurs obtenues vs cibles),
           <b>« Répartition par Statut »</b> (proportion d'indicateurs par statut) et
           <b>« Taux d'Atteinte par Indicateur »</b> (performance relative par rapport à la cible).
         </p>
+        <div class="callout tip">
+          <span class="icon">🎯</span>
+          <div><b>L'atteinte de la cible prime sur les dates.</b>Dès que la <b>valeur obtenue</b> égale ou dépasse la <b>valeur cible</b> (indicateurs numériques uniquement), le statut passe à <b>Objectif atteint</b> — même si l'échéance est par ailleurs dépassée.</div>
+        </div>
         <p style="font-size:13.5px;color:var(--ink-soft);">
           La section « Détail des Indicateurs » liste chaque indicateur avec son code, son
           libellé, le plan de mitigation associé, le processus concerné, sa fréquence de suivi
@@ -1063,6 +1084,10 @@
           <li>Cochez un ou plusieurs risques dans la liste.</li>
           <li>Cliquez sur <b>« Transmettre »</b> : le dossier avance à l'étape Pilote.</li>
         </ol>
+        <div class="callout warn">
+          <span class="icon">⚠️</span>
+          <div><b>Le risque doit être évalué au préalable.</b>Un risque n'apparaît dans ce projet de cartographie qu'une fois qu'il possède au moins une évaluation (voir <a href="#evaluations">Évaluer les risques</a>). Tant qu'aucune évaluation n'existe, le risque reste invisible ici et ne peut pas être transmis.</div>
+        </div>
       </div>
 
       <div class="subsection">
@@ -1077,6 +1102,10 @@
           <span class="icon">⛔</span>
           <div><b>Motif obligatoire.</b>Impossible de différer ou de rejeter un risque sans saisir de motif : le formulaire bloque l'enregistrement tant que le champ est vide.</div>
         </div>
+        <div class="callout tip">
+          <span class="icon">👁️</span>
+          <div><b>Avis précédent consultable.</b>La fenêtre de décision affiche, avant de donner son propre avis, l'avis précédemment rendu (par qui, avec quel motif le cas échéant) — utile pour le CCI ou le CMMR qui doivent tenir compte de ce qu'a déjà décidé le profil précédent.</div>
+        </div>
       </div>
 
       <div class="subsection">
@@ -1086,7 +1115,7 @@
         </p>
         <figure class="shot">
           <img src="images/16-cartographie-definitive.png" alt="Cartographie définitif des risques">
-          <figcaption>📚 <b>Cartographie définitif des risques</b> — tous les dossiers transmis, à n'importe quelle étape du circuit</figcaption>
+          <figcaption>📚 <b>Cartographie définitif des risques</b> — uniquement les dossiers ayant reçu la validation finale du CMMR</figcaption>
         </figure>
         <figure class="shot">
           <img src="images/26-cartographie-differees-rejetees.png" alt="Cartographie différée et rejetée">
@@ -1094,14 +1123,19 @@
         </figure>
         <figure class="shot">
           <img src="images/27-cartographie-validees.png" alt="Cartographie validée">
-          <figcaption>✅ <b>Cartographie validée</b> — uniquement les dossiers ayant reçu la validation finale du CMMR</figcaption>
+          <figcaption>✅ <b>Cartographie validée</b> — dossiers validés à une étape intermédiaire (Pilote ou CCI), avec la colonne « Émis par » indiquant qui a rendu cet avis</figcaption>
         </figure>
         <p style="font-size:13.5px;color:var(--ink-soft);">
-          Sur la page « Cartographie définitif des risques », des compteurs indiquent le nombre
-          total de risques ainsi que leur répartition selon l'avis rendu : <b>Validé</b>,
-          <b>Différé</b>, <b>Rejeté</b>. Le bouton « voir détails » ouvre la fiche complète d'un
-          risque, et le bouton <b>« Cartographie définitive »</b>, en haut à droite, permet de
-          générer le document final de la cartographie.
+          Sur la page « Cartographie définitif des risques » ne figurent que les risques ayant
+          reçu la <b>validation finale du CMMR</b> — pas simplement transmis, ni validés à une
+          étape intermédiaire. Des compteurs indiquent le nombre total de risques ainsi que leur
+          répartition selon l'avis rendu. Le bouton « voir détails » ouvre la fiche complète d'un
+          risque, et le bouton <b>« Cartographie définitive »</b>, en haut à droite, ouvre une
+          fenêtre proposant deux modes d'export Excel : <b>« Par Unité Administrative »</b>
+          (un classeur avec un onglet par unité) ou <b>« Global »</b> (toutes les unités
+          confondues dans un seul document). Dans les deux cas, un second écran permet de
+          choisir une <b>année</b> précise (déduite des dates d'identification des risques
+          disponibles) ou <b>« Toutes les années »</b> pour ne pas filtrer.
         </p>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>

@@ -54,7 +54,6 @@ export interface RisqueRequest {
   causeProbable?: string[];
   consequenceProbable?: string[];
   bonnesPratiques?: string[];
-  statut: StatutRisque;
   strategieRisque?: StrategieRisque;
   dateIdentification: string; // ISO date string
   codeProcessus: string;
@@ -87,4 +86,6 @@ export interface RisqueResponse {
   emetteurAvisNomComplet?: string;
   emetteurAvisCodeProfil?: string;
   emetteurAvisLibelleProfil?: string;
+  /** Vrai si le risque a au moins une évaluation liée (condition pour être transmis). */
+  evalue: boolean;
 }

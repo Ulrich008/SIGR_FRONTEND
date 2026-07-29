@@ -8,11 +8,12 @@ import { MenuService } from '../../../../core/services/menu.service';
 import { EvaluationService } from '../../../../core/services/evaluation.service';
 import { EvaluationResponse } from '../../../../core/models/evaluation.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
 
 @Component({
   standalone: true,
   selector: 'app-matrices-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
   templateUrl: './matrices-list.component.html'
 })
 export class MatricesListComponent implements OnInit {
