@@ -369,6 +369,22 @@ export class AgentFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer cet agent ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de cet agent ?' : 'Voulez-vous créer cet agent ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveAgent();
+      }
+    });
+  }
+
+  private saveAgent(): void {
     this.loading = true;
     this.error   = null;
 

@@ -237,6 +237,22 @@ export class UniteAdministrativeFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer cette unité administrative ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de cette unité administrative ?' : 'Voulez-vous créer cette unité administrative ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveUnite();
+      }
+    });
+  }
+
+  private saveUnite(): void {
     this.loading = true;
     this.error = null;
 

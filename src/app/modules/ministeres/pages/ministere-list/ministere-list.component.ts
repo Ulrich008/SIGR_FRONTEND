@@ -155,11 +155,19 @@ export class MinistereListComponent implements OnInit {
       this.ministereService.delete(id).subscribe({
         next: () => {
           this.loadMinisteres();
+          Swal.fire({
+            title: 'Supprimé',
+            text: 'Le ministère a bien été supprimé.',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+          });
         },
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de supprimer le ministère';
-          this.cdr.detectChanges(); // ← ajout
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
+          this.cdr.detectChanges();
         }
       });
     });

@@ -924,6 +924,11 @@
           <span class="icon">💡</span>
           <div><b>Protection et prévention sont calculées automatiquement.</b>Ces deux champs sont en lecture seule : ils se déduisent des bonnes pratiques du risque cochées comme « existantes », selon la formule <code>(nombre de bonnes pratiques du type sélectionnées × 3) / nombre total de bonnes pratiques de ce type</code>, arrondie et plafonnée à 3. Ce calcul est vérifié et recalculé côté serveur à l'enregistrement — impossible de le contourner.</div>
         </div>
+        <div class="callout warn">
+          <span class="icon">🔁</span>
+          <div><b>Réévaluer un risque déjà évalué.</b>Si le risque choisi possède déjà une évaluation, un message le signale et demande si vous souhaitez procéder à une <b>réévaluation</b>. En répondant « Oui », les bonnes pratiques du risque sont automatiquement réparties selon la précédente évaluation dans deux listes déplaçables : <b>Existantes</b> et <b>Existantes à venir</b>. Utilisez la flèche sur chaque élément pour le faire passer d'une liste à l'autre, et le champ dédié pour ajouter une nouvelle bonne pratique directement dans l'une des deux listes. Ces listes alimentent automatiquement les champs texte « Bonnes pratiques existants »/« inexistant », que vous pouvez aussi modifier librement. Répondre « Non » réinitialise le choix du risque.
+          <br><br>⛔ <b>Tant que le risque est transmis et en cours de circuit de validation</b> (chez Pilote, CCI ou CMMR), la réévaluation est bloquée : un message l'indique et le choix du risque est réinitialisé. Il faut attendre que le circuit se termine — validation finale, rejet, ou retour en Formalisation via un différé — avant de pouvoir le réévaluer.</div>
+        </div>
       </div>
 
       <div class="subsection" id="matrice">

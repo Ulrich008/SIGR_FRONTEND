@@ -338,6 +338,22 @@ export class PlanAuditFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer ce plan d\'audit ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de ce plan d\'audit ?' : 'Voulez-vous créer ce plan d\'audit ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.savePlanAudit();
+      }
+    });
+  }
+
+  private savePlanAudit(): void {
     this.loading = true;
     this.error = null;
 

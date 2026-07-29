@@ -141,6 +141,22 @@ export class CartographieRisquesFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer cette cartographie ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de cette cartographie ?' : 'Voulez-vous créer cette cartographie ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveCartographie();
+      }
+    });
+  }
+
+  private saveCartographie(): void {
     this.loading = true;
     this.error = null;
 

@@ -95,6 +95,22 @@ export class UnitesMesureFormComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer cette unité de mesure ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de cette unité de mesure ?' : 'Voulez-vous créer cette unité de mesure ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveUniteMesure();
+      }
+    });
+  }
+
+  private saveUniteMesure(): void {
     this.loading = true;
     this.error = null;
 

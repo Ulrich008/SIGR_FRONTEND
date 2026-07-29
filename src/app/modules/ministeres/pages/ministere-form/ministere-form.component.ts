@@ -81,6 +81,22 @@ export class MinistereFormComponent implements OnInit {
       return;
     }
 
+    const estEdition = !!this.ministereId;
+    Swal.fire({
+      title: estEdition ? 'Enregistrer les modifications ?' : 'Créer ce ministère ?',
+      text: estEdition ? 'Voulez-vous enregistrer les modifications de ce ministère ?' : 'Voulez-vous créer ce ministère ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: estEdition ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (!result.isConfirmed) return;
+      this.saveMinistere();
+    });
+  }
+
+  private saveMinistere(): void {
     this.loading = true;
     this.error = null;
     const request: MinistereRequest = this.form.value;

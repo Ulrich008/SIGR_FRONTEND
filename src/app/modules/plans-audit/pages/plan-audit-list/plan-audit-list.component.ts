@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 import { PlanAuditService } from '../../../../core/services/plan-audit.service';
 import { PlanAuditResponse, AuditPropose, TypeRevue } from '../../../../core/models/audit.model';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -139,19 +140,37 @@ export class PlanAuditListComponent implements OnInit {
 
   deletePlanAudit(code: string): void {
     if (!this.canWrite) return;
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce plan d\'audit ?')) {
+    Swal.fire({
+      title: 'Supprimer ce plan d\'audit ?',
+      text: 'Cette action est irréversible.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (!result.isConfirmed) return;
+
       this.loading = true;
       this.planAuditService.deleteByCode(code).subscribe({
         next: () => {
           this.loadPlansAudit();
+          Swal.fire({
+            title: 'Supprimé',
+            text: 'Le plan d\'audit a bien été supprimé.',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+          });
         },
         error: (err) => {
           this.loading = false;
           this.error = err?.message || 'Impossible de supprimer le plan d\'audit';
+          Swal.fire({ title: 'Erreur', text: this.error ?? undefined, icon: 'error', confirmButtonText: 'OK' });
           this.cdr.detectChanges();
         }
       });
-    }
+    });
   }
 
   getAuditProposeLabel(auditPropose: string): string {

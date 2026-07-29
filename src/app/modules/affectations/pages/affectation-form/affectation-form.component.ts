@@ -134,6 +134,22 @@ export class AffectationFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer cette affectation ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de cette affectation ?' : 'Voulez-vous créer cette affectation ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveAffectation();
+      }
+    });
+  }
+
+  private saveAffectation(): void {
     this.loading = true;
     this.error = null;
 

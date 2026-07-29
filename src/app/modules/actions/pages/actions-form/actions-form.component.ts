@@ -318,6 +318,23 @@ export class ActionsFormComponent implements OnInit {
     }
 
     this.errorLibelle = '';
+
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer cette action ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de cette action ?' : 'Voulez-vous créer cette action ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveAction();
+      }
+    });
+  }
+
+  private saveAction(): void {
     this.loading = true;
     this.error = null;
 

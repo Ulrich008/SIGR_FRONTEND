@@ -100,6 +100,22 @@ export class TypeUniteFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer ce type d\'unité ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de ce type d\'unité ?' : 'Voulez-vous créer ce type d\'unité ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveTypeUnite();
+      }
+    });
+  }
+
+  private saveTypeUnite(): void {
     this.loading = true;
     this.error = null;
 

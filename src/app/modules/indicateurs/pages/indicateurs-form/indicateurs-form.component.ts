@@ -437,6 +437,23 @@ export class IndicateursFormComponent implements OnInit {
       }
       return;
     }
+
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer cet indicateur ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de cet indicateur ?' : 'Voulez-vous créer cet indicateur ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveIndicateur();
+      }
+    });
+  }
+
+  private saveIndicateur(): void {
     this.loading = true;
     this.error = null;
 

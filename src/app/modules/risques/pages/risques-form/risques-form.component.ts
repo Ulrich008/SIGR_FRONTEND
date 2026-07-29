@@ -364,6 +364,22 @@ export class RisquesFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer ce risque ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de ce risque ?' : 'Voulez-vous créer ce risque ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveRisque();
+      }
+    });
+  }
+
+  private saveRisque(): void {
     this.loading = true;
     this.error = null;
     this.causeProbableError = null;

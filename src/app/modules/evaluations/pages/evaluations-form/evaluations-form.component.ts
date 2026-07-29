@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -15,7 +15,7 @@ import { EvaluationService } from '../../../../core/services/evaluation.service'
 import { RisqueService } from '../../../../core/services/risque.service';
 import { AgentService } from '../../../../core/services/agent.service';
 import { EvaluationRequest, EvaluationResponse } from '../../../../core/models/evaluation.model';
-import { RisqueResponse } from '../../../../core/models/risque.model';
+import { RisqueResponse, EtapeValidation } from '../../../../core/models/risque.model';
 import { AgentResponse } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { evaluationBaseSchema, evaluationSchema } from './evaluations-form.schema';
@@ -24,7 +24,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-evaluations-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent, FormStepperComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent, FormStepperComponent],
   templateUrl: './evaluations-form.component.html'
 })
 export class EvaluationsFormComponent implements OnInit {
@@ -38,6 +38,14 @@ export class EvaluationsFormComponent implements OnInit {
   agents: AgentResponse[] = [];
   bonnesPratiquesRisque: string[] = [];
   selectedBonnesPratiques: Set<string> = new Set();
+
+  /** Toutes les évaluations existantes, pour détecter si le risque choisi a déjà été évalué. */
+  allEvaluations: EvaluationResponse[] = [];
+  /** Vrai une fois que l'utilisateur a confirmé vouloir réévaluer un risque déjà évalué. */
+  isReevaluation = false;
+  existantesItems: string[] = [];
+  aVenirItems: string[] = [];
+  nouvellePratique = '';
 
   /** Risque actuellement sélectionné (pour les calculs automatiques) */
   private currentRisque: RisqueResponse | null = null;
@@ -177,10 +185,19 @@ export class EvaluationsFormComponent implements OnInit {
     this.form.get('codeRisque')?.valueChanges.subscribe(codeRisque => {
       if (codeRisque) {
         this.loadBonnesPratiquesRisque(codeRisque);
+        // La détection de réévaluation ne concerne que la création d'une
+        // nouvelle évaluation : en édition, codeRisque est déjà celui de
+        // l'évaluation en cours de modification, pas un nouveau choix.
+        if (!this.isEditMode) {
+          this.checkExistingEvaluation(codeRisque);
+        }
       } else {
         this.bonnesPratiquesRisque = [];
         this.selectedBonnesPratiques.clear();
         this.currentRisque = null;
+        this.isReevaluation = false;
+        this.existantesItems = [];
+        this.aVenirItems = [];
         this.form.patchValue({ protection: 0, prevention: 0 }, { emitEvent: false });
       }
     });
@@ -196,11 +213,13 @@ export class EvaluationsFormComponent implements OnInit {
     this.loading = true;
     forkJoin({
       risques: this.risqueService.getAll(),
-      agents: this.agentService.getAll()
+      agents: this.agentService.getAll(),
+      evaluations: this.evaluationService.getAll()
     }).subscribe({
       next: (data) => {
         this.risques = data.risques;
         this.agents = data.agents;
+        this.allEvaluations = data.evaluations;
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -225,6 +244,127 @@ export class EvaluationsFormComponent implements OnInit {
     }
     // Recalculer après chargement du risque
     this.calculateScoresFromExistants();
+  }
+
+  // ========== Réévaluation d'un risque déjà évalué ==========
+
+  /**
+   * Un risque transmis et sorti de Formalisation est en cours de circuit de
+   * validation : le Responsable Risque ne doit pas pouvoir le réévaluer tant
+   * qu'il n'en est pas ressorti (validé, rejeté, ou différé jusqu'à revenir
+   * en Formalisation). Même règle que le verrou de modification du risque
+   * lui-même (RisqueServiceImpl.verifierRisqueModifiable côté backend).
+   */
+  private risqueEnCoursDeValidation(risque: RisqueResponse | null): boolean {
+    return !!risque?.transmis && risque?.etapeValidation !== EtapeValidation.FORMALISATION;
+  }
+
+  private checkExistingEvaluation(codeRisque: string): void {
+    const evaluationsDuRisque = this.allEvaluations.filter(e => e.codeRisque === codeRisque);
+    if (evaluationsDuRisque.length === 0) {
+      return;
+    }
+
+    if (this.risqueEnCoursDeValidation(this.currentRisque)) {
+      Swal.fire({
+        title: 'Réévaluation impossible',
+        text: 'Ce risque a déjà été évalué et est actuellement transmis pour validation. Vous ne pourrez le réévaluer qu\'une fois le circuit de validation terminé (validé, différé ou rejeté).',
+        icon: 'warning',
+        confirmButtonText: 'Compris'
+      }).then(() => {
+        this.form.patchValue({ codeRisque: '' });
+        this.cdr.detectChanges();
+      });
+      return;
+    }
+
+    // La plus récente : à défaut de date de création exposée par l'API, on
+    // se base sur l'ordre renvoyé par le backend (la dernière du tableau).
+    const derniereEvaluation = evaluationsDuRisque[evaluationsDuRisque.length - 1];
+
+    Swal.fire({
+      title: 'Risque déjà évalué',
+      text: 'Ce risque a déjà été évalué. Voulez-vous procéder à une réévaluation ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, réévaluer',
+      cancelButtonText: 'Non',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.startReevaluation(derniereEvaluation);
+      } else {
+        // Retour à une évaluation vierge : le choix du risque est annulé,
+        // l'utilisateur doit en choisir un autre.
+        this.form.patchValue({ codeRisque: '' });
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
+  private startReevaluation(derniereEvaluation: EvaluationResponse): void {
+    this.isReevaluation = true;
+
+    const existantsText = (derniereEvaluation.controleExistants || '').toLowerCase();
+    const inexistantsText = (derniereEvaluation.controleInexistants || '').toLowerCase();
+
+    this.existantesItems = [];
+    this.aVenirItems = [];
+
+    // On classe chaque bonne pratique du risque selon la dernière
+    // évaluation : si son libellé (sans le préfixe [Prévention]/[Protection])
+    // apparaît dans le texte libre "existants" ou "inexistants" de cette
+    // évaluation, elle est reprise dans la catégorie correspondante.
+    const pratiquesRestantes: string[] = [];
+    for (const pratique of this.bonnesPratiquesRisque) {
+      const texte = this.cleanPratiqueText(pratique);
+      const texteMinuscule = texte.toLowerCase();
+      if (existantsText.includes(texteMinuscule)) {
+        this.existantesItems.push(texte);
+      } else if (inexistantsText.includes(texteMinuscule)) {
+        this.aVenirItems.push(texte);
+      } else {
+        pratiquesRestantes.push(pratique);
+      }
+    }
+    this.bonnesPratiquesRisque = pratiquesRestantes;
+
+    this.syncControlesFromLists();
+  }
+
+  private syncControlesFromLists(): void {
+    this.form.patchValue({
+      controleExistants: this.existantesItems.join('\n'),
+      controleInexistants: this.aVenirItems.join('\n')
+    });
+  }
+
+  deplacerVersAVenir(item: string): void {
+    this.existantesItems = this.existantesItems.filter(p => p !== item);
+    this.aVenirItems = [...this.aVenirItems, item];
+    this.syncControlesFromLists();
+  }
+
+  deplacerVersExistantes(item: string): void {
+    this.aVenirItems = this.aVenirItems.filter(p => p !== item);
+    this.existantesItems = [...this.existantesItems, item];
+    this.syncControlesFromLists();
+  }
+
+  ajouterNouvellePratiqueExistante(): void {
+    const texte = this.nouvellePratique.trim();
+    if (!texte) return;
+    this.existantesItems = [...this.existantesItems, texte];
+    this.nouvellePratique = '';
+    this.syncControlesFromLists();
+  }
+
+  ajouterNouvellePratiqueAVenir(): void {
+    const texte = this.nouvellePratique.trim();
+    if (!texte) return;
+    this.aVenirItems = [...this.aVenirItems, texte];
+    this.nouvellePratique = '';
+    this.syncControlesFromLists();
   }
 
   // ========== Helpers pour les bonnes pratiques typées ==========

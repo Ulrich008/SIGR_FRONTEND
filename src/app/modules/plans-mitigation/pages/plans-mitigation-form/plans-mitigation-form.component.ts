@@ -133,6 +133,22 @@ export class PlansMitigationFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer ce plan de mitigation ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de ce plan de mitigation ?' : 'Voulez-vous créer ce plan de mitigation ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.savePlan();
+      }
+    });
+  }
+
+  private savePlan(): void {
     this.loading = true;
     this.error = null;
 

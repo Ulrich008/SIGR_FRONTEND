@@ -110,6 +110,22 @@ export class ProfilFormComponent implements OnInit, OnDestroy {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer ce profil ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de ce profil ?' : 'Voulez-vous créer ce profil ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveProfil();
+      }
+    });
+  }
+
+  private saveProfil(): void {
     this.loading = true;
     this.error = null;
 

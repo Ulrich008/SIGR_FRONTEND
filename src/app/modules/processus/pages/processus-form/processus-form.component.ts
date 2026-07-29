@@ -186,6 +186,22 @@ export class ProcessusFormComponent implements OnInit {
       return;
     }
 
+    Swal.fire({
+      title: this.isEditMode ? 'Enregistrer les modifications ?' : 'Créer ce processus ?',
+      text: this.isEditMode ? 'Voulez-vous enregistrer les modifications de ce processus ?' : 'Voulez-vous créer ce processus ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.isEditMode ? 'Oui, enregistrer' : 'Oui, créer',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.saveProcessus();
+      }
+    });
+  }
+
+  private saveProcessus(): void {
     this.loading       = true;
     this.error         = null;
     this.finaliteError = null;
