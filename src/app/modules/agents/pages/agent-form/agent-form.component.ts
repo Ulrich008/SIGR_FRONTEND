@@ -154,7 +154,10 @@ export class AgentFormComponent implements OnInit, OnDestroy {
   ];
 
   isStepValid(step: number): boolean {
-    return this.stepFields[step].every(field => this.form.get(field)?.valid);
+    return this.stepFields[step].every(field => {
+      const control = this.form.get(field);
+      return !control || control.disabled || control.valid;
+    });
   }
 
   goToStep(step: number): void {
@@ -342,10 +345,26 @@ export class AgentFormComponent implements OnInit, OnDestroy {
 
   // ================= SOUMISSION =================
 
+  private firstInvalidStep(): number {
+    return this.stepFields.findIndex(fields =>
+      fields.some(field => {
+        const control = this.form.get(field);
+        return control && !control.disabled && control.invalid;
+      })
+    );
+  }
+
   onSubmit(): void {
     const valid = applyZodValidation(this.form, agentSchema(this.isEditMode), this.form.getRawValue());
     if (!valid) {
       this.form.markAllAsTouched();
+      const invalidStep = this.firstInvalidStep();
+      if (invalidStep !== -1) {
+        this.currentStep = invalidStep;
+        if (this.currentStep > this.maxReachedStep) {
+          this.maxReachedStep = this.currentStep;
+        }
+      }
       this.scrollToFirstError();
       return;
     }

@@ -69,7 +69,10 @@ export class IndicateursFormComponent implements OnInit {
   ];
 
   isStepValid(step: number): boolean {
-    return this.stepFields[step].every(field => this.form.get(field)?.valid);
+    return this.stepFields[step].every(field => {
+      const control = this.form.get(field);
+      return !control || control.disabled || control.valid;
+    });
   }
 
   goToStep(step: number): void {
@@ -133,6 +136,15 @@ export class IndicateursFormComponent implements OnInit {
       applyZodValidation(this.form, indicateurSchema, this.form.getRawValue())
     );
 
+    // Champs en cascade : désactivés tant que leur "parent" n'a pas de
+    // valeur. Piloté exclusivement via l'API FormControl (.enable()/.disable())
+    // plutôt qu'un binding [disabled] dans le template, qui rentre en
+    // conflit avec la directive formControlName (cf. avertissement Angular
+    // "using the disabled attribute with a reactive form directive").
+    this.form.get('codeRisque')?.disable();
+    this.form.get('codePlanMitigation')?.disable();
+    this.form.get('codeAction')?.disable();
+
     // Les selects en cascade sont devenus des app-searchable-select (pas
     // d'événement (ngModelChange) natif) : on réagit directement au
     // changement de valeur du FormControl.
@@ -180,15 +192,39 @@ export class IndicateursFormComponent implements OnInit {
       this.code = codeParam;
       this.loading = true;
 
-      forkJoin({
-        processus:  this.processusService.getAll(),
-        indicateur: this.indicateurService.getByCode(codeParam)
-      }).subscribe({
-        next: (data) => {
-          this.processus = data.processus;
-          this.patchForm(data.indicateur);
-          this.loading = false;
-          this.cdr.detectChanges();
+      this.indicateurService.getByCode(codeParam).subscribe({
+        next: (indicateur) => {
+          // On charge et filtre TOUTES les listes de référence (y compris
+          // celles en cascade : risques du processus, plans du risque,
+          // actions du plan) avant d'afficher le formulaire. Les charger
+          // seulement après coup (comme le fait la cascade normale au fil
+          // de la saisie) laissait les app-searchable-select se créer
+          // avec des options encore vides : ils affichaient alors le code
+          // brut au lieu du libellé, tant que le fetch asynchrone n'avait
+          // pas eu le temps d'arriver.
+          forkJoin({
+            processus: this.processusService.getAll(),
+            unitesMesure: this.uniteMesureService.getAll(),
+            risques: this.risqueService.getAll(),
+            plansMitigation: this.planMitigationService.getAll(),
+            actions: this.actionService.getAll()
+          }).subscribe({
+            next: (data) => {
+              this.processus = data.processus;
+              this.unitesMesure = data.unitesMesure;
+              this.risques = data.risques.filter(r => r.codeProcessus === indicateur.codeProcessus);
+              this.plansMitigation = data.plansMitigation.filter(p => p.codeRisque === indicateur.codeRisque);
+              this.actions = data.actions.filter(a => a.codePlan === indicateur.codePlanMitigation);
+              this.patchForm(indicateur);
+              this.loading = false;
+              this.cdr.detectChanges();
+            },
+            error: (err) => {
+              this.loading = false;
+              this.error = err?.message || 'Impossible de charger les données';
+              this.cdr.detectChanges();
+            }
+          });
         },
         error: (err) => {
           this.loading = false;
@@ -222,10 +258,19 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   onProcessusChange(codeProcessus: string): void {
-    this.form.patchValue({ codeRisque: null, codePlanMitigation: null, codeAction: null });
+    this.form.patchValue({ codeRisque: null, codePlanMitigation: null, codeAction: null }, { emitEvent: false });
     this.risques = [];
     this.plansMitigation = [];
     this.actions = [];
+
+    this.form.get('codePlanMitigation')?.disable({ emitEvent: false });
+    this.form.get('codeAction')?.disable({ emitEvent: false });
+
+    if (codeProcessus) {
+      this.form.get('codeRisque')?.enable({ emitEvent: false });
+    } else {
+      this.form.get('codeRisque')?.disable({ emitEvent: false });
+    }
 
     if (!codeProcessus) return;
 
@@ -245,9 +290,17 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   onRisqueChange(codeRisque: string): void {
-    this.form.patchValue({ codePlanMitigation: null, codeAction: null });
+    this.form.patchValue({ codePlanMitigation: null, codeAction: null }, { emitEvent: false });
     this.plansMitigation = [];
     this.actions = [];
+
+    this.form.get('codeAction')?.disable({ emitEvent: false });
+
+    if (codeRisque) {
+      this.form.get('codePlanMitigation')?.enable({ emitEvent: false });
+    } else {
+      this.form.get('codePlanMitigation')?.disable({ emitEvent: false });
+    }
 
     if (!codeRisque) return;
 
@@ -267,8 +320,14 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   onPlanMitigationChange(codePlan: string): void {
-    this.form.patchValue({ codeAction: null });
+    this.form.patchValue({ codeAction: null }, { emitEvent: false });
     this.actions = [];
+
+    if (codePlan) {
+      this.form.get('codeAction')?.enable({ emitEvent: false });
+    } else {
+      this.form.get('codeAction')?.disable({ emitEvent: false });
+    }
 
     if (!codePlan) return;
 
@@ -288,6 +347,11 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   onActionChange(codeAction: string): void {
+    // Ne s'exécute que sur un vrai changement fait par l'utilisateur : le
+    // préchargement initial en édition utilise patchValue(..., { emitEvent:
+    // false }) et ne déclenche donc jamais cette méthode, évitant d'écraser
+    // les dates déjà enregistrées de l'indicateur dès l'ouverture du
+    // formulaire.
     if (!codeAction) return;
 
     this.actionService.getByCode(codeAction).subscribe({
@@ -312,20 +376,12 @@ export class IndicateursFormComponent implements OnInit {
   }
 
   patchForm(indicateur: IndicateurPerformanceResponse): void {
-    // Charger les données de référence pour les select
-    this.loadReferenceData();
-    
-    // Charger les données dépendantes basées sur le processus
-    if (indicateur.codeProcessus) {
-      this.onProcessusChange(indicateur.codeProcessus);
-    }
-    if (indicateur.codeRisque) {
-      this.onRisqueChange(indicateur.codeRisque);
-    }
-    if (indicateur.codePlanMitigation) {
-      this.onPlanMitigationChange(indicateur.codePlanMitigation);
-    }
-
+    // Les listes de référence (processus, risques, plans, actions, unités)
+    // sont déjà chargées et filtrées par ngOnInit avant l'appel à
+    // patchForm : pas besoin de repasser par les gestionnaires de cascade
+    // (onProcessusChange...) ici, ce qui évite de vider puis re-fetcher
+    // ces listes pendant l'affichage. { emitEvent: false } pour la même
+    // raison : la cascade n'a rien à faire de plus au chargement.
     this.form.patchValue({
       code:          indicateur.code,
       libelle:       indicateur.libelle,
@@ -340,25 +396,45 @@ export class IndicateursFormComponent implements OnInit {
       codeRisque:    indicateur.codeRisque,
       codePlanMitigation: indicateur.codePlanMitigation,
       codeAction:    indicateur.codeAction
-    });
+    }, { emitEvent: false });
 
-    // Désactiver les champs lors de la modification (sauf valeurCible et valeurObtenue)
-    this.form.get('libelle')?.disable();
-    this.form.get('frequence')?.disable();
-    this.form.get('codeUniteMesure')?.disable();
-    this.form.get('seuilAlerte')?.disable();
-    this.form.get('dateDebut')?.disable();
-    this.form.get('dateFin')?.disable();
-    this.form.get('codeProcessus')?.disable();
-    this.form.get('codeRisque')?.disable();
-    this.form.get('codePlanMitigation')?.disable();
-    this.form.get('codeAction')?.disable();
+    // Tous les champs restent modifiables en édition. Les champs en
+    // cascade (codeRisque/codePlanMitigation/codeAction) partent
+    // désactivés par défaut (cf. constructeur) tant que leur "parent" est
+    // vide : comme le patchValue ci-dessus n'a pas déclenché les
+    // gestionnaires de cascade (emitEvent: false), on rétablit ici le bon
+    // état activé/désactivé selon les valeurs réellement chargées.
+    if (indicateur.codeProcessus) {
+      this.form.get('codeRisque')?.enable({ emitEvent: false });
+    }
+    if (indicateur.codeRisque) {
+      this.form.get('codePlanMitigation')?.enable({ emitEvent: false });
+    }
+    if (indicateur.codePlanMitigation) {
+      this.form.get('codeAction')?.enable({ emitEvent: false });
+    }
+  }
+
+  private firstInvalidStep(): number {
+    return this.stepFields.findIndex(fields =>
+      fields.some(field => {
+        const control = this.form.get(field);
+        return control && !control.disabled && control.invalid;
+      })
+    );
   }
 
   onSubmit(): void {
     const valid = applyZodValidation(this.form, indicateurSchema, this.form.getRawValue());
     if (!valid) {
       this.form.markAllAsTouched();
+      const invalidStep = this.firstInvalidStep();
+      if (invalidStep !== -1) {
+        this.currentStep = invalidStep;
+        if (this.currentStep > this.maxReachedStep) {
+          this.maxReachedStep = this.currentStep;
+        }
+      }
       return;
     }
     this.loading = true;

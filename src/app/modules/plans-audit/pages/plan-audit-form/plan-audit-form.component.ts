@@ -44,8 +44,12 @@ export class PlanAuditFormComponent implements OnInit {
   unitesAdministratives: UniteAdministrativeResponse[] = [];
   filteredUnites: UniteAdministrativeResponse[] = [];
   showUniteDropdown = false;
+  uniteDropdownTop = 0;
+  uniteDropdownLeft = 0;
   processus: ProcessusResponse[] = [];
   risques: RisqueResponse[] = [];
+  loadingProcessus = false;
+  loadingRisques = false;
   auditProposeOptions: string[] = [];
   typeRevueOptions: string[] = [];
 
@@ -62,7 +66,10 @@ export class PlanAuditFormComponent implements OnInit {
   ];
 
   isStepValid(step: number): boolean {
-    return this.stepFields[step].every(field => this.form.get(field)?.valid);
+    return this.stepFields[step].every(field => {
+      const control = this.form.get(field);
+      return !control || control.disabled || control.valid;
+    });
   }
 
   goToStep(step: number): void {
@@ -173,23 +180,37 @@ export class PlanAuditFormComponent implements OnInit {
       this.loadReferenceData();
     }
 
+    // Champs en cascade : désactivés tant que leur "parent" n'a pas de
+    // valeur. Piloté exclusivement via l'API FormControl (.enable()/.disable())
+    // plutôt qu'un binding [disabled] dans le template, qui rentre en
+    // conflit avec la directive formControlName (cf. avertissement Angular
+    // "using the disabled attribute with a reactive form directive").
+    this.form.get('codeProcessus')?.disable();
+    this.form.get('codeRisque')?.disable();
+
     // Charger les processus quand l'unité administrative change
     this.form.get('codeUniteAdministrative')?.valueChanges.subscribe(codeUnite => {
+      this.form.get('codeRisque')?.disable({ emitEvent: false });
+
       if (codeUnite) {
+        this.form.get('codeProcessus')?.enable({ emitEvent: false });
         this.loadProcessusByUnite(codeUnite);
       } else {
+        this.form.get('codeProcessus')?.disable({ emitEvent: false });
         this.processus = [];
-        this.form.patchValue({ codeProcessus: '', codeRisque: '' });
+        this.form.patchValue({ codeProcessus: '', codeRisque: '' }, { emitEvent: false });
       }
     });
 
     // Charger les risques quand le processus change
     this.form.get('codeProcessus')?.valueChanges.subscribe(codeProcessus => {
       if (codeProcessus) {
+        this.form.get('codeRisque')?.enable({ emitEvent: false });
         this.loadRisquesByProcessus(codeProcessus);
       } else {
+        this.form.get('codeRisque')?.disable({ emitEvent: false });
         this.risques = [];
-        this.form.patchValue({ codeRisque: '' });
+        this.form.patchValue({ codeRisque: '' }, { emitEvent: false });
       }
     });
   }
@@ -227,14 +248,23 @@ export class PlanAuditFormComponent implements OnInit {
   }
 
   loadProcessusByUnite(codeUnite: string): void {
+    this.loadingProcessus = true;
     this.processusService.getAll().subscribe({
-      next: (allProcessus) => {
+      // Le setTimeout(0) reporte la mise à jour à un nouveau tick : appeler
+      // detectChanges() directement ici pouvait entrer en collision avec un
+      // cycle de détection de changement déjà en cours (ex: déclenché par
+      // le clic qui a sélectionné l'unité), provoquant un NG0100
+      // (ExpressionChangedAfterItHasBeenCheckedError) sur les options du
+      // select "Processus" qui passaient de [] à la liste réelle.
+      next: (allProcessus) => setTimeout(() => {
         // Filtrer les processus liés à l'unité administrative
         this.processus = allProcessus.filter(p => p.idUnite === codeUnite);
+        this.loadingProcessus = false;
         this.form.patchValue({ codeProcessus: '', codeRisque: '' });
         this.cdr.detectChanges();
-      },
+      }),
       error: (err) => {
+        this.loadingProcessus = false;
         this.error = err?.message || 'Impossible de charger les processus';
         this.cdr.detectChanges();
       }
@@ -242,14 +272,17 @@ export class PlanAuditFormComponent implements OnInit {
   }
 
   loadRisquesByProcessus(codeProcessus: string): void {
+    this.loadingRisques = true;
     this.risqueService.getAll().subscribe({
-      next: (allRisques) => {
+      next: (allRisques) => setTimeout(() => {
         // Filtrer les risques liés au processus
         this.risques = allRisques.filter(r => r.codeProcessus === codeProcessus);
+        this.loadingRisques = false;
         this.form.patchValue({ codeRisque: '' });
         this.cdr.detectChanges();
-      },
+      }),
       error: (err) => {
+        this.loadingRisques = false;
         this.error = err?.message || 'Impossible de charger les risques';
         this.cdr.detectChanges();
       }
@@ -280,12 +313,28 @@ export class PlanAuditFormComponent implements OnInit {
     }
   }
 
+  private firstInvalidStep(): number {
+    return this.stepFields.findIndex(fields =>
+      fields.some(field => {
+        const control = this.form.get(field);
+        return control && !control.disabled && control.invalid;
+      })
+    );
+  }
+
   onSubmit(): void {
 
     const valid = applyZodValidation(this.form, planAuditSchema, this.form.getRawValue());
     if (!valid) {
 
       this.form.markAllAsTouched();
+      const invalidStep = this.firstInvalidStep();
+      if (invalidStep !== -1) {
+        this.currentStep = invalidStep;
+        if (this.currentStep > this.maxReachedStep) {
+          this.maxReachedStep = this.currentStep;
+        }
+      }
       return;
     }
 
@@ -404,20 +453,22 @@ export class PlanAuditFormComponent implements OnInit {
       .join(' ');
   }
 
-  onUniteFocus(): void {
+  onUniteFocus(input: HTMLInputElement): void {
     const currentValue = this.form.get('codeUniteAdministrative')?.value;
     if (currentValue) {
-      this.onUniteSearch({ target: { value: currentValue } } as any);
+      this.onUniteSearch({ target: { value: currentValue } } as any, input);
     } else {
       this.filteredUnites = this.unitesAdministratives;
+      this.updateUniteDropdownPosition(input);
       this.showUniteDropdown = this.filteredUnites.length > 0;
       this.cdr.detectChanges();
     }
   }
 
-  onUniteSearch(event: Event): void {
+  onUniteSearch(event: Event, input?: HTMLInputElement): void {
     const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    
+    this.updateUniteDropdownPosition(input ?? (event.target as HTMLInputElement));
+
     if (!searchTerm) {
       this.filteredUnites = this.unitesAdministratives;
       this.showUniteDropdown = this.filteredUnites.length > 0;
@@ -441,14 +492,17 @@ export class PlanAuditFormComponent implements OnInit {
     this.loadProcessusByUnite(unite.code);
   }
 
-  getUniteDropdownTop(input: HTMLInputElement): number {
+  /**
+   * Calculée une seule fois au moment où le menu s'ouvre (plutôt qu'à
+   * chaque cycle de détection de changement via un appel dans le template)
+   * pour éviter un NG0100 : getBoundingClientRect() peut légèrement varier
+   * d'un passage de vérification à l'autre à cause du reflow provoqué par
+   * l'ouverture du menu lui-même.
+   */
+  private updateUniteDropdownPosition(input: HTMLInputElement): void {
     const rect = input.getBoundingClientRect();
-    return rect.bottom + window.scrollY + 4;
-  }
-
-  getUniteDropdownLeft(input: HTMLInputElement): number {
-    const rect = input.getBoundingClientRect();
-    return rect.left + window.scrollX;
+    this.uniteDropdownTop = rect.bottom + window.scrollY + 4;
+    this.uniteDropdownLeft = rect.left + window.scrollX;
   }
 
   // Fermer le dropdown si on clique ailleurs

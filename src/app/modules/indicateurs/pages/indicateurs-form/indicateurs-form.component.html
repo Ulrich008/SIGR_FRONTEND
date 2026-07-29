@@ -41,7 +41,7 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
 
           <!-- ── Section : Informations générales ── -->
-          <div class="space-y-4" *ngIf="currentStep === 0">
+          <div class="space-y-4" [class.hidden]="currentStep !== 0">
             <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -95,7 +95,7 @@
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque</label>
                 <app-searchable-select formControlName="codeRisque"
-                  [options]="risqueOptions" [disabled]="!form.get('codeProcessus')?.value"
+                  [options]="risqueOptions"
                   placeholder="Rechercher un risque par code ou libellé..."></app-searchable-select>
                 <p *ngIf="!loadingRisques && risques.length === 0 && form.get('codeProcessus')?.value"
                    class="mt-1 text-xs text-amber-600">
@@ -107,7 +107,7 @@
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Plan de Mitigation</label>
                 <app-searchable-select formControlName="codePlanMitigation"
-                  [options]="planMitigationOptions" [disabled]="!form.get('codeRisque')?.value"
+                  [options]="planMitigationOptions"
                   placeholder="Rechercher un plan par code ou libellé..."></app-searchable-select>
                 <p *ngIf="!loadingPlans && plansMitigation.length === 0 && form.get('codeRisque')?.value"
                    class="mt-1 text-xs text-amber-600">
@@ -119,7 +119,7 @@
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Action</label>
                 <app-searchable-select formControlName="codeAction"
-                  [options]="actionOptions" [disabled]="!form.get('codePlanMitigation')?.value"
+                  [options]="actionOptions"
                   placeholder="Rechercher une action par code ou libellé..."></app-searchable-select>
                 <p *ngIf="!loadingActions && actions.length === 0 && form.get('codePlanMitigation')?.value"
                    class="mt-1 text-xs text-amber-600">
@@ -142,7 +142,7 @@
           </div>
 
           <!-- ── Section : Dates ── -->
-          <div class="space-y-4" *ngIf="currentStep === 1">
+          <div class="space-y-4" [class.hidden]="currentStep !== 1">
             <h3 class="text-lg font-semibold text-slate-900">Dates</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
@@ -168,7 +168,7 @@
           </div>
 
           <!-- ── Section : Valeurs ── -->
-          <div class="space-y-4" *ngIf="currentStep === 2">
+          <div class="space-y-4" [class.hidden]="currentStep !== 2">
             <h3 class="text-lg font-semibold text-slate-900">Valeurs</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

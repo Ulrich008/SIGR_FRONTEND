@@ -278,7 +278,10 @@ export class RisquesFormComponent implements OnInit {
 
   isStep0Valid(): boolean {
     return ['codeProcessus', 'typeRisque', 'libelle', 'dateIdentification']
-      .every(field => this.form.get(field)?.valid);
+      .every(field => {
+        const control = this.form.get(field);
+        return !control || control.disabled || control.valid;
+      });
   }
 
   isStep1Valid(): boolean {
@@ -332,24 +335,32 @@ export class RisquesFormComponent implements OnInit {
     if (!valid) {
 
       this.form.markAllAsTouched();
+      this.currentStep = 0;
+      this.maxReachedStep = Math.max(this.maxReachedStep, 0);
       return;
     }
 
     // Valider qu'au moins une cause probable est ajoutée
     if (this.causesProbables.length === 0) {
       this.causeProbableError = 'Au moins une cause probable est requise';
+      this.currentStep = 1;
+      this.maxReachedStep = Math.max(this.maxReachedStep, 1);
       return;
     }
 
     // Valider qu'au moins une conséquence probable est ajoutée
     if (this.consequencesProbables.length === 0) {
       this.consequenceProbableError = 'Au moins une conséquence probable est requise';
+      this.currentStep = 1;
+      this.maxReachedStep = Math.max(this.maxReachedStep, 1);
       return;
     }
 
     // Valider qu'au moins une bonne pratique est ajoutée
     if (this.bonnesPratiques.length === 0) {
       this.bonnesPratiquesError = 'Au moins une bonne pratique est requise';
+      this.currentStep = 2;
+      this.maxReachedStep = Math.max(this.maxReachedStep, 2);
       return;
     }
 

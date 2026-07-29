@@ -69,15 +69,15 @@
                     type="text"
                     placeholder="Rechercher par code ou libellé..."
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-                    (input)="onUniteSearch($event)"
-                    (focus)="onUniteFocus()"
+                    (input)="onUniteSearch($event, uniteInput)"
+                    (focus)="onUniteFocus(uniteInput)"
                     autocomplete="off"
                   />
-                  <div *ngIf="showUniteDropdown" 
+                  <div *ngIf="showUniteDropdown"
                        class="fixed bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
                        [style.width.px]="uniteInput.offsetWidth"
-                       [style.top.px]="getUniteDropdownTop(uniteInput)"
-                       [style.left.px]="getUniteDropdownLeft(uniteInput)"
+                       [style.top.px]="uniteDropdownTop"
+                       [style.left.px]="uniteDropdownLeft"
                        [style.background-color]="'#ffffff'"
                        style="z-index: 10000;">
                     <div
@@ -109,10 +109,14 @@
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Processus <span class="text-red-500">*</span></label>
                 <app-searchable-select formControlName="codeProcessus"
-                  [options]="processusOptions" [disabled]="!form.get('codeUniteAdministrative')?.value"
+                  [options]="processusOptions"
                   placeholder="Rechercher un processus par libellé..."></app-searchable-select>
                 <p *ngIf="!form.get('codeUniteAdministrative')?.value" class="mt-1 text-xs text-slate-400 italic">
                   Sélectionnez d'abord une unité administrative
+                </p>
+                <p *ngIf="!loadingProcessus && processus.length === 0 && form.get('codeUniteAdministrative')?.value"
+                   class="mt-1 text-xs text-amber-600">
+                  Cette unité administrative ne dispose d'aucun processus. Veuillez d'abord créer un processus pour cette unité.
                 </p>
                 <p *ngIf="getFieldError('codeProcessus')" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('codeProcessus') }}
@@ -123,10 +127,14 @@
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Risque inhérent</label>
                 <app-searchable-select formControlName="codeRisque"
-                  [options]="risqueOptions" [disabled]="!form.get('codeProcessus')?.value"
+                  [options]="risqueOptions"
                   placeholder="Rechercher un risque par libellé..."></app-searchable-select>
                 <p *ngIf="!form.get('codeProcessus')?.value" class="mt-1 text-xs text-slate-400 italic">
                   Sélectionnez d'abord un processus
+                </p>
+                <p *ngIf="!loadingRisques && risques.length === 0 && form.get('codeProcessus')?.value"
+                   class="mt-1 text-xs text-amber-600">
+                  Ce processus ne dispose d'aucun risque identifié. Le champ "Risque inhérent" restera vide pour ce plan d'audit.
                 </p>
               </div>
 
