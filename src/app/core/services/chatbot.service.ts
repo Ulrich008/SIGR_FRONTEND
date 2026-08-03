@@ -31,11 +31,24 @@ export class ChatbotService {
 
   isOpen = false;
 
-  ask(rawMessage: string): ChatMessage {
-    const entry = this.findBestMatch(rawMessage);
-    return entry
-      ? { from: 'bot', text: entry.answer, anchor: entry.anchor }
-      : { from: 'bot', text: CHATBOT_FALLBACK_ANSWER, anchor: 'intro' };
+  /**
+   * currentRoles : rôle technique + profil métier de l'utilisateur connecté
+   * (voir AuthService.getCurrentRoles()). Volontairement passé en paramètre
+   * plutôt qu'injecté : AuthService injecte déjà ChatbotService (pour
+   * réinitialiser la conversation à la connexion/déconnexion) — l'injecter
+   * ici en retour créerait une dépendance circulaire.
+   */
+  ask(rawMessage: string, currentRoles: string[] = []): ChatMessage {
+    const entry = this.findBestMatch(rawMessage, currentRoles);
+    if (!entry) {
+      return { from: 'bot', text: CHATBOT_FALLBACK_ANSWER, anchor: 'intro' };
+    }
+    const isReadOnly = !!entry.readOnlyRoles?.some(r => currentRoles.includes(r));
+    return {
+      from: 'bot',
+      text: (isReadOnly && entry.readOnlyAnswer) ? entry.readOnlyAnswer : entry.answer,
+      anchor: entry.anchor
+    };
   }
 
   reset(): void {
@@ -44,7 +57,7 @@ export class ChatbotService {
     this.isOpen = false;
   }
 
-  private findBestMatch(rawMessage: string): ChatbotEntry | null {
+  private findBestMatch(rawMessage: string, currentRoles: string[]): ChatbotEntry | null {
     const tokens = this.normalize(rawMessage);
     if (tokens.length === 0) return null;
 
@@ -52,6 +65,12 @@ export class ChatbotService {
     let bestScore = 0;
 
     for (const entry of CHATBOT_KNOWLEDGE_BASE) {
+      // Une entrée réservée à certains profils (ex. Configuration, réservée
+      // à ADMIN/SUPER_ADMIN) n'est ni proposée ni matchée pour les autres :
+      // ce module n'apparaît même pas dans leur menu.
+      if (entry.roles && !entry.roles.some(r => currentRoles.includes(r))) {
+        continue;
+      }
       const score = this.scoreEntry(tokens, entry);
       if (score > bestScore) {
         bestScore = score;

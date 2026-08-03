@@ -20,6 +20,7 @@ import { AgentResponse } from '../../../../core/models/agent.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { evaluationBaseSchema, evaluationSchema } from './evaluations-form.schema';
 import { applyZodValidation, isRequired, zodError } from '../../../../core/validation/zod-form.util';
+import { escapeHtml } from '../../../../core/utils/html-escape.util';
 
 @Component({
   standalone: true,
@@ -46,6 +47,8 @@ export class EvaluationsFormComponent implements OnInit {
   existantesItems: string[] = [];
   aVenirItems: string[] = [];
   nouvellePratique = '';
+  /** Évaluation précédente du risque, conservée pour comparaison de période pendant la réévaluation. */
+  previousEvaluation: EvaluationResponse | null = null;
 
   /** Risque actuellement sélectionné (pour les calculs automatiques) */
   private currentRisque: RisqueResponse | null = null;
@@ -198,6 +201,7 @@ export class EvaluationsFormComponent implements OnInit {
         this.isReevaluation = false;
         this.existantesItems = [];
         this.aVenirItems = [];
+        this.previousEvaluation = null;
         this.form.patchValue({ protection: 0, prevention: 0 }, { emitEvent: false });
       }
     });
@@ -284,22 +288,63 @@ export class EvaluationsFormComponent implements OnInit {
 
     Swal.fire({
       title: 'Risque déjà évalué',
-      text: 'Ce risque a déjà été évalué. Voulez-vous procéder à une réévaluation ?',
+      html: this.buildComparaisonPeriodeHTML(derniereEvaluation),
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Oui, réévaluer',
       cancelButtonText: 'Non',
-      reverseButtons: true
+      reverseButtons: true,
+      width: '520px'
     }).then(result => {
       if (result.isConfirmed) {
+        this.previousEvaluation = derniereEvaluation;
         this.startReevaluation(derniereEvaluation);
       } else {
         // Retour à une évaluation vierge : le choix du risque est annulé,
         // l'utilisateur doit en choisir un autre.
+        this.previousEvaluation = null;
         this.form.patchValue({ codeRisque: '' });
       }
       this.cdr.detectChanges();
     });
+  }
+
+  /**
+   * Récapitulatif de la précédente évaluation (période + scores), affiché
+   * avant confirmation afin que le Responsable Risque puisse comparer avec
+   * la nouvelle période qu'il s'apprête à saisir.
+   */
+  private buildComparaisonPeriodeHTML(evaluation: EvaluationResponse): string {
+    const rows = [
+      { label: 'Période précédente', value: `${this.formatDateForDisplay(evaluation.dateDebut)} → ${this.formatDateForDisplay(evaluation.dateFin)}` },
+      { label: 'Score inhérent', value: `${evaluation.scoreInherent} / 25` },
+      { label: 'Score résiduel', value: `${evaluation.scoreResiduel} / 25` },
+      { label: 'Priorité', value: evaluation.libellePriorite || '—' }
+    ];
+
+    return `
+      <div style="text-align:left;">
+        <p style="margin:0 0 14px;font-size:13.5px;color:#475569;">
+          Ce risque a déjà été évalué. Comparez la période et les scores précédents ci-dessous avant de décider de procéder à une réévaluation.
+        </p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <tbody>
+            ${rows.map(row => `
+              <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:7px 8px 7px 0;color:#64748b;font-weight:600;white-space:nowrap;">${row.label}</td>
+                <td style="padding:7px 0;color:#0f172a;">${row.value}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  private formatDateForDisplay(date?: string): string {
+    if (!date) return '—';
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('fr-FR');
   }
 
   private startReevaluation(derniereEvaluation: EvaluationResponse): void {
@@ -479,16 +524,16 @@ export class EvaluationsFormComponent implements OnInit {
       {
         title: 'Identification',
         rows: [
-          { label: 'Risque évalué', value: risque ? `${risque.code} — ${risque.libelle}` : raw.codeRisque },
-          { label: 'Évaluateur', value: agent ? `${agent.matricule} — ${agent.nom} ${agent.prenoms}` : 'Non renseigné' },
+          { label: 'Risque évalué', value: risque ? `${escapeHtml(risque.code)} — ${escapeHtml(risque.libelle)}` : escapeHtml(raw.codeRisque) },
+          { label: 'Évaluateur', value: agent ? `${escapeHtml(agent.matricule)} — ${escapeHtml(agent.nom)} ${escapeHtml(agent.prenoms)}` : 'Non renseigné' },
           { label: 'Risque déjà survenu', value: raw.dejaSurvenu ? 'Oui' : 'Non' },
         ]
       },
       {
         title: 'Période d\'évaluation',
         rows: [
-          { label: 'Date de début', value: raw.dateDebut || 'Non renseignée' },
-          { label: 'Date de fin', value: raw.dateFin || 'Non renseignée' },
+          { label: 'Date de début', value: raw.dateDebut ? escapeHtml(raw.dateDebut) : 'Non renseignée' },
+          { label: 'Date de fin', value: raw.dateFin ? escapeHtml(raw.dateFin) : 'Non renseignée' },
         ]
       },
       {
@@ -503,14 +548,14 @@ export class EvaluationsFormComponent implements OnInit {
       {
         title: 'Contrôles',
         rows: [
-          { label: 'Contrôles en place', value: raw.controleExistants || '<span style="color:#94a3b8;">Non renseignés</span>' },
-          { label: 'Contrôles manquants', value: raw.controleInexistants || '<span style="color:#94a3b8;">Non renseignés</span>' },
+          { label: 'Contrôles en place', value: raw.controleExistants ? escapeHtml(raw.controleExistants) : '<span style="color:#94a3b8;">Non renseignés</span>' },
+          { label: 'Contrôles manquants', value: raw.controleInexistants ? escapeHtml(raw.controleInexistants) : '<span style="color:#94a3b8;">Non renseignés</span>' },
         ]
       },
       {
         title: 'Recommandation',
         rows: [
-          { label: 'Recommandation', value: raw.recommandation || '<span style="color:#94a3b8;">Aucune</span>' },
+          { label: 'Recommandation', value: raw.recommandation ? escapeHtml(raw.recommandation) : '<span style="color:#94a3b8;">Aucune</span>' },
         ]
       }
     ];

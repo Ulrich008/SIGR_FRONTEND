@@ -58,6 +58,14 @@ export function agentSchema(isEditMode: boolean) {
       });
     }
 
+    if (!isEditMode && (!data.email || data.email.trim().length === 0)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['email'],
+        message: "L'email est obligatoire à la création"
+      });
+    }
+
     if (!isEditMode && (!data.password || data.password.length < 6)) {
       ctx.addIssue({
         code: 'custom',

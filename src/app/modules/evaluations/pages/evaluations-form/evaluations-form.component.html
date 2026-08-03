@@ -51,6 +51,16 @@
           <!-- SECTION 2: Période d'évaluation -->
           <div class="space-y-4" *ngIf="currentStep === 1">
             <h3 class="text-lg font-semibold text-slate-900">Période d'évaluation</h3>
+
+            <!-- Réévaluation : rappel de la période précédente pour comparaison -->
+            <div *ngIf="isReevaluation && previousEvaluation" class="rounded-xl bg-amber-50 p-4 border border-amber-200">
+              <h4 class="text-xs font-semibold text-amber-900 uppercase tracking-wide mb-2">Période de la précédente évaluation</h4>
+              <p class="text-sm text-amber-800">
+                {{ previousEvaluation.dateDebut | date:'dd/MM/yyyy' }} → {{ previousEvaluation.dateFin | date:'dd/MM/yyyy' }}
+              </p>
+              <p class="text-xs text-amber-700 mt-1">Comparez avec la nouvelle période ci-dessous avant de poursuivre.</p>
+            </div>
+
             <div class="space-y-3 pt-2">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Date début -->

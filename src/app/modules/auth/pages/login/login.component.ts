@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LoginRequest } from '../../../../core/models/auth.model';
@@ -8,13 +8,14 @@ import { LoginRequest } from '../../../../core/models/auth.model';
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   error: string | null = null;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -56,14 +57,16 @@ export class LoginComponent {
           } else {
             this.error = 'Une erreur inconnue est survenue';
           }
-          
-          console.log('Message d\'erreur affiché:', this.error);
           this.cdr.markForCheck();
         }
       });
     } else {
       this.markFormGroupTouched();
     }
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   private markFormGroupTouched(): void {

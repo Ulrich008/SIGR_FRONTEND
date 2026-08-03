@@ -278,7 +278,7 @@ export class RisquesListComponent implements OnInit {
       case EtapeValidation.CMMR:
         return 'CMMR';
       case EtapeValidation.VALIDEE:
-        return 'Validé (terminé)';
+        return 'Validé (CMMR)';
       case EtapeValidation.REJETEE:
         return 'Rejeté (terminé)';
       default:

@@ -19,9 +19,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   @Output() search = new EventEmitter<string>();
 
-  // Guide d'utilisation complet de la plateforme : page statique autonome,
-  // volontairement ouverte hors du routeur Angular (nouvel onglet).
-  readonly guideUrl = 'assets/guide/index.html';
+  // Centralisé dans AuthService.getGuideUrl() pour que le header et
+  // l'assistant chatbot (chatbot-widget.component.ts) pointent toujours
+  // vers le même guide, sans risque de désynchronisation.
+  get guideUrl(): string {
+    return this.authService.getGuideUrl();
+  }
 
   // Rempli via GET /api/agents/me : reflète toujours l'agent réellement
   // connecté (pas une valeur codée en dur passée par la page courante).

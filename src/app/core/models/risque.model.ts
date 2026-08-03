@@ -89,3 +89,18 @@ export interface RisqueResponse {
   /** Vrai si le risque a au moins une évaluation liée (condition pour être transmis). */
   evalue: boolean;
 }
+
+/**
+ * Une entrée de l'historique des avis de validation d'un risque (Transmis,
+ * Validé, Différé, Rejeté), reconstituée côté backend depuis les révisions
+ * Envers — avis/motif ne gardent normalement que la dernière décision sur
+ * RisqueResponse, ceci couvre tous les allers-retours passés dans le circuit.
+ */
+export interface AvisHistoriqueResponse {
+  date: string; // ISO date-time string
+  avis?: AvisRisque;
+  motif?: string;
+  etapeValidation?: EtapeValidation;
+  matriculeAuteur?: string;
+  nomAuteur?: string;
+}

@@ -13,6 +13,7 @@ import { RisqueResponse, AvisRisque, EtapeValidation } from '../../../../core/mo
 import { AuthService } from '../../../../core/services/auth.service';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { escapeHtml } from '../../../../core/utils/html-escape.util';
 
 @Component({
   standalone: true,
@@ -244,7 +245,7 @@ export class CartographieRisquesListComponent implements OnInit {
 
   askCodeAndGenerate(): void {
     const uniteOptions = this.unitesAdministratives.map(u =>
-      `<option value="${u.code}">${u.code} - ${u.libelle}</option>`
+      `<option value="${escapeHtml(u.code)}">${escapeHtml(u.code)} - ${escapeHtml(u.libelle)}</option>`
     ).join('');
     const anneeOptions = this.buildAnneeOptionsHtml();
 

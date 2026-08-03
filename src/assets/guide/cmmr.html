@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGR — Guide du CMMR</title>
+<meta name="description" content="Guide d'utilisation de la plateforme SIGR (Système Intégré de Gestion des Risques) pour le Comité Ministériel de Maîtrise des Risques (CMMR).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a4731%22/><text x=%2250%22 y=%2266%22 font-size=%2255%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Georgia,serif%22>S</text></svg>">
+<style>
+  :root {
+    --sigr-900: #1a4731;
+    --sigr-800: #1f5738;
+    --sigr-700: #22703f;
+    --sigr-600: #2c8a4f;
+    --sigr-100: #eaf5ee;
+    --sigr-50: #f5faf6;
+    --ink: #1c2521;
+    --ink-soft: #566661;
+    --line: #e4e9e6;
+    --bg: #fbfcfb;
+    --card: #ffffff;
+    --amber: #b7791f;
+    --amber-bg: #fff8ec;
+    --amber-line: #f1dfb8;
+    --red: #b42318;
+    --red-bg: #fef3f2;
+    --red-line: #f3c6c2;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+  }
+  a { color: var(--sigr-700); }
+
+  /* ===== Bandeau drapeau ===== */
+  .flag-strip { display: flex; height: 4px; }
+  .flag-strip span { flex: 1; }
+  .flag-strip span:nth-child(1) { background: #008751; }
+  .flag-strip span:nth-child(2) { background: #fcd116; }
+  .flag-strip span:nth-child(3) { background: #e8112d; }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 40;
+    background: var(--sigr-900);
+    color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .topbar-logo {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--sigr-600), var(--sigr-900));
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, serif; font-weight: 700; font-size: 18px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .topbar-title { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }
+  .topbar-subtitle { font-size: 11px; color: #cfe4d6; letter-spacing: 0.5px; text-transform: uppercase; }
+  .topbar-search {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px; padding: 8px 12px;
+    color: #dfeee5; font-size: 13px;
+    min-width: 220px;
+  }
+  .topbar-search input {
+    background: transparent; border: none; outline: none;
+    color: white; font-size: 13px; width: 100%;
+  }
+  .topbar-search input::placeholder { color: #a9c9b6; }
+
+  /* ===== Layout ===== */
+  .shell {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    max-width: 1360px;
+    margin: 0 auto;
+  }
+  .toc {
+    position: sticky;
+    top: 61px;
+    align-self: start;
+    height: calc(100vh - 61px);
+    overflow-y: auto;
+    padding: 28px 16px 40px 24px;
+    border-right: 1px solid var(--line);
+  }
+  .toc-group { margin-bottom: 22px; }
+  .toc-group h4 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--ink-soft); margin: 0 0 8px 10px; font-weight: 700;
+  }
+  .toc a {
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 10px; border-radius: 9px;
+    text-decoration: none; color: var(--ink-soft);
+    font-size: 13.5px; font-weight: 600;
+    transition: background .15s, color .15s;
+  }
+  .toc a .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--line); flex-shrink: 0;
+    transition: background .15s, transform .15s;
+  }
+  .toc a:hover { background: var(--sigr-50); color: var(--sigr-900); }
+  .toc a.active { background: var(--sigr-100); color: var(--sigr-900); }
+  .toc a.active .dot { background: var(--sigr-700); transform: scale(1.3); }
+
+  main { padding: 40px 48px 100px; min-width: 0; }
+
+  /* ===== Hero ===== */
+  .hero {
+    background: linear-gradient(135deg, var(--sigr-900) 0%, var(--sigr-700) 100%);
+    border-radius: 22px;
+    padding: 44px 40px;
+    color: white;
+    margin-bottom: 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute; right: -60px; top: -60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 { font-size: 32px; margin: 0 0 12px; font-weight: 800; letter-spacing: -0.5px; }
+  .hero p { font-size: 15px; color: #e2f0e7; max-width: 640px; margin: 0 0 22px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white; color: var(--sigr-900);
+    padding: 10px 18px; border-radius: 10px;
+    font-weight: 700; font-size: 13.5px; text-decoration: none;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  }
+  .hero-btn.ghost {
+    background: rgba(255,255,255,0.08); color: white;
+    border: 1px solid rgba(255,255,255,0.3); box-shadow: none;
+  }
+
+  /* ===== Sections ===== */
+  section.doc { margin-bottom: 64px; scroll-margin-top: 80px; }
+  .doc-kicker {
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--sigr-700); margin-bottom: 8px;
+  }
+  .doc h2 {
+    font-size: 25px; margin: 0 0 8px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px;
+  }
+  .doc > p.lead { color: var(--ink-soft); font-size: 14.5px; max-width: 760px; margin: 0 0 28px; }
+
+  .subsection { margin-top: 34px; padding-top: 30px; border-top: 1px dashed var(--line); scroll-margin-top: 80px; }
+  .subsection h3 { font-size: 18px; margin: 0 0 6px; font-weight: 750; color: var(--ink); }
+  .subsection .role-tags { margin-bottom: 14px; }
+
+  .role-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 16px; }
+  .role-tag {
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+    background: var(--sigr-100); color: var(--sigr-900); border: 1px solid #d3ebda;
+  }
+
+  .steps { margin: 16px 0; padding: 0; list-style: none; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 4px 40px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 2px;
+    width: 26px; height: 26px; border-radius: 8px;
+    background: var(--sigr-900); color: white;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps li b { color: var(--sigr-900); }
+
+  figure.shot {
+    margin: 20px 0; border-radius: var(--radius);
+    overflow: hidden; border: 1px solid var(--line);
+    box-shadow: 0 10px 30px rgba(16, 40, 26, 0.08);
+    background: var(--card);
+  }
+  figure.shot img { display: block; width: 100%; height: auto; }
+  figure.shot figcaption {
+    padding: 10px 16px; font-size: 12.5px; color: var(--ink-soft);
+    background: var(--sigr-50); border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .shot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .shot-grid { grid-template-columns: 1fr; } }
+
+  .callout {
+    display: flex; gap: 12px; align-items: flex-start;
+    border-radius: 12px; padding: 14px 16px; margin: 18px 0;
+    font-size: 13.5px; border: 1px solid var(--line);
+  }
+  .callout.tip { background: var(--sigr-50); border-color: #d3ebda; }
+  .callout.warn { background: var(--amber-bg); border-color: var(--amber-line); }
+  .callout.danger { background: var(--red-bg); border-color: var(--red-line); }
+  .callout .icon { font-size: 16px; line-height: 1; flex-shrink: 0; }
+  .callout.tip .icon { color: var(--sigr-700); }
+  .callout.warn .icon { color: var(--amber); }
+  .callout.danger .icon { color: var(--red); }
+  .callout b { display: block; margin-bottom: 2px; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+  @media (max-width: 900px) { .card-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .card-grid { grid-template-columns: 1fr; } }
+  .mini-card {
+    border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+    background: var(--card);
+  }
+  .mini-card .mc-icon {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--sigr-100);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+    color: var(--sigr-900); font-size: 16px;
+  }
+  .mini-card h5 { margin: 0 0 4px; font-size: 13.5px; font-weight: 750; }
+  .mini-card p { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
+
+  .flow {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 18px 0 22px;
+  }
+  .flow .node {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 14px; font-size: 12.5px; font-weight: 700; color: var(--sigr-900);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .flow .arrow { color: var(--ink-soft); font-size: 16px; }
+  .flow .node.final { background: var(--sigr-900); color: white; border-color: var(--sigr-900); }
+
+  table.compact { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  table.compact th, table.compact td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  table.compact th { background: var(--sigr-50); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ink-soft); }
+  table.compact td.ok { color: var(--sigr-700); font-weight: 700; }
+  table.compact td.no { color: #9aa5a0; }
+
+  .top-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; color: var(--sigr-700);
+    text-decoration: none; margin-top: 18px;
+  }
+
+  footer.doc-footer {
+    max-width: 1360px; margin: 0 auto; padding: 30px 48px 60px 328px;
+    color: var(--ink-soft); font-size: 12.5px;
+  }
+
+  @media (max-width: 980px) {
+    .shell { grid-template-columns: 1fr; }
+    .toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    main { padding: 28px 20px 80px; }
+    footer.doc-footer { padding-left: 20px; }
+    .topbar-search { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="flag-strip"><span></span><span></span><span></span></div>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">S</div>
+    <div>
+      <div class="topbar-title">SIGR — Guide du CMMR</div>
+      <div class="topbar-subtitle">Système intégré de gestion des risques</div>
+    </div>
+  </div>
+  <div class="topbar-search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>
+    <input id="tocFilter" type="text" placeholder="Filtrer les sections...">
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ============ TABLE DES MATIÈRES ============ -->
+  <nav class="toc" id="toc">
+    <div class="toc-group">
+      <h4>Prise en main</h4>
+      <a href="#intro"><span class="dot"></span>Bienvenue</a>
+      <a href="#connexion"><span class="dot"></span>Connexion à l'application</a>
+      <a href="#introduction"><span class="dot"></span>Introduction</a>
+    </div>
+    <div class="toc-group">
+      <h4>Votre espace</h4>
+      <a href="#tableau-bord"><span class="dot"></span>Tableau de bord</a>
+      <a href="#alertes"><span class="dot"></span>Alertes</a>
+    </div>
+    <div class="toc-group">
+      <h4>Formalisation du risque</h4>
+      <a href="#processus"><span class="dot"></span>Processus / Mission</a>
+      <a href="#risques"><span class="dot"></span>Risques</a>
+    </div>
+    <div class="toc-group">
+      <h4>Évaluations</h4>
+      <a href="#evaluer-risque"><span class="dot"></span>Évaluer un risque</a>
+      <a href="#matrice"><span class="dot"></span>Matrice des risques</a>
+    </div>
+    <div class="toc-group">
+      <h4>Mitigation</h4>
+      <a href="#plans-mitigation"><span class="dot"></span>Plans de mitigation</a>
+      <a href="#actions"><span class="dot"></span>Actions</a>
+      <a href="#indicateurs"><span class="dot"></span>Indicateurs de performance</a>
+    </div>
+    <div class="toc-group">
+      <h4>Audit</h4>
+      <a href="#plans-audit"><span class="dot"></span>Plans d'audit</a>
+    </div>
+    <div class="toc-group">
+      <h4>Cartographie des risques</h4>
+      <a href="#projet-cartographie"><span class="dot"></span>Projet de cartographie</a>
+      <a href="#cartographie-differee"><span class="dot"></span>Différée et rejetée</a>
+      <a href="#cartographie-validee"><span class="dot"></span>Cartographie validée</a>
+      <a href="#cartographie-definitive"><span class="dot"></span>Cartographie définitive</a>
+    </div>
+    <div class="toc-group">
+      <h4>Pour finir</h4>
+      <a href="#bonnes-pratiques"><span class="dot"></span>Bonnes pratiques</a>
+      <a href="#glossaire"><span class="dot"></span>Glossaire rapide</a>
+    </div>
+  </nav>
+
+  <!-- ============ CONTENU ============ -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero" id="intro">
+      <span class="hero-eyebrow">📘 Guide du Comité Ministériel de Maîtrise des Risques</span>
+      <h1>Bien utiliser SIGR en tant que CMMR</h1>
+      <p>
+        Ce guide présente pas à pas la consultation de l'application SIGR pour suivre les
+        processus, les risques, les évaluations, les plans de mitigation, les indicateurs et
+        les plans d'audit relevant de votre périmètre de contrôle. Il ne remplace pas la
+        politique de contrôle interne de l'institution, mais en constitue le mode d'emploi
+        opérationnel dans l'outil.
+      </p>
+      <div class="hero-actions">
+        <a class="hero-btn" href="#connexion">Commencer la lecture →</a>
+        <a class="hero-btn ghost" href="#introduction">Mon rôle en un coup d'œil</a>
+      </div>
+    </div>
+
+    <!-- 1. CONNEXION -->
+    <section class="doc" id="connexion">
+      <div class="doc-kicker">1. Connexion à l'application</div>
+      <h2>Se connecter à la plateforme</h2>
+      <p class="lead">
+        L'accès à SIGR se fait via un navigateur web, sur la page de connexion aux couleurs
+        du Ministère de tutelle et de la République du Bénin.
+      </p>
+
+      <figure class="shot">
+        <img src="images/02-login-filled.png" alt="Écran de connexion SIGR">
+        <figcaption>🔐 Écran de connexion SIGR</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">Pour se connecter :</p>
+      <ol class="steps">
+        <li>Saisir son <b>Compte Utilisateur</b> (identifiant fourni par l'administrateur de l'application).</li>
+        <li>Saisir son <b>Mot de passe</b>.</li>
+        <li>Cocher <b>« Se souvenir de moi »</b> si l'on souhaite rester connecté sur le poste utilisé (à éviter sur un poste partagé).</li>
+        <li>Cliquer sur <b>« Se connecter »</b>.</li>
+      </ol>
+      <p style="font-size:14px;color:var(--ink-soft);">
+        En cas d'oubli du mot de passe, cliquer sur le lien « Mot de passe oublié ? » et suivre la procédure de réinitialisation.
+      </p>
+
+      <div class="callout danger">
+        <span class="icon">🔒</span>
+        <div><b>Sécurité.</b>Ne jamais communiquer ses identifiants (compte utilisateur et mot de passe) à un tiers. Ne pas cocher « Se souvenir de moi » sur un ordinateur partagé ou public.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 2. INTRODUCTION -->
+    <section class="doc" id="introduction">
+      <div class="doc-kicker">2. Introduction</div>
+      <h2>Objet du guide et rôle du CMMR</h2>
+      <p class="lead">
+        Ce guide s'adresse aux membres du <b>Comité Ministériel de Maîtrise des Risques
+        (CMMR)</b> d'une institution utilisant SIGR.
+      </p>
+
+      <div class="subsection" id="objet-guide">
+        <h3>2.1 Objet du guide</h3>
+        <p style="font-size:14px;">
+          Il présente pas à pas la consultation de l'application SIGR (Système d'Information
+          de Gestion des Risques) : comment suivre les processus, les risques, les
+          évaluations, les plans de mitigation, les indicateurs et les plans d'audit relevant
+          de son périmètre de contrôle. Il ne remplace pas la politique de contrôle interne de
+          l'institution, mais en constitue le mode d'emploi opérationnel dans l'outil.
+        </p>
+      </div>
+
+      <div class="subsection" id="quest-ce-que">
+        <h3>2.2 Qu'est-ce que le Comité Ministériel de Maîtrise des Risques (CMMR) ?</h3>
+        <p style="font-size:14px;">
+          Le CMMR est la structure chargée de vérifier, au sein de l'institution, que les
+          risques identifiés par les services sont correctement maîtrisés. Dans SIGR, le CMMR
+          dispose d'un accès en <b>consultation</b> à l'ensemble des modules (Formalisation du
+          risque, Évaluations, Mitigation, Audit, Cartographie) : il peut voir tout ce que les
+          responsables risque des différents services ont renseigné, sans pouvoir lui-même
+          créer, modifier ou supprimer ces éléments.
+        </p>
+        <p style="font-size:14px;font-weight:700;margin-bottom:8px;">Ses missions principales sont :</p>
+        <ul style="font-size:14px;padding-left:20px;">
+          <li>Consulter les processus/missions formalisés par les responsables risque de l'entité ;</li>
+          <li>Consulter les risques identifiés et leur statut de traitement ;</li>
+          <li>Consulter les évaluations de risques (probabilité, impact, score, priorité) ;</li>
+          <li>Suivre l'avancement des plans de mitigation, des actions et des indicateurs de performance ;</li>
+          <li>Consulter les plans d'audit rattachés aux processus et aux risques, afin de vérifier la fiabilité des dispositifs de maîtrise mis en place ;</li>
+          <li>Signaler au Responsable des risques toute anomalie ou insuffisance constatée lors de sa revue.</li>
+        </ul>
+
+        <div class="callout warn">
+          <span class="icon">⚠️</span>
+          <div>
+            <b>À retenir.</b>
+            Dans SIGR, le CMMR n'a pas vocation à saisir lui-même des données : son rôle est
+            de consulter, vérifier et challenger ce que les services ont renseigné. Les
+            boutons de création (« + Nouveau… ») apparaissent grisés et inactifs sur
+            l'ensemble des écrans consultés par le CMMR.
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection" id="presentation-generale">
+        <h3>2.3 Présentation générale de l'application</h3>
+        <p style="font-size:14px;">
+          SIGR est organisé en cinq grands modules accessibles depuis le menu de gauche :
+          <b>Formalisation du risque</b>, <b>Évaluations</b>, <b>Mitigation</b>, <b>Audit</b>
+          et <b>Cartographie des risques</b>. Un tableau de bord central donne une vue
+          synthétique de l'activité de l'entité connectée.
+        </p>
+        <figure class="shot">
+          <img src="images/cmmr-dashboard.png" alt="Vue d'ensemble du Tableau de bord SIGR">
+          <figcaption>📊 Vue d'ensemble du Tableau de bord SIGR</figcaption>
+        </figure>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 3. TABLEAU DE BORD -->
+    <section class="doc" id="tableau-bord">
+      <div class="doc-kicker">3. Votre espace</div>
+      <h2>Tableau de bord</h2>
+      <p class="lead">
+        Après connexion, le CMMR arrive sur le Tableau de bord de son institution. Ce tableau
+        affiche en un coup d'œil :
+      </p>
+      <ul style="font-size:14px;padding-left:20px;">
+        <li>le nombre total de risques recensés ;</li>
+        <li>le nombre de risques critiques nécessitant une attention immédiate ;</li>
+        <li>le nombre de processus actifs ;</li>
+        <li>les indicateurs KPI en place et leurs plans associés ;</li>
+        <li>les plans de mitigation et actions en cours ;</li>
+        <li>le nombre d'agents/utilisateurs actifs sur la plateforme.</li>
+      </ul>
+
+      <p style="font-size:14px;">
+        Le graphique <b>« Risques identifiés par processus »</b> situe les risques recensés
+        sur chaque processus. Le flux <b>« Activités récentes »</b> liste, dans l'ordre
+        chronologique, les derniers événements du système (risque identifié, évaluation
+        complétée, plan de mitigation créé, action en cours...), ce qui permet au CMMR de
+        suivre l'activité de l'entité sans avoir à ouvrir chaque module.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-dashboard-activites.png" alt="Graphique Risques identifiés par processus et flux Activités récentes">
+        <figcaption>📈 Graphique « Risques identifiés par processus » et flux « Activités récentes »</figcaption>
+      </figure>
+
+      <div class="callout tip">
+        <span class="icon">💡</span>
+        <div><b>À retenir.</b>Le tableau de bord se met à jour automatiquement dès qu'un processus, un risque, une évaluation ou une action est ajouté ou modifié par un responsable risque. Le nom de l'institution affiché en haut à droite correspond à l'entité à laquelle l'utilisateur est rattaché.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 4. ALERTES -->
+    <section class="doc" id="alertes">
+      <div class="doc-kicker">4. Votre espace</div>
+      <h2>Alertes</h2>
+      <p class="lead">
+        Le module Alertes centralise toutes les notifications destinées au CMMR : nouveaux
+        risques à évaluer, actions arrivant à échéance, indicateurs en retard, cartographies
+        renvoyées, plans d'audit à mettre à jour, etc. Il est accessible depuis le menu
+        principal (icône cloche « Alertes »).
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-alertes.png" alt="Écran Centre de notifications">
+        <figcaption>🔔 Écran « Centre de notifications »</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        En haut de l'écran, un bandeau récapitule l'état du système de notifications (par
+        exemple « Vous êtes à jour ») et propose un bouton <b>« Rafraîchir »</b> pour forcer la
+        mise à jour de la liste.
+      </p>
+
+      <p style="font-size:14px;">Les compteurs affichés permettent d'évaluer rapidement la charge de travail :</p>
+      <table class="compact">
+        <thead><tr><th>Compteur</th><th>Signification</th></tr></thead>
+        <tbody>
+          <tr><td><b>Total</b></td><td>Nombre total de notifications reçues.</td></tr>
+          <tr><td><b>Non lues</b></td><td>Notifications qui n'ont pas encore été consultées — à traiter en priorité.</td></tr>
+          <tr><td><b>Critique</b></td><td>Notifications liées à une urgence absolue.</td></tr>
+          <tr><td><b>Haute</b></td><td>Notifications de priorité élevée.</td></tr>
+          <tr><td><b>Moyenne</b></td><td>Notifications à surveiller.</td></tr>
+          <tr><td><b>Faible</b></td><td>Notifications à titre d'information.</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:14px;">
+        Le champ de recherche permet de filtrer par titre, description, élément ou processus.
+        Des onglets rapides (Toutes, Non lues, Critique, Haute, Moyenne, Faible) affinent
+        également la liste selon le niveau de priorité.
+      </p>
+
+      <div class="callout tip">
+        <span class="icon">💡</span>
+        <div><b>À retenir.</b>Une notification non lue signale généralement une action attendue du CMMR (évaluation à faire, action en retard, cartographie renvoyée, plan d'audit à actualiser...). Le bouton « Rafraîchir » est utile si une notification attendue n'apparaît pas immédiatement.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 5. FORMALISATION DU RISQUE -->
+    <section class="doc" id="processus">
+      <div class="doc-kicker">5. Module « Formalisation du risque »</div>
+      <h2>Processus / Mission</h2>
+      <p class="lead">
+        Ce module regroupe les processus de l'entité et les risques qui leur sont associés.
+        Le CMMR y accède exclusivement en consultation : les processus et les risques sont
+        formalisés par le responsable risque de chaque service.
+      </p>
+      <p style="font-size:14px;">
+        Cet écran recense les processus métier, support et de pilotage de l'entité, afin que
+        le CMMR connaisse le périmètre sur lequel s'appuient les risques, les évaluations et
+        les plans d'audit.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-processus-list.png" alt="Écran Processus / Mission">
+        <figcaption>🗂️ Écran « Processus / Mission »</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <span class="icon">🔒</span>
+        <div>
+          <b>Lecture seule.</b>
+          Le bouton « + Nouveau processus » apparaît grisé et inactif pour le CMMR : la
+          création et la modification des processus relèvent du responsable risque de chaque
+          service. Dans la colonne « Actions », seule l'icône « œil » (consultation du détail)
+          est disponible — aucune icône de modification ou de suppression.
+        </div>
+      </div>
+
+      <p style="font-size:14px;">
+        Le champ de recherche permet néanmoins au CMMR de retrouver rapidement un processus
+        par code, libellé, unité ou propriétaire, et les compteurs Total / Métier / Support /
+        Pilotage donnent une vue d'ensemble du périmètre couvert.
+      </p>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <section class="doc" id="risques">
+      <div class="doc-kicker">5. Module « Formalisation du risque »</div>
+      <h2>Risques</h2>
+      <p class="lead">
+        Cet écran recense les risques identifiés sur les processus de l'entité, avec leur
+        type, leur statut, le processus auquel ils se rattachent et une colonne
+        <b>« Étape »</b> qui indique où en est le risque dans le circuit de cartographie.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-risques-list.png" alt="Écran Risques">
+        <figcaption>⚠️ Écran « Risques »</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <span class="icon">🔒</span>
+        <div>
+          <b>Lecture seule.</b>
+          Comme pour les processus, le bouton « + Nouveau risque » est grisé et inactif pour
+          le CMMR. La colonne « Actions » propose ici trois icônes (œil, crayon, corbeille) ;
+          le CMMR n'utilise en pratique que la consultation, la modification et la
+          suppression restant du ressort du responsable risque qui a créé le risque.
+        </div>
+      </div>
+
+      <table class="compact">
+        <thead><tr><th>Statut du risque</th><th>Signification</th></tr></thead>
+        <tbody>
+          <tr><td><b>Actif</b></td><td>Le risque est identifié mais n'a pas encore fait l'objet d'un traitement particulier.</td></tr>
+          <tr><td><b>En cours</b></td><td>Un plan de mitigation ou des actions de traitement sont en cours de mise en œuvre.</td></tr>
+          <tr><td><b>Maîtrisé</b></td><td>Les actions de traitement ont permis de ramener le risque à un niveau acceptable.</td></tr>
+          <tr><td><b>Clôturé</b></td><td>Le risque n'est plus pertinent pour l'entité (processus arrêté, cause disparue, etc.).</td></tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:14px;">
+        La colonne « Étape » reflète l'avancement du risque dans le circuit de validation de
+        la cartographie — par exemple <b>« Validé (CMMR) »</b> lorsque sa cartographie a été
+        définitivement validée.
+      </p>
+
+      <div class="callout tip">
+        <span class="icon">💡</span>
+        <div><b>À retenir.</b>En cliquant sur l'icône « œil », le CMMR accède au détail complet du risque : type, date d'identification, causes probables, conséquences probables et bonnes pratiques de prévention/protection renseignées par le responsable risque.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 6. ÉVALUATIONS -->
+    <section class="doc" id="evaluer-risque">
+      <div class="doc-kicker">6. Module « Évaluations »</div>
+      <h2>Évaluer un risque</h2>
+      <p class="lead">
+        Ce module permet de consulter la cotation de chaque risque formalisé, afin
+        d'apprécier sa criticité et l'ordre de priorité de traitement retenu.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-evaluations-list.png" alt="Écran Évaluer Risque">
+        <figcaption>📋 Écran « Évaluer Risque »</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <span class="icon">🔒</span>
+        <div>
+          <b>Lecture seule.</b>
+          Le bouton « + Nouvelle évaluation » est grisé et inactif pour le CMMR :
+          l'évaluation d'un risque (cotation de l'impact et de la probabilité) relève du
+          responsable risque, non du CMMR.
+        </div>
+      </div>
+
+      <p style="font-size:14px;">Le tableau récapitule, pour chaque évaluation :</p>
+      <ul style="font-size:14px;padding-left:20px;">
+        <li>Le code de l'évaluation et le risque concerné ;</li>
+        <li>Le score inhérent (impact × probabilité avant traitement), avec son niveau (Faible, Moyen, Élevé, Critique) ;</li>
+        <li>Les niveaux de prévention et de protection retenus ;</li>
+        <li>Le score résiduel (après prise en compte des mesures existantes), avec son niveau ;</li>
+        <li>La période d'évaluation et la priorité de traitement (par exemple 3/5).</li>
+      </ul>
+      <p style="font-size:14px;">
+        Par exemple, un risque « Inaccessibilité aux ressources informatiques » affichant un
+        score inhérent de 25 (Critique) et un score résiduel de 15 (Critique) permet au CMMR
+        d'identifier rapidement que ce risque reste critique malgré les mesures de prévention
+        déjà en place, et d'orienter en conséquence ses travaux de contrôle.
+      </p>
+
+      <div class="callout tip">
+        <span class="icon">🧮</span>
+        <div><b>Comment se lit le score.</b>Score inhérent = Impact inhérent × Probabilité inhérente (avant toute mesure de maîtrise). Score résiduel = score obtenu après prise en compte de la maturité des dispositifs de Prévention et de Protection réellement en place. Un score résiduel qui reste proche du score inhérent signale que les mesures de maîtrise sont encore insuffisantes — un point d'attention naturel pour le CMMR.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <section class="doc" id="matrice">
+      <div class="doc-kicker">6. Module « Évaluations »</div>
+      <h2>Matrice des risques</h2>
+      <p class="lead">
+        La matrice offre une lecture visuelle croisant impact (1 à 5) et probabilité (1 à 5).
+        Chaque case affiche un score de 1 à 25, codé par couleur.
+      </p>
+
+      <table class="compact">
+        <thead><tr><th>Niveau</th><th>Signification</th></tr></thead>
+        <tbody>
+          <tr><td><b>Faible (vert)</b></td><td>Score de 1 à 7 — risque à surveiller, pas d'action prioritaire requise.</td></tr>
+          <tr><td><b>Moyen (jaune)</b></td><td>Score de 8 à 14 — risque à traiter dans un délai raisonnable.</td></tr>
+          <tr><td><b>Élevé (rouge)</b></td><td>Score de 15 à 25 — risque prioritaire nécessitant un plan de mitigation immédiat.</td></tr>
+        </tbody>
+      </table>
+
+      <figure class="shot">
+        <img src="images/cmmr-matrice.png" alt="Grille complète Impact x Probabilité et détail par cellule">
+        <figcaption>🎯 Grille complète Impact × Probabilité et détail par cellule — Impact 5 / Probabilité 3 = 15 (1 éval.), Impact 3 / Probabilité 3 = 9 (1 éval.)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        En cliquant sur une case de la matrice, le CMMR accède au détail des évaluations
+        correspondant à ce couple impact/probabilité (par exemple le risque Re_DI001, avec un
+        score de 15), ce qui facilite l'identification rapide des risques les plus critiques
+        du périmètre observé.
+      </p>
+
+      <div class="callout tip">
+        <span class="icon">💡</span>
+        <div><b>Conseil pratique.</b>La matrice est un excellent point de départ pour cibler les processus à auditer en priorité dans le module Audit.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 7. MITIGATION -->
+    <section class="doc" id="plans-mitigation">
+      <div class="doc-kicker">7. Module « Mitigation »</div>
+      <h2>Plans de mitigation</h2>
+      <p class="lead">
+        Ce module regroupe le traitement opérationnel des risques évalués : plans de
+        mitigation, actions concrètes et indicateurs de suivi. Le CMMR y accède en
+        consultation, afin de vérifier que les risques évalués font bien l'objet d'un
+        traitement adapté.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-plans-mitigation.png" alt="Écran Plans de Mitigation">
+        <figcaption>🛠️ Écran « Plans de Mitigation »</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <span class="icon">🔒</span>
+        <div>
+          <b>Lecture seule.</b>
+          Le bouton « + Nouveau plan » est grisé et inactif pour le CMMR. La fiche affichée
+          pour chaque plan indique son code, son statut, le risque auquel il se rattache et sa
+          date de création ; un bouton « œil » permet d'en consulter le détail complet.
+        </div>
+      </div>
+
+      <table class="compact">
+        <thead><tr><th>Statut du plan</th><th>Signification</th></tr></thead>
+        <tbody>
+          <tr><td><b>Planifié</b></td><td>Le plan est défini mais sa mise en œuvre n'a pas encore commencé.</td></tr>
+          <tr><td><b>En cours</b></td><td>Le plan est en cours de mise en œuvre.</td></tr>
+          <tr><td><b>Terminé</b></td><td>Le plan a été mené à son terme.</td></tr>
+          <tr><td><b>Annulé</b></td><td>Le plan a été abandonné.</td></tr>
+        </tbody>
+      </table>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <section class="doc" id="actions">
+      <div class="doc-kicker">7. Module « Mitigation »</div>
+      <h2>Actions</h2>
+
+      <figure class="shot">
+        <img src="images/cmmr-actions.png" alt="Écran Actions">
+        <figcaption>✅ Écran « Actions »</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <span class="icon">🔒</span>
+        <div>
+          <b>Lecture seule.</b>
+          Le bouton « + Nouvelle action » est également grisé et inactif pour le CMMR.
+          Chaque fiche d'action précise son code, son libellé, son statut (En cours,
+          Terminée, En retard, Annulée), ses dates de début et de fin, le plan de mitigation
+          auquel elle se rattache et son responsable.
+        </div>
+      </div>
+
+      <p style="font-size:14px;">
+        Le tableau de bord signale automatiquement les actions « En retard », ce qui permet
+        au CMMR de relancer, via le Responsable des risques, les responsables concernés.
+      </p>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <section class="doc" id="indicateurs">
+      <div class="doc-kicker">7. Module « Mitigation »</div>
+      <h2>Indicateurs de performance (KPI)</h2>
+
+      <figure class="shot">
+        <img src="images/cmmr-indicateurs-list.png" alt="Écran Indicateurs de Performance">
+        <figcaption>📈 Écran « Indicateurs de Performance »</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <span class="icon">🔒</span>
+        <div>
+          <b>Lecture seule.</b>
+          Le bouton « + Nouvel indicateur » est grisé et inactif pour le CMMR. Les
+          indicateurs permettent de mesurer dans la durée l'efficacité des mesures de
+          maîtrise mises en place ; le CMMR consulte la valeur obtenue, la valeur cible et
+          l'écart de chaque indicateur, sans pouvoir les modifier.
+        </div>
+      </div>
+
+      <p style="font-size:14px;">
+        L'écran affiche quatre compteurs (Objectif atteint, En cours, Attention, En retard)
+        ainsi qu'un graphique <b>« Vue d'ensemble — Valeurs obtenues vs Cibles »</b> comparant,
+        pour chaque indicateur, la valeur obtenue à la valeur cible fixée.
+      </p>
+
+      <div class="callout tip">
+        <span class="icon">🧭</span>
+        <div><b>Cohérence entre plans, actions et indicateurs.</b>Un plan de mitigation, ses actions et ses indicateurs forment une chaîne cohérente : le CMMR peut ainsi remonter d'un indicateur en alerte jusqu'à l'action, puis au plan et au risque d'origine.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 8. AUDIT -->
+    <section class="doc" id="plans-audit">
+      <div class="doc-kicker">8. Module « Audit »</div>
+      <h2>Plans d'audit</h2>
+      <p class="lead">
+        Ce module est <b>spécifique au Comité Ministériel de Maîtrise des Risques</b>. Il
+        permet de consulter les plans d'audit rattachés aux processus et aux risques déjà
+        formalisés dans SIGR, afin de vérifier sur le terrain la fiabilité des dispositifs de
+        maîtrise mis en place par les services.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-plans-audit.png" alt="Écran Plans d'audit">
+        <figcaption>📋 Écran « Plans d'audit »</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        L'écran liste l'ensemble des plans d'audit de l'institution, avec des compteurs Total
+        / Opérationnel / Conformité / Contrôle Interne et un champ de recherche par libellé,
+        code, unité, processus ou type.
+      </p>
+      <p style="font-size:14px;font-weight:700;margin-bottom:8px;">Chaque plan d'audit affiché sous forme de fiche présente notamment :</p>
+      <ul style="font-size:14px;padding-left:20px;">
+        <li>Le code et le libellé du plan (par exemple « Plan d'audit sur les risques de la direction de l'Informatique » ou « ... de la direction de la Solde ») ;</li>
+        <li>Le type de mission concerné : Contrôle Interne et/ou Assurance Contrôle Interne ;</li>
+        <li>L'unité ou la direction auditée ;</li>
+        <li>Le processus rattaché (tel que formalisé dans le module Formalisation du risque) ;</li>
+        <li>Le risque associé (tel que formalisé et évalué dans les modules précédents) ;</li>
+        <li>Le type d'audit : Opérationnel et/ou Conformité.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="icon">🔒</span>
+        <div>
+          <b>Lecture seule.</b>
+          Le bouton « + Nouveau plan d'audit », en haut à droite, apparaît lui aussi grisé et
+          inactif : le CMMR consulte les plans d'audit existants (par exemple PA_DI001 et
+          PA_DS001, tous deux de type « Contrôle Interne / Assurance Contrôle Interne ») via
+          l'icône « œil », sans pouvoir en créer de nouveaux directement depuis cet écran.
+        </div>
+      </div>
+
+      <div class="callout tip">
+        <span class="icon">💡</span>
+        <div>
+          <b>À retenir.</b>
+          Un plan d'audit se construit à partir d'un processus et d'un risque déjà formalisés
+          : sa création relève d'un profil disposant des droits de saisie sur ce module. Un
+          même plan peut couvrir plusieurs types de mission (Contrôle Interne, Assurance
+          Contrôle Interne) et plusieurs types d'audit (Opérationnel, Conformité).
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 9. CARTOGRAPHIE DES RISQUES -->
+    <section class="doc" id="projet-cartographie">
+      <div class="doc-kicker">9. Module « Cartographie des risques »</div>
+      <h2>Projet de cartographie de risques</h2>
+      <p class="lead">
+        La cartographie consolide l'ensemble des risques évalués de l'entité, transmis par le
+        responsable risque au Responsable des risques pour validation. Le CMMR y accède en
+        consultation, afin de suivre l'état d'avancement de cette validation.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-cartographie-projet.png" alt="Écran Projet de cartographie de risques">
+        <figcaption>📤 Écran « Projet de cartographie de risques »</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Tant qu'aucun risque évalué n'est disponible, l'écran affiche « Aucun risque
+        disponible pour la cartographie ». La sélection et la transmission des risques vers
+        cette cartographie relèvent du responsable risque ; le CMMR consulte cet écran pour
+        suivre le périmètre en cours de constitution.
+      </p>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <section class="doc" id="cartographie-differee">
+      <div class="doc-kicker">9. Module « Cartographie des risques »</div>
+      <h2>Cartographie différée et rejetée</h2>
+      <p class="lead">
+        Si le Responsable des risques renvoie une cartographie pour compléments ou la
+        rejette, elle apparaît dans cet écran avec le motif du renvoi.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-cartographie-differee-rejetee.png" alt="Écran Cartographie différée et rejetée">
+        <figcaption>↩️ Écran « Cartographie différée et rejetée »</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Le CMMR peut ainsi suivre les points nécessitant une correction par le responsable
+        risque concerné, avant nouvelle transmission. Tant qu'aucun cas ne se présente,
+        l'écran affiche « Aucun risque différé ou rejeté pour le moment ».
+      </p>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <section class="doc" id="cartographie-validee">
+      <div class="doc-kicker">9. Module « Cartographie des risques »</div>
+      <h2>Cartographie validée</h2>
+      <p class="lead">
+        Cet écran liste les risques dont la transmission a été acceptée par le Responsable des
+        risques : ils sont désormais validés et attendent l'étape de consolidation finale.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-cartographie-validee.png" alt="Écran Cartographie validée">
+        <figcaption>✔️ Écran « Cartographie validée »</figcaption>
+      </figure>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <section class="doc" id="cartographie-definitive">
+      <div class="doc-kicker">9. Module « Cartographie des risques »</div>
+      <h2>Cartographie définitive des risques</h2>
+      <p class="lead">
+        Cet écran, également accessible depuis le module Mitigation, consolide l'ensemble des
+        risques transmis pour l'entité et affiche leur avis de traitement.
+      </p>
+
+      <figure class="shot">
+        <img src="images/cmmr-cartographie-definitive.png" alt="Écran Cartographie définitif des risques">
+        <figcaption>📌 Écran « Cartographie définitif des risques »</figcaption>
+      </figure>
+
+      <table class="compact">
+        <thead><tr><th>Avis</th><th>Signification</th></tr></thead>
+        <tbody>
+          <tr><td><b>Validé</b></td><td>Le risque a été accepté tel quel par le Responsable des risques.</td></tr>
+          <tr><td><b>Différé</b></td><td>Le risque a été renvoyé au responsable risque pour compléments avant nouvelle transmission.</td></tr>
+          <tr><td><b>Rejeté</b></td><td>Le risque a été écarté de la cartographie de l'entité.</td></tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:14px;">
+        Le tableau récapitule, pour chaque risque transmis, le code, le libellé, le
+        processus, le type, le statut et l'avis rendu. La consolidation officielle de la
+        cartographie définitive (bouton « Générer Cartographie définitive ») est réalisée par
+        le Responsable des risques ; le CMMR consulte ici le résultat final.
+      </p>
+
+      <div class="callout tip">
+        <span class="icon">🧭</span>
+        <div>
+          <b>Séquence complète de la cartographie.</b>
+          1. Projet de cartographie : le responsable risque sélectionne les risques évalués et transmet.
+          2. Cartographie différée et rejetée : les risques renvoyés ou écartés par le Responsable des risques apparaissent ici pour correction.
+          3. Cartographie validée : les risques acceptés sont listés en attente de consolidation.
+          4. Cartographie définitive des risques : vue consolidée Total/Validé/Différé/Rejeté, avec génération de la cartographie définitive de l'entité par le Responsable des risques.
+          Le CMMR consulte chacune de ces étapes pour suivre la maturité du dispositif de gestion des risques de l'entité.
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 10. BONNES PRATIQUES -->
+    <section class="doc" id="bonnes-pratiques">
+      <div class="doc-kicker">10. Pour finir</div>
+      <h2>Bonnes pratiques pour le CMMR</h2>
+      <ul style="font-size:14px;padding-left:20px;">
+        <li>Consulter régulièrement le tableau de bord pour détecter rapidement toute anomalie (risques critiques, actions en retard, indicateurs en alerte).</li>
+        <li>Partir de la matrice des risques pour identifier les processus et risques les plus critiques à examiner en priorité.</li>
+        <li>Vérifier la cohérence entre le score résiduel affiché dans les évaluations et l'avancement réel des plans de mitigation et actions associés.</li>
+        <li>S'appuyer sur les plans d'audit existants pour structurer ses travaux de contrôle, en s'assurant qu'ils couvrent bien les processus et risques les plus sensibles.</li>
+        <li>Signaler au Responsable des risques toute incohérence constatée (risque sans évaluation, action en retard non traitée, indicateur non actualisé) plutôt que de tenter de la corriger soi-même dans l'outil.</li>
+        <li>Suivre l'état des cartographies (différée, rejetée, validée, définitive) pour identifier les entités dont le dispositif de maîtrise des risques nécessite un accompagnement particulier.</li>
+      </ul>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 11. GLOSSAIRE -->
+    <section class="doc" id="glossaire">
+      <div class="doc-kicker">11. Pour finir</div>
+      <h2>Glossaire rapide</h2>
+      <table class="compact">
+        <thead><tr><th>Terme</th><th>Signification</th></tr></thead>
+        <tbody>
+          <tr><td><b>Score inhérent</b></td><td>Niveau de risque brut, avant prise en compte des mesures de maîtrise (probabilité × impact).</td></tr>
+          <tr><td><b>Score résiduel</b></td><td>Niveau de risque restant après application des mesures de prévention et de protection.</td></tr>
+          <tr><td><b>Priorité</b></td><td>Ordre de traitement recommandé, déduit du score résiduel.</td></tr>
+          <tr><td><b>KPI</b></td><td>Indicateur clé de performance utilisé pour suivre la maîtrise d'un risque dans la durée.</td></tr>
+          <tr><td><b>Cartographie</b></td><td>Vue consolidée de l'ensemble des risques évalués d'une entité, transmise pour validation.</td></tr>
+          <tr><td><b>Plan d'audit</b></td><td>Mission de contrôle rattachée à un processus et à un risque, visant à vérifier la fiabilité des dispositifs de maîtrise en place.</td></tr>
+          <tr><td><b>Assurance Contrôle Interne</b></td><td>Type de mission d'audit consistant à évaluer objectivement l'efficacité du dispositif de contrôle interne d'un processus.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip" style="margin-top:26px;">
+        <span class="icon">✉️</span>
+        <div><b>Besoin d'aide supplémentaire ?</b>Rapprochez-vous de l'administrateur SIGR de votre ministère.</div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+  </main>
+</div>
+
+<footer class="doc-footer">
+  SIGR — Système Intégré de Gestion des Risques · République du Bénin · Ministère de l'Économie et des Finances · Guide du CMMR
+</footer>
+
+<script>
+  // Filtrage simple des entrées du sommaire
+  document.getElementById('tocFilter').addEventListener('input', function (e) {
+    var q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.toc-group').forEach(function (group) {
+      var visibleCount = 0;
+      group.querySelectorAll('a').forEach(function (link) {
+        var match = link.textContent.toLowerCase().includes(q);
+        link.style.display = match ? 'flex' : 'none';
+        if (match) visibleCount++;
+      });
+      group.style.display = visibleCount > 0 ? 'block' : 'none';
+    });
+  });
+
+  // Mise en surbrillance de la section active au scroll
+  var sections = Array.from(document.querySelectorAll('section.doc'));
+  var links = Array.from(document.querySelectorAll('.toc a'));
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var link = links.find(function (l) { return l.getAttribute('href') === '#' + entry.target.id; });
+      if (!link) return;
+      if (entry.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { observer.observe(s); });
+</script>
+
+</body>
+</html>

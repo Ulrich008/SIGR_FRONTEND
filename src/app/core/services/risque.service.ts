@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AvisRisqueRequest, RisqueRequest, RisqueResponse } from '../models/risque.model';
+import { AvisHistoriqueResponse, AvisRisqueRequest, RisqueRequest, RisqueResponse } from '../models/risque.model';
 import { AuthService } from './auth.service';
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -70,6 +70,13 @@ export class RisqueService {
   /** Clôturer un risque (réservé au CCI) */
   cloturer(code: string): Observable<RisqueResponse> {
     return this.http.patch<RisqueResponse>(`${this.apiUrl}/${code}/cloturer`, {}, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Historique complet des avis de validation (Transmis, Validé, Différé, Rejeté) de ce risque */
+  getHistoriqueAvis(code: string): Observable<AvisHistoriqueResponse[]> {
+    return this.http.get<AvisHistoriqueResponse[]>(`${this.apiUrl}/${code}/historique-avis`, this.headers).pipe(
       catchError(error => this.handleError(error))
     );
   }

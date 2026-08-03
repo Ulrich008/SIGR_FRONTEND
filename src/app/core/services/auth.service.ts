@@ -4,7 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse } from '../models/auth.model';
+import { ForgotPasswordRequest, LoginRequest, LoginResponse, ResetPasswordRequest } from '../models/auth.model';
 import { MenuService } from './menu.service';
 import { ChatbotService } from './chatbot.service';
 
@@ -53,6 +53,19 @@ export class AuthService {
         // chatbot plutôt que de garder l'historique de la session précédente.
         this.chatbotService.reset();
       }),
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  // ================= MOT DE PASSE OUBLIÉ =================
+  motDePasseOublie(request: ForgotPasswordRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.API_URL}/mot-de-passe-oublie`, request).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  reinitialiserMotDePasse(request: ResetPasswordRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.API_URL}/reinitialiser-mot-de-passe`, request).pipe(
       catchError(error => this.handleError(error))
     );
   }
@@ -108,11 +121,40 @@ export class AuthService {
     return !!user && user.role === role;
   }
 
- hasAnyRole(roles: string[]): boolean {
-  const user = this.getCurrentUser();
-  if (!user || !roles || roles.length === 0) return true;
-  return roles.includes(user.role) || (!!user.codeProfil && roles.includes(user.codeProfil));
-}
+  hasAnyRole(roles: string[]): boolean {
+    if (!roles || roles.length === 0) return true;
+    const user = this.getCurrentUser();
+    if (!user) return false;
+    return roles.includes(user.role) || (!!user.codeProfil && roles.includes(user.codeProfil));
+  }
+
+  /** Rôle technique + profil métier de l'utilisateur connecté, pour un filtrage générique par rôle. */
+  getCurrentRoles(): string[] {
+    const user = this.getCurrentUser();
+    if (!user) return [];
+    return [user.role, user.codeProfil].filter((r): r is string => !!r);
+  }
+
+  /**
+   * Guide d'utilisation complet de la plateforme : page statique autonome,
+   * volontairement ouverte hors du routeur Angular (nouvel onglet). Le
+   * Responsable Risque, la CCI et le CMMR ont chacun un guide dédié à leur
+   * périmètre ; les autres profils (Super Admin, Admin, etc.) conservent le
+   * guide général. Centralisé ici pour que le header et l'assistant chatbot
+   * pointent toujours vers le même guide, sans risque de désynchronisation.
+   */
+  getGuideUrl(): string {
+    if (this.hasAnyRole(['RESPONSABLE_RISQUES'])) {
+      return 'assets/guide/responsable-risque.html';
+    }
+    if (this.hasAnyRole(['CCI'])) {
+      return 'assets/guide/cci.html';
+    }
+    if (this.hasAnyRole(['CMMR'])) {
+      return 'assets/guide/cmmr.html';
+    }
+    return 'assets/guide/index.html';
+  }
 
   // ================= HEADERS =================
   getAuthHeaders(): { [header: string]: string } {

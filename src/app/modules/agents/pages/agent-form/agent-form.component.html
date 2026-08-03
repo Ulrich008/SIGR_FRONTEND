@@ -198,7 +198,8 @@
               <!-- Email -->
               <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  Email <span class="text-xs font-normal text-gray-400 ml-1">(optionnel, pour les notifications)</span>
+                  Email <span *ngIf="!isEditMode" class="text-red-500">*</span>
+                  <span class="text-xs font-normal text-gray-400 ml-1">(pour les notifications)</span>
                 </label>
                 <input formControlName="email" type="email" placeholder="agent@finances.gouv.bj"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400 transition-colors"/>

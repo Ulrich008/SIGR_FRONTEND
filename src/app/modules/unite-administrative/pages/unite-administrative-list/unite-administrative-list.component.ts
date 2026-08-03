@@ -11,6 +11,7 @@ import { UniteAdministrativeResponse } from '../../../../core/models/unite-admin
 import { ImportResult } from '../../../../core/models/import-result.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { escapeHtml } from '../../../../core/utils/html-escape.util';
 
 @Component({
   standalone: true,
@@ -209,7 +210,7 @@ export class UniteAdministrativeListComponent implements OnInit {
     const listeErreurs = result.echecs.length
       ? `<div style="text-align:left;max-height:200px;overflow-y:auto;margin-top:12px;">
           <ul style="list-style:disc;padding-left:20px;">
-            ${result.echecs.map(e => `<li>Ligne ${e.ligne} : ${e.message}</li>`).join('')}
+            ${result.echecs.map(e => `<li>Ligne ${escapeHtml(e.ligne)} : ${escapeHtml(e.message)}</li>`).join('')}
           </ul>
         </div>`
       : '';
@@ -217,7 +218,7 @@ export class UniteAdministrativeListComponent implements OnInit {
     Swal.fire({
       icon: result.echecs.length ? 'warning' : 'success',
       title: 'Import terminé',
-      html: `${result.succes} / ${result.totalLignes} unité(s) importée(s) avec succès.${listeErreurs}`,
+      html: `${escapeHtml(result.succes)} / ${escapeHtml(result.totalLignes)} unité(s) importée(s) avec succès.${listeErreurs}`,
       confirmButtonColor: '#047857'
     });
   }

@@ -23,10 +23,27 @@ export class MatricesListComponent implements OnInit {
   error: string | null = null;
   menuItems: MenuItem[];
 
+  /**
+   * Une réévaluation crée une NOUVELLE ligne d'évaluation (code "Re_...")
+   * sans supprimer l'ancienne : le risque a donc plusieurs évaluations en
+   * base. Pour que la matrice reflète la dernière réévaluation au lieu
+   * d'afficher aussi l'ancienne position (déjà obsolète), on ne garde que
+   * la plus récente évaluation par risque — la dernière rencontrée pour un
+   * même codeRisque, l'API renvoyant les évaluations dans leur ordre de
+   * création (même convention que dans evaluations-form).
+   */
+  get latestEvaluations(): EvaluationResponse[] {
+    const parRisque = new Map<string, EvaluationResponse>();
+    for (const evaluation of this.evaluations) {
+      parRisque.set(evaluation.codeRisque, evaluation);
+    }
+    return Array.from(parRisque.values());
+  }
+
   get filteredEvaluations(): EvaluationResponse[] {
     const terme = this.searchTerm.trim().toLowerCase();
-    if (!terme) return this.evaluations;
-    return this.evaluations.filter(e =>
+    if (!terme) return this.latestEvaluations;
+    return this.latestEvaluations.filter(e =>
       e.code.toLowerCase().includes(terme) ||
       e.libelleRisque?.toLowerCase().includes(terme)
     );

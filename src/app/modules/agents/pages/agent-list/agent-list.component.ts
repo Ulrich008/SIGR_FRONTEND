@@ -12,6 +12,7 @@ import { AgentResponse } from '../../../../core/models/agent.model';
 import { ImportResult } from '../../../../core/models/import-result.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { escapeHtml } from '../../../../core/utils/html-escape.util';
 
 @Component({
   standalone: true,
@@ -237,7 +238,7 @@ export class AgentListComponent implements OnInit {
     this.ministereService.getAll().subscribe({
       next: (ministeres) => {
         const options = ministeres
-          .map(m => `<option value="${m.code}">${m.code} - ${m.nom}</option>`)
+          .map(m => `<option value="${escapeHtml(m.code)}">${escapeHtml(m.code)} - ${escapeHtml(m.nom)}</option>`)
           .join('');
 
         Swal.fire({
@@ -353,7 +354,7 @@ export class AgentListComponent implements OnInit {
     const listeErreurs = result.echecs.length
       ? `<div style="text-align:left;max-height:200px;overflow-y:auto;margin-top:12px;">
           <ul style="list-style:disc;padding-left:20px;">
-            ${result.echecs.map(e => `<li>Ligne ${e.ligne} : ${e.message}</li>`).join('')}
+            ${result.echecs.map(e => `<li>Ligne ${escapeHtml(e.ligne)} : ${escapeHtml(e.message)}</li>`).join('')}
           </ul>
         </div>`
       : '';
@@ -361,7 +362,7 @@ export class AgentListComponent implements OnInit {
     Swal.fire({
       icon: result.echecs.length ? 'warning' : 'success',
       title: 'Import terminé',
-      html: `${result.succes} / ${result.totalLignes} agent(s) importé(s) avec succès.${listeErreurs}`,
+      html: `${escapeHtml(result.succes)} / ${escapeHtml(result.totalLignes)} agent(s) importé(s) avec succès.${listeErreurs}`,
       confirmButtonColor: '#047857'
     });
   }

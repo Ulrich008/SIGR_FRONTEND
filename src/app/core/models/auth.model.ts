@@ -15,3 +15,12 @@ export interface LoginResponse {
   codeUnite?: string;
   codeMinistere?: string;
 }
+
+export interface ForgotPasswordRequest {
+  matricule: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  nouveauMotDePasse: string;
+}

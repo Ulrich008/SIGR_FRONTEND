@@ -14,7 +14,26 @@ export interface ChatbotEntry {
   question: string;
   answer: string;
   anchor?: string;
+  /**
+   * Si renseigné, cette entrée n'est proposée/matchée que pour ces rôles ou
+   * profils (rôle technique ou codeProfil, voir AuthService.getCurrentRoles).
+   * Réservé aux modules entièrement absents du menu des autres profils
+   * (ex. Configuration, réservée à ADMIN/SUPER_ADMIN) — à ne pas confondre
+   * avec readOnlyRoles ci-dessous, pour un module visible mais en lecture
+   * seule.
+   */
+  roles?: string[];
+  /**
+   * Rôles/profils qui n'ont, sur ce module, qu'un accès en consultation
+   * (boutons de création grisés) — reçoivent readOnlyAnswer au lieu de
+   * answer, qui reste rédigée pour un profil pouvant créer/modifier.
+   */
+  readOnlyRoles?: string[];
+  readOnlyAnswer?: string;
 }
+
+/** Profils dont l'accès à Formalisation/Évaluations/Mitigation/Cartographie est intégralement en consultation (voir leurs guides dédiés : cci.html, cmmr.html). */
+const CONSULTATION_SEULE = ['CCI', 'CMMR', 'PILOTE'];
 
 export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
   {
@@ -50,14 +69,16 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     keywords: ['creer agent', 'nouvel agent', 'ajouter agent', 'nouveau compte agent', 'inscrire agent'],
     question: 'Comment créer un agent ?',
     answer: "Menu **Configuration → Agents**, réservé aux ADMIN et SUPER_ADMIN. Cliquez sur « Nouvel agent », renseignez l'état civil, choisissez le ministère et l'unité administrative, puis (si le rôle est AGENT) un profil métier obligatoire. Un export PDF filtrable par ministère/unité est aussi disponible depuis cette liste.",
-    anchor: 'agents'
+    anchor: 'agents',
+    roles: ['ADMIN', 'SUPER_ADMIN']
   },
   {
     id: 'desactiver-agent',
     keywords: ['desactiver agent', 'reactiver agent', 'bloquer connexion', 'empecher de se connecter', 'compte inactif', 'suspendre un agent'],
     question: 'Comment désactiver un agent ?',
     answer: "Dans la liste des agents, l'icône **orange** (colonne Actions) désactive le compte — il ne peut alors plus se connecter, mais tout son historique est conservé. Elle devient **verte** pour le réactiver. Préférez toujours cette option à la suppression définitive si l'agent peut revenir.",
-    anchor: 'agents'
+    anchor: 'agents',
+    roles: ['ADMIN', 'SUPER_ADMIN']
   },
   {
     id: 'suppression-impossible',
@@ -78,56 +99,67 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     keywords: ['creer profil', 'nouveau profil', 'gerer profil', 'liste des profils'],
     question: 'Comment gérer les profils métier ?',
     answer: "Menu **Configuration → Profils** (ADMIN, SUPER_ADMIN). C'est ici que sont définis les profils métier (code, libellé, description) proposés à la création d'un agent.",
-    anchor: 'profils-crud'
+    anchor: 'profils-crud',
+    roles: ['ADMIN', 'SUPER_ADMIN']
   },
   {
     id: 'ministeres',
     keywords: ['ministere', 'creer ministere', 'structure', 'nouveau ministere'],
     question: 'Comment créer un ministère ?',
     answer: "Menu **Configuration → Structures**, réservé au SUPER_ADMIN. Cliquez sur « Nouveau ministère » puis renseignez code, libellé, sigle et description. Rappel : chaque ministère est cloisonné, sauf pour le SUPER_ADMIN qui a une vue transversale. Sa suppression est définitive et refusée tant qu'une unité administrative y est encore rattachée.",
-    anchor: 'ministeres'
+    anchor: 'ministeres',
+    roles: ['ADMIN', 'SUPER_ADMIN']
   },
   {
     id: 'unites-administratives',
     keywords: ['unite administrative', 'creer unite', 'nouvelle unite', 'hierarchie', 'unite parent'],
     question: 'Comment créer une unité administrative ?',
     answer: "Menu **Configuration → Unités administratives** (ADMIN, SUPER_ADMIN). Renseignez sigle, libellé, type d'unité et ministère de rattachement. Une unité parent optionnelle permet de construire la hiérarchie (le niveau se calcule automatiquement).",
-    anchor: 'ministeres'
+    anchor: 'ministeres',
+    roles: ['ADMIN', 'SUPER_ADMIN']
   },
   {
     id: 'types-unites',
     keywords: ['type unite', 'type d\'unite', 'direction generale', 'secretariat general'],
     question: "Qu'est-ce qu'un type d'unité ?",
     answer: "Menu **Configuration → Unités administratives → Types d'unités**. Ces types (Direction Générale, Secrétariat Général…) qualifient chaque unité administrative et sont choisis lors de sa création.",
-    anchor: 'ministeres'
+    anchor: 'ministeres',
+    roles: ['ADMIN', 'SUPER_ADMIN']
   },
   {
     id: 'unites-mesure',
     keywords: ['unite de mesure', 'unite mesure', 'symbole', 'mesure kpi'],
     question: "Qu'est-ce qu'une unité de mesure ?",
     answer: "Menu **Configuration → Unités de mesure**. Définit les unités (numériques ou dates) utilisées pour les indicateurs de performance. Attention : la création n'est pas ouverte depuis l'interface — si la liste est vide, contactez le SUPER_ADMIN.",
-    anchor: 'unites-mesure'
+    anchor: 'unites-mesure',
+    roles: ['ADMIN', 'SUPER_ADMIN']
   },
   {
     id: 'processus',
     keywords: ['processus', 'mission', 'creer processus', 'nouveau processus', 'finalite'],
     question: 'Comment créer un processus ?',
     answer: "Menu **Formalisation du risque inhérent → Processus/Mission**. Cliquez sur « Nouveau processus », renseignez le libellé, le type, l'unité administrative propriétaire, et au moins une finalité (obligatoire). Le propriétaire (un manager au profil Pilote de processus) est également obligatoire. Dans la liste, 3 icônes permettent de consulter, modifier ou supprimer un processus — la suppression est bloquée s'il a déjà des risques, indicateurs ou plans d'audit rattachés.",
-    anchor: 'processus'
+    anchor: 'processus',
+    readOnlyRoles: CONSULTATION_SEULE,
+    readOnlyAnswer: "Menu **Formalisation du risque inhérent → Processus/Mission**. Vous consultez ce module en lecture seule : les processus sont formalisés par le Responsable des risques de chaque service. Le bouton « Nouveau processus » est grisé ; seule l'icône **œil** (consultation du détail) est disponible."
   },
   {
     id: 'risques',
     keywords: ['risque', 'creer risque', 'nouveau risque', 'formaliser risque', 'cause probable', 'consequence', 'bonne pratique'],
     question: 'Comment créer un risque ?',
     answer: "Menu **Formalisation du risque inhérent → Risques**. Sélectionnez le processus et le type de risque, décrivez-le (libellé, date d'identification, statut), puis ajoutez au moins une cause probable, une conséquence probable et une bonne pratique (Prévention ou Protection). Le risque démarre à l'étape **Formalisation** du circuit de validation.",
-    anchor: 'processus'
+    anchor: 'processus',
+    readOnlyRoles: CONSULTATION_SEULE,
+    readOnlyAnswer: "Menu **Formalisation du risque inhérent → Risques**. Vous consultez ce module en lecture seule : les risques sont formalisés par le Responsable des risques. Le bouton « Nouveau risque » est grisé ; cliquez sur l'icône **œil** pour voir le détail complet d'un risque (causes, conséquences, bonnes pratiques). La colonne « Étape » indique où en est le risque dans le circuit de validation de la cartographie."
   },
   {
     id: 'evaluations',
     keywords: ['evaluation', 'evaluer risque', 'impact', 'probabilite', 'criticite', 'noter un risque'],
     question: 'Comment évaluer un risque ?',
     answer: "Menu **Évaluations → Évaluer Risque**. Sélectionnez le risque, renseignez l'impact et la probabilité inhérents (1 à 5), décrivez les bonnes pratiques existantes/manquantes et indiquez si le risque est déjà survenu. Le score inhérent (impact × probabilité) est classé Faible (1-7), Moyen (8-14) ou Élevé (15-25).",
-    anchor: 'evaluations'
+    anchor: 'evaluations',
+    readOnlyRoles: CONSULTATION_SEULE,
+    readOnlyAnswer: "Menu **Évaluations → Évaluer Risque**. Vous consultez ce module en lecture seule : la cotation d'un risque (impact, probabilité, bonnes pratiques) relève du Responsable des risques. Pour chaque évaluation, vous pouvez consulter le score inhérent, le score résiduel, les niveaux de prévention/protection et la priorité de traitement."
   },
   {
     id: 'matrice',
@@ -141,21 +173,27 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     keywords: ['mitigation', 'plan de mitigation', 'creer plan', 'nouveau plan'],
     question: 'Comment créer un plan de mitigation ?',
     answer: "Menu **Mitigation → Plans de mitigation**. Cliquez sur « Nouveau plan », renseignez le libellé, la date de création, le risque associé et une description. Le statut (Planifié, En cours, Terminé) se calcule automatiquement selon les actions liées ; seul le CCI peut le faire passer à Clôturé.",
-    anchor: 'mitigation'
+    anchor: 'mitigation',
+    readOnlyRoles: ['CMMR', 'PILOTE'],
+    readOnlyAnswer: "Menu **Mitigation → Plans de mitigation**. Vous consultez ce module en lecture seule : les plans sont créés par le Responsable des risques. Le bouton « Nouveau plan » est grisé ; utilisez l'icône **œil** pour voir le détail complet d'un plan (code, statut, risque associé, date de création)."
   },
   {
     id: 'actions',
     keywords: ['action', 'creer action', 'nouvelle action', 'action corrective', 'responsable action'],
     question: 'Comment créer une action ?',
     answer: "Menu **Mitigation → Actions**. Sélectionnez le plan de mitigation, le risque associé et la bonne pratique inexistante visée (obligatoire, issue des contrôles inexistants de l'évaluation), ajoutez un ou plusieurs libellés d'actions (obligatoire), un statut (En cours, Terminée, En retard, Annulée), des dates et un responsable. Un filtre par plan de mitigation est disponible sur la liste.",
-    anchor: 'mitigation'
+    anchor: 'mitigation',
+    readOnlyRoles: CONSULTATION_SEULE,
+    readOnlyAnswer: "Menu **Mitigation → Actions**. Vous consultez ce module en lecture seule. Le tableau de bord signale automatiquement les actions « En retard » : signalez-les au Responsable des risques plutôt que de tenter de les corriger vous-même."
   },
   {
     id: 'indicateurs',
     keywords: ['indicateur', 'kpi', 'creer indicateur', 'nouvel indicateur', 'seuil alerte', 'valeur cible'],
     question: 'Comment créer un indicateur de performance ?',
     answer: "Menu **Mitigation → Indicateurs**. Renseignez le libellé et la fréquence, rattachez-le à un processus/risque/plan/action, choisissez une unité de mesure, puis définissez dates, seuil d'alerte, valeur cible et valeur obtenue. Si aucune unité de mesure n'est disponible, contactez le SUPER_ADMIN. La page affiche aussi un tableau de bord : compteurs par statut (Objectif atteint, En cours, Attention, En retard — dès que la valeur obtenue atteint la valeur cible, le statut passe à Objectif atteint quelles que soient les dates), graphiques valeurs vs cibles et jauge circulaire par indicateur.",
-    anchor: 'mitigation'
+    anchor: 'mitigation',
+    readOnlyRoles: CONSULTATION_SEULE,
+    readOnlyAnswer: "Menu **Mitigation → Indicateurs**. Vous consultez ce module en lecture seule : le bouton « Nouvel indicateur » est grisé. Vous pouvez suivre la valeur obtenue, la valeur cible et l'écart de chaque indicateur, ainsi que les compteurs par statut (Objectif atteint, En cours, Attention, En retard), sans pouvoir les modifier."
   },
   {
     id: 'cartographie-circuit',
@@ -183,7 +221,9 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     keywords: ['plan audit', 'audit', 'mission audit', 'creer audit'],
     question: 'Comment créer un plan d\'audit ?',
     answer: "Menu **Audit → Plan d'audit**. Renseignez le libellé, la date de création, l'unité administrative, puis en pré-planification le processus, le risque inhérent, le type d'audit, le type de revue, l'objectif et l'effort indicatif. Le choix du processus n'est possible qu'après avoir sélectionné l'unité administrative, et le risque inhérent qu'après le processus.",
-    anchor: 'audit'
+    anchor: 'audit',
+    readOnlyRoles: CONSULTATION_SEULE,
+    readOnlyAnswer: "Menu **Audit → Plan d'audit**. Vous consultez ce module en lecture seule : la création d'un plan d'audit relève d'un profil disposant des droits de saisie sur ce module (Auditeur). Le bouton « Nouveau plan d'audit » est grisé ; cliquez sur l'icône **œil** pour voir le détail d'un plan (processus, risque associé, type de mission, type d'audit)."
   },
   {
     id: 'alertes',
@@ -239,10 +279,33 @@ export const CHATBOT_WELCOME_MESSAGE =
   "Bonjour 👋 Je suis l'assistant SIGR. Posez-moi une question sur l'utilisation de la plateforme " +
   "(connexion, création d'un risque, circuit de validation, rôles...) ou choisissez une suggestion ci-dessous.";
 
-/** Suggestions affichées comme "chips" au démarrage de la conversation. */
-export const CHATBOT_SUGGESTIONS: string[] = [
-  'Comment créer un risque ?',
-  'Comment fonctionne le circuit de validation ?',
-  'Pourquoi un bouton est grisé ?',
-  'Comment créer un agent ?'
-];
+/**
+ * Suggestions affichées comme "chips" au démarrage de la conversation,
+ * adaptées au profil connecté : un profil en pure consultation (CCI, CMMR,
+ * Pilote) n'a pas intérêt à se voir suggérer un geste qui lui est interdit
+ * (créer un risque, un agent...).
+ */
+export function getChatbotSuggestions(currentRoles: string[]): string[] {
+  if (CONSULTATION_SEULE.some(r => currentRoles.includes(r))) {
+    return [
+      'Comment fonctionne le circuit de validation ?',
+      "Où retrouver mes dossiers de cartographie ?",
+      'Pourquoi un bouton est grisé ?',
+      'Où voir mes notifications ?'
+    ];
+  }
+  if (currentRoles.includes('ADMIN') || currentRoles.includes('SUPER_ADMIN')) {
+    return [
+      'Comment créer un agent ?',
+      'Comment créer un ministère ?',
+      'Comment fonctionne le circuit de validation ?',
+      'Pourquoi un bouton est grisé ?'
+    ];
+  }
+  return [
+    'Comment créer un risque ?',
+    'Comment fonctionne le circuit de validation ?',
+    'Pourquoi un bouton est grisé ?',
+    'Comment créer un agent ?'
+  ];
+}
