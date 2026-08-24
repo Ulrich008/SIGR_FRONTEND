@@ -83,7 +83,8 @@ export class AlertesDetailComponent implements OnInit {
   private estUnRisque(type: TypeNotification): boolean {
     return type === 'RISQUE_SANS_MITIGATION'
       || type === 'RISQUE_SANS_ACTIONS_EN_COURS'
-      || type === 'RISQUE_EN_ATTENTE_VALIDATION';
+      || type === 'RISQUE_EN_ATTENTE_VALIDATION'
+      || type === 'RISQUE_EN_ATTENTE_TRANSMISSION';
   }
 
   getSeveriteBadgeClass(severite: string): string {
@@ -113,6 +114,7 @@ export class AlertesDetailComponent implements OnInit {
       case 'INDICATEUR_SEUIL_DEPASSE':      return 'Seuil dépassé';
       case 'INDICATEUR_ECHEANCE_PROCHE':    return 'Échéance proche';
       case 'RISQUE_EN_ATTENTE_VALIDATION':  return 'En attente de validation';
+      case 'RISQUE_EN_ATTENTE_TRANSMISSION': return 'En attente de transmission';
       default:                               return type;
     }
   }

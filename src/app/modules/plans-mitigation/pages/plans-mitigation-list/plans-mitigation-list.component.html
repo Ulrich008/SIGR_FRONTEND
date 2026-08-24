@@ -98,23 +98,22 @@
       </div>
 
       <!-- Filtre dynamique -->
-      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
-        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="applyFilter()"
-          placeholder="Rechercher par code, risque, description..."
-          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-        />
-      </div>
+      <div *ngIf="!loading" class="rounded-2xl bg-white p-4 shadow-sm">
+          <input
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilter()"
+            type="text"
+            placeholder="Rechercher par code, risque, description..."
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-emerald-400 focus:outline-none" />
+        </div>
 
       <!-- Cartes des plans -->
-      <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div *ngIf="plans.length === 0" class="col-span-full text-center py-10 text-slate-500">
+      <div *ngIf="!loading" class="rounded-3xl bg-white p-6 shadow-sm">
+        <div *ngIf="plans.length === 0" class="text-center py-10 text-slate-500">
           Aucun plan de mitigation trouvé.
         </div>
 
+        <div *ngIf="plans.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div *ngFor="let plan of plans" class="rounded-2xl bg-white p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
           <!-- En-tête de la carte -->
           <div class="flex items-start justify-between mb-4">
@@ -128,8 +127,25 @@
                 <span class="inline-block rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
                   {{ plan.code }}
                 </span>
-                <span [class]="'inline-block rounded-full px-2 py-1 text-xs font-medium ml-2 ' + getStatutBadgeClass(plan.statut)">
-                  <i [class]="'fas ' + getStatutIcon(plan.statut)"></i> {{ plan.statut }}
+                <span [class]="'inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ml-2 ' + getStatutBadgeClass(plan.statut)">
+                  <ng-container [ngSwitch]="plan.statut">
+                    <svg *ngSwitchCase="'PLANIFIE'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/>
+                    </svg>
+                    <svg *ngSwitchCase="'EN_COURS'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <svg *ngSwitchCase="'TERMINE'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>
+                    </svg>
+                    <svg *ngSwitchCase="'CLOTURE'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <svg *ngSwitchDefault xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                  </ng-container>
+                  {{ plan.statut }}
                 </span>
               </div>
             </div>
@@ -148,7 +164,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
               </svg>
-              <span>Risque: {{ plan.codeRisque }} - {{ plan.libelleRisque }}</span>
+              <span class="truncate">Risques: {{ plan.codesRisques.join(', ') || 'Aucun' }}</span>
             </div>
             <div class="flex items-center gap-2 text-xs text-slate-500">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -191,33 +207,18 @@
             </button>
           </div>
         </div>
-      </div>
+        </div>
 
-      <!-- Contrôles de pagination -->
-      <div *ngIf="!loading && filteredPlans.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
-        <div class="text-sm text-slate-500">
-          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ filteredPlans.length }} plans
-        </div>
-        <div class="flex items-center gap-2">
-          <button (click)="previousPage()" [disabled]="currentPage === 1"
-                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
-            Précédent
-          </button>
-          <div class="flex gap-1">
-            <button *ngFor="let page of totalPagesArray" (click)="goToPage(page)"
-                    [class.bg-emerald-600]="page === currentPage"
-                    [class.text-white]="page === currentPage"
-                    [class.bg-slate-100]="page !== currentPage"
-                    [class.text-slate-700]="page !== currentPage"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-200">
-              {{ page }}
-            </button>
-          </div>
-          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
-                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
-            Suivant
-          </button>
-        </div>
+        <!-- Contrôles de pagination -->
+        <app-pagination
+          [sticky]="true"
+          [currentPage]="currentPage"
+          (currentPageChange)="goToPage($event)"
+          [totalItems]="filteredPlans.length"
+          [itemsPerPage]="itemsPerPage"
+          (itemsPerPageChange)="onItemsPerPageChange($event)"
+          itemLabel="plans de mitigation"
+        ></app-pagination>
       </div>
 
     </div>

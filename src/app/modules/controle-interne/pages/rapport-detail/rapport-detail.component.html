@@ -1,0 +1,202 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Rapport"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Contrôle Interne</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Rapport de Contrôle Interne</h1>
+        </div>
+        <button (click)="retour()" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+          Retour
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ error }}</div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement...</span>
+      </div>
+
+      <div *ngIf="!loading && rapport" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
+
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{{ rapport.code }}</span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getStatutBadgeClass(rapport.statut)">
+                {{ getStatutLabel(rapport.statut) }}
+              </span>
+            </div>
+            <h2 class="text-xl font-semibold text-slate-900">{{ rapport.libelleUniteAdministrative }}</h2>
+            <p class="text-sm text-slate-500">{{ rapport.libelleProcessus }} — émis le {{ formatDate(rapport.dateEmission) }}</p>
+          </div>
+
+          <div class="flex flex-col gap-2 items-end">
+            <button *ngIf="!rapport.pdfDisponible && canWrite" (click)="ouvrirApercu()"
+              class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
+              Générer PDF
+            </button>
+            <button *ngIf="rapport.pdfDisponible" (click)="telecharger()"
+              class="inline-flex items-center justify-center rounded-lg bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-200">
+              Télécharger le PDF
+            </button>
+            <button *ngIf="rapport.pdfDisponible" (click)="allerVersTransmission()"
+              class="text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+              Voir dans Transmission →
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="rapport.motif" class="rounded-xl border border-orange-200 bg-orange-50 p-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-orange-700 mb-1">Motif de la CCI</p>
+          <p class="text-sm text-orange-800 whitespace-pre-line">{{ rapport.motif }}</p>
+        </div>
+
+        <button (click)="goToHistoriqueAvis()"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Historique des avis de validation
+        </button>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Préambule</h3>
+          <p class="text-slate-700 text-sm whitespace-pre-line">{{ rapport.preambule || 'Non renseigné' }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="rounded-xl border border-slate-200 overflow-hidden">
+            <div class="bg-emerald-700 px-4 py-2 text-xs font-bold text-white uppercase tracking-wide">Anomalies</div>
+            <div class="p-4 space-y-3 max-h-56 overflow-y-auto">
+              <p *ngIf="anomalies.length === 0" class="text-xs text-slate-400 italic">Aucune anomalie.</p>
+              <div *ngFor="let l of anomalies">
+                <p class="text-sm text-slate-700">• {{ l.constat }}</p>
+                <p class="text-[11px] text-slate-400 italic ml-3">{{ sourceLigne(l) }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 overflow-hidden">
+            <div class="bg-emerald-700 px-4 py-2 text-xs font-bold text-white uppercase tracking-wide">Faiblesses</div>
+            <div class="p-4 space-y-3 max-h-56 overflow-y-auto">
+              <p *ngIf="faiblesses.length === 0" class="text-xs text-slate-400 italic">Aucune faiblesse.</p>
+              <div *ngFor="let l of faiblesses">
+                <p class="text-sm text-slate-700">• {{ l.constat }}</p>
+                <p class="text-[11px] text-slate-400 italic ml-3">{{ sourceLigne(l) }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 overflow-hidden">
+            <div class="bg-emerald-700 px-4 py-2 text-xs font-bold text-white uppercase tracking-wide">Constats</div>
+            <div class="p-4 space-y-3 max-h-56 overflow-y-auto">
+              <p *ngIf="constatsAutres.length === 0" class="text-xs text-slate-400 italic">Aucun constat.</p>
+              <div *ngFor="let l of constatsAutres">
+                <p class="text-sm text-slate-700">• {{ l.constat }}</p>
+                <p class="text-[11px] text-slate-400 italic ml-3">{{ sourceLigne(l) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Analyses et recommandations</h3>
+          <p *ngIf="lignesAnalysesRecommandations.length === 0" class="text-xs text-slate-400 italic">Aucune analyse ni recommandation.</p>
+          <div *ngFor="let l of lignesAnalysesRecommandations" class="rounded-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-500">{{ sourceLigne(l) }}</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+              <div class="p-3">
+                <p class="text-xs font-semibold text-slate-500 mb-1">Analyse</p>
+                <p class="text-sm text-slate-700">{{ l.analyse || '—' }}</p>
+              </div>
+              <div class="p-3">
+                <p class="text-xs font-semibold text-slate-500 mb-1">Recommandation</p>
+                <p class="text-sm text-slate-700">{{ l.recommandation || '—' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Actions correctrices</h3>
+          <p *ngIf="!rapport.actionsCorrectives || rapport.actionsCorrectives.length === 0" class="text-slate-700 text-sm">Non renseignées</p>
+          <ul *ngIf="rapport.actionsCorrectives && rapport.actionsCorrectives.length > 0" class="space-y-1">
+            <li *ngFor="let action of rapport.actionsCorrectives" class="text-sm text-slate-700">
+              • {{ action.libelle }} <span class="text-xs text-slate-400">(du {{ formatDate(action.dateDebut) }} au {{ formatDate(action.dateFin) }})</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Conclusion</h3>
+          <p class="text-slate-700 text-sm whitespace-pre-line">{{ rapport.conclusion || 'Non renseignée' }}</p>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 text-xs text-slate-400">
+          Créé par {{ rapport.creePar || '—' }} — {{ getStatutLabel(rapport.statut) }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== Aperçu avant génération du PDF ===== -->
+  <div *ngIf="showApercu" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 p-4">
+    <div class="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-xl">
+      <div class="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-slate-900">Aperçu avant génération du PDF</h3>
+        <button (click)="fermerApercu()" class="text-slate-400 hover:text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <div>
+          <h4 class="text-sm font-bold text-emerald-700 mb-2">Déroulement des contrôles du second niveau ({{ controles.length }})</h4>
+          <div *ngIf="controles.length === 0" class="text-xs text-slate-400 italic">Aucun contrôle de second niveau saisi pour ce processus.</div>
+          <div *ngFor="let c of controles" class="rounded-xl border border-slate-200 p-4 mb-3 space-y-2">
+            <p class="text-xs font-semibold text-slate-500">{{ c.code }} — {{ formatDate(c.dateControle) }}</p>
+            <p class="text-sm text-slate-700"><b>Tests :</b> {{ c.testsLibelle || '—' }} · {{ c.testsConstats || '—' }} · {{ c.testsAnalyse || '—' }} · {{ c.testsRecommandation || '—' }}</p>
+            <p class="text-sm text-slate-700"><b>Revues :</b> {{ c.revuesLibelle || '—' }} · {{ c.revuesConstats || '—' }} · {{ c.revuesAnalyse || '—' }} · {{ c.revuesRecommandation || '—' }}</p>
+            <p class="text-sm text-slate-700"><b>Vérification :</b> {{ c.verificationLibelleDesPieces || '—' }} · {{ c.verificationConstats || '—' }} · {{ c.verificationAnalyse || '—' }} · {{ c.verificationRecommandation || '—' }}</p>
+            <p class="text-sm text-slate-700"><b>Évolution de conformité :</b> {{ c.evolutionIntituleOperation || '—' }} · {{ c.evolutionResultatsConformite || '—' }} · {{ c.evolutionAnalyse || '—' }} · {{ c.evolutionRecommandation || '—' }}</p>
+            <p class="text-sm text-slate-700"><b>Anomalie :</b> {{ c.anomalieConstat || '—' }} · {{ c.anomalieAnalyse || '—' }} · {{ c.anomalieRecommandation || '—' }}</p>
+            <p class="text-sm text-slate-700"><b>Faiblesse :</b> {{ c.faiblesseConstat || '—' }} · {{ c.faiblesseAnalyse || '—' }} · {{ c.faiblesseRecommandation || '—' }}</p>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-emerald-700 mb-2">Synthèse</h4>
+          <p class="text-sm text-slate-700 mb-2"><b>Préambule :</b> {{ rapport?.preambule || 'Non renseigné' }}</p>
+          <p class="text-sm text-slate-700 mb-1"><b>Actions correctrices :</b></p>
+          <p *ngIf="!rapport?.actionsCorrectives || rapport!.actionsCorrectives!.length === 0" class="text-sm text-slate-700 mb-2">Non renseignées</p>
+          <ul *ngIf="rapport?.actionsCorrectives && rapport!.actionsCorrectives!.length > 0" class="space-y-1 mb-2">
+            <li *ngFor="let action of rapport!.actionsCorrectives" class="text-sm text-slate-700">
+              • {{ action.libelle }} <span class="text-xs text-slate-400">(du {{ formatDate(action.dateDebut) }} au {{ formatDate(action.dateFin) }})</span>
+            </li>
+          </ul>
+          <p class="text-sm text-slate-700"><b>Conclusion :</b> {{ rapport?.conclusion || 'Non renseignée' }}</p>
+        </div>
+      </div>
+
+      <div class="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-4 flex justify-end gap-3">
+        <button (click)="fermerApercu()" class="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+          Annuler
+        </button>
+        <button (click)="confirmerGenererPdf()" [disabled]="generatingPdf"
+          class="rounded-lg bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
+          {{ generatingPdf ? 'Génération...' : 'Confirmer et générer le PDF' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>

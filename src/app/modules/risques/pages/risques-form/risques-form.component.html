@@ -96,24 +96,39 @@
                 </p>
               </div>
 
-              <!-- Finalités du processus (affichées après sélection) -->
+              <!-- Finalité du processus menacée par ce risque -->
               <div class="md:col-span-2" *ngIf="finalitesProcessus.length > 0">
                 <label class="mb-2 block text-sm font-semibold text-slate-700">
-                  Finalités du processus
+                  Finalité du processus menacée <span *ngIf="isRequired('finalite')" class="text-red-500">*</span>
                 </label>
                 <div class="space-y-2">
-                  <div *ngFor="let finalite of finalitesProcessus; let i = index"
-                    class="flex items-center gap-3 rounded-lg bg-emerald-50 px-4 py-3">
+                  <button type="button" *ngFor="let finalite of finalitesProcessus; let i = index"
+                    (click)="selectFinalite(finalite)"
+                    [class]="'w-full flex items-center gap-3 rounded-lg px-4 py-3 text-left border transition ' + (selectedFinalite === finalite ? 'bg-emerald-100 border-emerald-400 ring-1 ring-emerald-400' : 'bg-emerald-50 border-transparent hover:bg-emerald-100')">
                     <span
-                      class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
-                      {{ i + 1 }}
+                      [class]="'flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ' + (selectedFinalite === finalite ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700')">
+                      <svg *ngIf="selectedFinalite === finalite" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <ng-container *ngIf="selectedFinalite !== finalite">{{ i + 1 }}</ng-container>
                     </span>
                     <span class="text-sm text-slate-700">{{ finalite }}</span>
-                  </div>
+                  </button>
                 </div>
-                <p class="mt-2 text-xs text-slate-500">
-                  Ces finalités peuvent vous aider à définir le libellé du risque.
+                <p *ngIf="form.get('finalite')?.invalid && form.get('finalite')?.touched"
+                  class="mt-2 text-xs text-red-600">
+                  {{ getFieldError('finalite') }}
                 </p>
+                <p *ngIf="!(form.get('finalite')?.invalid && form.get('finalite')?.touched)" class="mt-2 text-xs text-slate-500">
+                  Sélectionnez la finalité du processus que ce risque menace concrètement.
+                </p>
+              </div>
+
+              <!-- Processus sans finalité formalisée : blocage explicite -->
+              <div class="md:col-span-2" *ngIf="form.get('codeProcessus')?.value && finalitesProcessus.length === 0">
+                <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+                  Ce processus n'a aucune finalité formalisée : impossible de créer un risque tant qu'une finalité n'a pas été ajoutée au processus.
+                </div>
               </div>
             </div>
           </div>

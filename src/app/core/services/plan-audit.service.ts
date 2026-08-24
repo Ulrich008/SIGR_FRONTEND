@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PlanAuditRequest, PlanAuditResponse } from '../models/audit.model';
+import { SuiviRecommandationRequest } from '../models/suivi-recommandation.model';
 import { AuthService } from './auth.service';
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -67,6 +68,12 @@ export class PlanAuditService {
 
   getTypeRevueEnums(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/enums/type-revue`, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  enregistrerSuivi(code: string, request: SuiviRecommandationRequest): Observable<PlanAuditResponse> {
+    return this.http.patch<PlanAuditResponse>(`${this.apiUrl}/${code}/suivi`, request, this.headers).pipe(
       catchError(error => this.handleError(error))
     );
   }

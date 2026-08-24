@@ -126,6 +126,21 @@ export class SidebarComponent implements OnInit {
     return item.children.some(child => this.isMenuItemEnabled(child) && this.hasVisibleContent(child));
   }
 
+  /**
+   * routerLinkActive avec { exact: false } active un lien dès que l'URL
+   * courante commence par son chemin — donc quand deux entrées d'un même
+   * sous-menu ont un chemin l'un préfixe de l'autre (ex: /suivi-risques et
+   * /suivi-risques/recommandations-ci), les deux s'allument en même temps.
+   * On ne garde actif que le chemin le plus spécifique parmi les frères.
+   */
+  isActivePath(path: string | undefined, siblings: MenuItem[]): boolean {
+    if (!path) return false;
+    const url = this.router.url.split('?')[0].split('#')[0];
+    const matches = (p: string) => url === p || url.startsWith(p + '/');
+    if (!matches(path)) return false;
+    return !siblings.some(s => s.path && s.path !== path && s.path.length > path.length && matches(s.path));
+  }
+
   onMenuItemClick(item: MenuItem): void {
     if (!this.isMenuItemEnabled(item)) return;
     

@@ -1,0 +1,161 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Suivi des Risques"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
+
+      <!-- En-tête -->
+      <app-page-header subtitle="Mitigation" title="Suivi des Risques">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18"/>
+          <path d="M7 15l4-6 3 4 5-8"/>
+        </svg>
+      </app-page-header>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement du suivi des risques...</span>
+      </div>
+
+      <ng-container *ngIf="!loading">
+
+        <!-- Compteurs -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="rounded-2xl bg-white p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Risques suivis</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ totalRisques }}</p>
+          </div>
+          <div class="rounded-2xl bg-white p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Jamais évalués</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ risquesNonEvalues }}</p>
+          </div>
+          <div class="rounded-2xl bg-white p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Couverture moyenne</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ couvertureMoyenne !== null ? couvertureMoyenne + '%' : '—' }}</p>
+          </div>
+          <div class="rounded-2xl bg-white p-5 shadow-sm border border-slate-100">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Indicateurs en alerte</p>
+            <p class="mt-2 text-2xl font-bold" [class]="indicateursEnAlerte > 0 ? 'text-amber-600' : 'text-slate-900'">{{ indicateursEnAlerte }}</p>
+          </div>
+        </div>
+
+        <!-- Recherche -->
+        <div class="rounded-2xl bg-white p-4 shadow-sm">
+          <input
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilter()"
+            type="text"
+            placeholder="Rechercher par code, libellé ou processus..."
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-emerald-400 focus:outline-none" />
+        </div>
+
+        <!-- Aucun résultat -->
+        <div *ngIf="filteredViewModels.length === 0" class="rounded-3xl bg-white p-10 shadow-sm text-center text-sm text-slate-500">
+          Aucun risque ne correspond à la recherche.
+        </div>
+
+        <!-- Grille des risques -->
+        <div *ngIf="filteredViewModels.length > 0" class="rounded-3xl bg-white p-6 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <div *ngFor="let vm of pagedViewModels" (click)="goToRisque(vm.risque.code)"
+            class="group cursor-pointer rounded-3xl bg-white p-5 shadow-sm border border-slate-100 transition hover:shadow-md hover:-translate-y-0.5">
+
+            <!-- En-tête carte -->
+            <div class="flex items-start justify-between gap-3 mb-1">
+              <div class="min-w-0">
+                <span class="inline-block rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                  {{ vm.risque.code }}
+                </span>
+                <h3 class="mt-1.5 text-sm font-semibold text-slate-900 leading-snug line-clamp-2">
+                  {{ vm.risque.libelle }}
+                </h3>
+                <p class="text-xs text-slate-400 truncate">{{ vm.risque.nomProcessus }}</p>
+              </div>
+              <span *ngIf="vm.dernierScoreResiduel !== null"
+                [class]="'flex-shrink-0 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ' + getScoreBadgeClass(vm.dernierScoreResiduel)">
+                {{ vm.dernierScoreResiduel }}/25
+              </span>
+            </div>
+
+            <!-- Courbe de tendance -->
+            <div class="mt-3">
+              <div *ngIf="vm.evaluations.length >= 2" class="h-[70px]">
+                <canvas [id]="'spark-' + vm.risque.code"></canvas>
+              </div>
+              <div *ngIf="vm.evaluations.length === 1" class="h-[70px] flex items-center justify-center rounded-xl bg-slate-50 text-xs text-slate-400 italic">
+                Une seule évaluation — pas encore de tendance
+              </div>
+              <div *ngIf="vm.evaluations.length === 0" class="h-[70px] flex items-center justify-center rounded-xl bg-slate-50 text-xs text-slate-400 italic">
+                Pas encore évalué
+              </div>
+            </div>
+
+            <!-- Couverture bonnes pratiques -->
+            <div class="mt-4">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-semibold text-slate-500">Bonnes pratiques en place</span>
+                <span class="text-xs font-semibold text-slate-700">
+                  {{ vm.tauxCouverture !== null ? vm.tauxCouverture + '%' : '—' }}
+                </span>
+              </div>
+              <div class="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div *ngIf="vm.tauxCouverture !== null"
+                  [class]="'h-full rounded-full transition-all ' + getCouvertureBarColor(vm.tauxCouverture)"
+                  [style.width.%]="vm.tauxCouverture"></div>
+              </div>
+              <p class="mt-1 text-[11px] text-slate-400">
+                <ng-container *ngIf="vm.tauxCouverture !== null">
+                  {{ vm.bonnesPratiquesExistantes.length }} existante{{ vm.bonnesPratiquesExistantes.length > 1 ? 's' : '' }} ·
+                  {{ vm.bonnesPratiquesInexistantes.length }} manquante{{ vm.bonnesPratiquesInexistantes.length > 1 ? 's' : '' }}
+                </ng-container>
+                <ng-container *ngIf="vm.tauxCouverture === null">Non renseignées</ng-container>
+              </p>
+            </div>
+
+            <!-- Indicateurs -->
+            <div class="mt-4 pt-4 border-t border-slate-100">
+              <span class="text-xs font-semibold text-slate-500">Indicateurs de réalisation</span>
+              <div *ngIf="vm.indicateurs.length === 0" class="mt-1.5 text-[11px] text-slate-400 italic">
+                Aucun indicateur défini
+              </div>
+              <ul *ngIf="vm.indicateurs.length > 0" class="mt-2 space-y-1.5">
+                <li *ngFor="let indicateur of vm.indicateurs" class="flex items-center gap-2 text-xs text-slate-600">
+                  <span [class]="'h-1.5 w-1.5 flex-shrink-0 rounded-full ' + getIndicateurDotClass(indicateur.statut)"></span>
+                  <span class="truncate flex-1">{{ indicateur.libelle }}</span>
+                  <span class="flex-shrink-0 text-slate-400">{{ indicateur.valeurObtenue ?? '—' }}/{{ indicateur.valeurCible ?? '—' }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mt-4 flex items-center justify-end text-xs font-semibold text-emerald-700 group-hover:text-emerald-800">
+              Voir le suivi détaillé
+              <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3.5 w-3.5 transition group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"/><path d="M12 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <app-pagination
+          [sticky]="true"
+          [currentPage]="currentPage"
+          (currentPageChange)="goToPage($event)"
+          [totalItems]="filteredViewModels.length"
+          [itemsPerPage]="itemsPerPage"
+          (itemsPerPageChange)="onItemsPerPageChange($event)"
+          itemLabel="risques"
+        ></app-pagination>
+        </div>
+
+      </ng-container>
+    </div>
+  </div>
+
+</app-main-layout>

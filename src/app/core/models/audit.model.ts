@@ -1,3 +1,5 @@
+import { StatutSuiviRecommandation } from './suivi-recommandation.model';
+
 export enum AuditPropose {
   OPERATIONNEL_PERFORMANCE = 'OPERATIONNEL_PERFORMANCE',
   CONFORMITE_REGULARITE = 'CONFORMITE_REGULARITE',
@@ -24,6 +26,7 @@ export interface PlanAuditRequest {
   typeRevue: TypeRevue;
   objectifAudit?: string;
   effetAuditIndicatif?: string;
+  recommandation?: string;
 }
 
 export interface PlanAuditResponse {
@@ -41,4 +44,8 @@ export interface PlanAuditResponse {
   typeRevue: TypeRevue;
   objectifAudit?: string;
   effetAuditIndicatif?: string;
+  recommandation?: string;
+  statutSuivi?: StatutSuiviRecommandation;
+  decisionSuivi?: string;
+  dateDecisionSuivi?: string;
 }

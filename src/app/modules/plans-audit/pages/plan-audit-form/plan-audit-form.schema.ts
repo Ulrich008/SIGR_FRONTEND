@@ -20,5 +20,8 @@ export const planAuditSchema = z.object({
     .max(1000, "L'objectif d'audit ne doit pas dépasser 1000 caractères"),
   effetAuditIndicatif: z.string()
     .min(1, "L'effort d'audit indicatif est obligatoire")
-    .max(1000, "L'effort d'audit indicatif ne doit pas dépasser 1000 caractères")
+    .max(1000, "L'effort d'audit indicatif ne doit pas dépasser 1000 caractères"),
+  recommandation: z.string()
+    .max(1000, "La recommandation ne doit pas dépasser 1000 caractères")
+    .optional()
 });

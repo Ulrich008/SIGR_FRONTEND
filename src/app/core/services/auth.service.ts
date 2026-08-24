@@ -138,13 +138,27 @@ export class AuthService {
   /**
    * Guide d'utilisation complet de la plateforme : page statique autonome,
    * volontairement ouverte hors du routeur Angular (nouvel onglet). Le
-   * Responsable Risque, la CCI et le CMMR ont chacun un guide dédié à leur
-   * périmètre ; les autres profils (Super Admin, Admin, etc.) conservent le
-   * guide général. Centralisé ici pour que le header et l'assistant chatbot
-   * pointent toujours vers le même guide, sans risque de désynchronisation.
+   * Manager Risque, la CCI, le CMMR et le Pilote ont chacun un guide dédié
+   * à leur périmètre ; les autres profils (Super Admin, Admin, etc.)
+   * conservent le guide général. Centralisé ici pour que le header et
+   * l'assistant chatbot pointent toujours vers le même guide, sans risque
+   * de désynchronisation.
+   *
+   * Le Correspondant Risque partage le guide du Manager Risque : mêmes
+   * écrans de création/modification (Formalisation, Évaluations,
+   * Mitigation), seul le périmètre de données change (sa propre unité
+   * administrative plutôt que l'ensemble des processus) — voir la
+   * description des profils dans DataInitializer.initProfils() côté
+   * backend.
+   *
+   * Responsable des risques (validation), Responsable d'action, Auditeur
+   * et Contrôleur Interne n'ont pas encore de guide dédié — aucun des
+   * guides existants ne correspond assez fidèlement à leur périmètre pour
+   * être réutilisé sans risque de confusion ; ils retombent donc sur le
+   * guide général en attendant leur propre guide.
    */
   getGuideUrl(): string {
-    if (this.hasAnyRole(['RESPONSABLE_RISQUES'])) {
+    if (this.hasAnyRole(['MANAGER_RISQUE', 'CORRESPONDANT_RISQUE'])) {
       return 'assets/guide/responsable-risque.html';
     }
     if (this.hasAnyRole(['CCI'])) {
@@ -152,6 +166,9 @@ export class AuthService {
     }
     if (this.hasAnyRole(['CMMR'])) {
       return 'assets/guide/cmmr.html';
+    }
+    if (this.hasAnyRole(['PILOTE'])) {
+      return 'assets/guide/pilote.html';
     }
     return 'assets/guide/index.html';
   }

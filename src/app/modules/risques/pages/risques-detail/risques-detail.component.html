@@ -47,108 +47,22 @@
           </button>
         </div>
 
-        <!-- Historique d'évolution du risque -->
-        <div class="space-y-3">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Historique d'évolution du risque</h3>
-
-          <div *ngIf="loadingHistorique" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
-            Chargement de l'historique...
-          </div>
-
-          <div *ngIf="!loadingHistorique && historique.length === 0" class="rounded-xl bg-slate-50 p-4 flex items-center justify-between gap-4">
-            <p class="text-slate-500 text-sm">Ce risque n'a pas encore été évalué.</p>
-            <a routerLink="/evaluations/nouveau"
-              class="flex-shrink-0 inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-600">
-              Évaluer ce risque
-            </a>
-          </div>
-
-          <div *ngIf="!loadingHistorique && historique.length > 0" class="space-y-4">
-            <!-- Graphique d'évolution (à partir de 2 évaluations, sinon une seule ne fait pas de tendance) -->
-            <div *ngIf="historique.length >= 2" class="rounded-xl border border-slate-200 p-4">
-              <canvas id="historiqueChart" height="90"></canvas>
-            </div>
-            <p *ngIf="historique.length === 1" class="text-xs text-slate-400 italic">
-              Une seule évaluation pour l'instant — le graphique de tendance apparaîtra dès la première réévaluation.
-            </p>
-
-            <!-- Détail de chaque (ré)évaluation -->
-            <div class="overflow-x-auto rounded-xl border border-slate-200">
-              <table class="min-w-full text-sm">
-                <thead class="bg-slate-50">
-                  <tr class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    <th class="px-4 py-2">Évaluation</th>
-                    <th class="px-4 py-2">Période</th>
-                    <th class="px-4 py-2">Score inhérent</th>
-                    <th class="px-4 py-2">Score résiduel</th>
-                    <th class="px-4 py-2">Priorité</th>
-                    <th class="px-4 py-2"></th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  <tr *ngFor="let evaluation of historique; let i = index" class="hover:bg-slate-50">
-                    <td class="px-4 py-2 font-medium text-slate-700">
-                      {{ i === 0 ? 'Initiale' : 'Réévaluation ' + i }}
-                      <span class="block text-xs text-slate-400">{{ evaluation.code }}</span>
-                    </td>
-                    <td class="px-4 py-2 text-slate-600">
-                      {{ evaluation.dateDebut || '—' }} → {{ evaluation.dateFin || '—' }}
-                    </td>
-                    <td class="px-4 py-2">
-                      <span class="text-slate-700">{{ evaluation.scoreInherent }} / 25</span>
-                    </td>
-                    <td class="px-4 py-2">
-                      <span [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ' + getScoreBadgeClass(evaluation.scoreResiduel)">
-                        {{ evaluation.scoreResiduel }} / 25
-                      </span>
-                    </td>
-                    <td class="px-4 py-2 text-slate-600">{{ evaluation.libellePriorite || '—' }}</td>
-                    <td class="px-4 py-2 text-right">
-                      <button (click)="viewEvaluation(evaluation.code)"
-                        class="text-xs font-semibold text-emerald-700 hover:text-emerald-800">
-                        Voir →
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Historique des avis de validation -->
-        <div class="space-y-3">
-          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Historique des avis de validation</h3>
-
-          <div *ngIf="loadingHistoriqueAvis" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
-            Chargement de l'historique...
-          </div>
-
-          <div *ngIf="!loadingHistoriqueAvis && historiqueAvis.length === 0" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
-            Ce risque n'est pas encore entré dans le circuit de validation.
-          </div>
-
-          <ol *ngIf="!loadingHistoriqueAvis && historiqueAvis.length > 0" class="space-y-0">
-            <li *ngFor="let entree of historiqueAvis; let last = last" class="relative pl-6 pb-5">
-              <!-- Ligne verticale de la frise -->
-              <span *ngIf="!last" class="absolute left-[5px] top-3 bottom-0 w-px bg-slate-200"></span>
-              <span class="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-emerald-600"></span>
-
-              <div class="flex flex-wrap items-center gap-2">
-                <span [class]="'inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ' + getAvisBadgeClass(entree.avis)">
-                  {{ getAvisLabel(entree.avis) }}
-                </span>
-                <span class="text-xs text-slate-400">{{ entree.date | date:'dd/MM/yyyy à HH:mm' }}</span>
-              </div>
-              <p class="mt-1 text-sm text-slate-700">
-                <span *ngIf="entree.nomAuteur">Par {{ entree.nomAuteur }}</span>
-                <span *ngIf="!entree.nomAuteur" class="italic text-slate-400">Auteur non renseigné</span>
-              </p>
-              <p *ngIf="entree.motif" class="mt-1 text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2 whitespace-pre-line">
-                {{ entree.motif }}
-              </p>
-            </li>
-          </ol>
+        <!-- Historiques (déportés sur des pages dédiées) -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button (click)="goToHistoriqueEvolution()"
+            class="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-2.8-2.8L7 14"/>
+            </svg>
+            Historique d'évolution du risque
+          </button>
+          <button (click)="goToHistoriqueAvis()"
+            class="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Historique des avis de validation
+          </button>
         </div>
 
         <!-- Processus -->
@@ -157,6 +71,14 @@
           <div class="rounded-xl bg-slate-50 p-4">
             <p class="text-slate-700 font-medium">{{ risque.codeProcessus }}</p>
             <p class="text-sm text-slate-500">{{ risque.nomProcessus }}</p>
+          </div>
+        </div>
+
+        <!-- Finalité menacée -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Finalité du processus menacée</h3>
+          <div class="rounded-xl bg-slate-50 p-4">
+            <p class="text-slate-700">{{ risque.finalite || 'Non renseignée' }}</p>
           </div>
         </div>
 

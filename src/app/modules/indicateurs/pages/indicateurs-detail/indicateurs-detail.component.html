@@ -9,7 +9,7 @@
     <div class="max-w-4xl mx-auto space-y-6">
       <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-          <p class="text-sm text-gray-500">Gestion des indicateurs de performance</p>
+          <p class="text-sm text-gray-500">Gestion des indicateurs de réalisation</p>
           <h1 class="text-2xl font-semibold text-slate-900">Détails de l'indicateur</h1>
         </div>
         <button
@@ -50,9 +50,9 @@
           </button>
         </div>
 
-        <!-- Graphe de performance -->
+        <!-- Graphe de réalisation -->
         <div class="space-y-4">
-          <h3 class="text-lg font-semibold text-slate-900">Performance</h3>
+          <h3 class="text-lg font-semibold text-slate-900">Réalisation</h3>
           <div class="relative h-12 rounded-xl bg-slate-100 overflow-hidden">
             <div 
               [style.width.%]="getPerformancePercentage(indicateur.valeurObtenue || 0, indicateur.valeurCible || 100)"

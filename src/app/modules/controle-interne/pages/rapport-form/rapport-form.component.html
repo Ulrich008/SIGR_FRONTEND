@@ -1,0 +1,251 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Rapport"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <app-page-header subtitle="Contrôle Interne" title="Rapport de Contrôle Interne">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/>
+        </svg>
+        <button
+          actions
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
+        >
+          Retour
+        </button>
+      </app-page-header>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ error }}</div>
+
+      <app-form-stepper class="mt-8" [steps]="steps" [currentStep]="currentStep" [maxReachedStep]="maxReachedStep"
+        (stepClick)="goToStep($event)"></app-form-stepper>
+
+      <div class="rounded-3xl bg-white shadow-sm border border-slate-100 overflow-visible relative z-40 p-6">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <!-- Étape 0 : Informations générales -->
+          <div class="space-y-4" *ngIf="currentStep === 0">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <input
+                    #uniteInput
+                    formControlName="codeUniteAdministrative"
+                    type="text"
+                    placeholder="Rechercher par code ou libellé..."
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    (input)="onUniteSearch($event, uniteInput)"
+                    (focus)="onUniteFocus(uniteInput)"
+                    autocomplete="off"
+                  />
+                  <div *ngIf="showUniteDropdown"
+                       class="fixed bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                       [style.width.px]="uniteInput.offsetWidth"
+                       [style.top.px]="uniteDropdownTop"
+                       [style.left.px]="uniteDropdownLeft"
+                       [style.background-color]="'#ffffff'"
+                       style="z-index: 10000;">
+                    <div *ngFor="let unite of filteredUnites" (click)="selectUnite(unite)"
+                      class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0">
+                      <div class="font-medium text-slate-900">{{ unite.code }}</div>
+                      <div class="text-xs text-slate-500">{{ unite.libelle }}</div>
+                    </div>
+                    <div *ngIf="filteredUnites.length === 0" class="px-4 py-3 text-sm text-slate-500">Aucun résultat trouvé</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Processus <span class="text-red-500">*</span></label>
+                <app-searchable-select formControlName="codeProcessus"
+                  [options]="processusOptions" placeholder="Rechercher un processus..."></app-searchable-select>
+                <p *ngIf="!form.get('codeUniteAdministrative')?.value" class="mt-1 text-xs text-slate-400 italic">
+                  Sélectionnez d'abord une unité administrative
+                </p>
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date d'émission <span class="text-red-500">*</span></label>
+                <app-date-picker formControlName="dateEmission"></app-date-picker>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 1 : Préambule -->
+          <div class="space-y-4" *ngIf="currentStep === 1">
+            <h3 class="text-lg font-semibold text-slate-900">Préambule</h3>
+
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-700">Préambule</label>
+              <textarea formControlName="preambule" rows="4" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"
+                placeholder="Contexte et objet du rapport..."></textarea>
+            </div>
+
+            <div>
+              <p class="text-xs text-slate-500 mb-2">
+                Anomalies, faiblesses et constats repris automatiquement de tous les contrôles de second niveau saisis pour ce processus de cette unité administrative — chaque élément précise sa provenance.
+              </p>
+              <div *ngIf="loadingLignes" class="text-sm text-slate-500">Chargement...</div>
+              <div *ngIf="!loadingLignes" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="rounded-xl border border-slate-200 overflow-hidden">
+                  <div class="bg-emerald-700 px-4 py-2 text-xs font-bold text-white uppercase tracking-wide">Anomalies</div>
+                  <div class="p-4 space-y-3 max-h-80 overflow-y-auto">
+                    <p *ngIf="anomalies.length === 0" class="text-xs text-slate-400 italic">Aucune anomalie.</p>
+                    <div *ngFor="let l of anomalies">
+                      <p class="text-sm text-slate-700">• {{ l.constat }}</p>
+                      <p class="text-[11px] text-slate-400 italic ml-3">{{ sourceLigne(l) }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-xl border border-slate-200 overflow-hidden">
+                  <div class="bg-emerald-700 px-4 py-2 text-xs font-bold text-white uppercase tracking-wide">Faiblesses</div>
+                  <div class="p-4 space-y-3 max-h-80 overflow-y-auto">
+                    <p *ngIf="faiblesses.length === 0" class="text-xs text-slate-400 italic">Aucune faiblesse.</p>
+                    <div *ngFor="let l of faiblesses">
+                      <p class="text-sm text-slate-700">• {{ l.constat }}</p>
+                      <p class="text-[11px] text-slate-400 italic ml-3">{{ sourceLigne(l) }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-xl border border-slate-200 overflow-hidden">
+                  <div class="bg-emerald-700 px-4 py-2 text-xs font-bold text-white uppercase tracking-wide">Constats</div>
+                  <div class="p-4 space-y-3 max-h-80 overflow-y-auto">
+                    <p *ngIf="constatsAutres.length === 0" class="text-xs text-slate-400 italic">Aucun constat.</p>
+                    <div *ngFor="let l of constatsAutres">
+                      <p class="text-sm text-slate-700">• {{ l.constat }}</p>
+                      <p class="text-[11px] text-slate-400 italic ml-3">{{ sourceLigne(l) }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 2 : Analyses et recommandations -->
+          <div class="space-y-4" *ngIf="currentStep === 2">
+            <h3 class="text-lg font-semibold text-slate-900">Analyses et recommandations</h3>
+            <p class="text-xs text-slate-500">
+              Chaque analyse reste associée à sa recommandation et à sa source, pour éviter tout mélange.
+            </p>
+
+            <div *ngIf="loadingLignes" class="text-sm text-slate-500">Chargement...</div>
+            <div *ngIf="!loadingLignes && lignesAnalysesRecommandations.length === 0" class="text-sm text-slate-400 italic">
+              Aucune analyse ni recommandation disponible.
+            </div>
+
+            <div *ngIf="!loadingLignes" class="space-y-3">
+              <div *ngFor="let l of lignesAnalysesRecommandations" class="rounded-xl border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-500">{{ sourceLigne(l) }}</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                  <div class="p-4">
+                    <p class="text-xs font-semibold text-slate-500 mb-1">Analyse</p>
+                    <p class="text-sm text-slate-700">{{ l.analyse || '—' }}</p>
+                  </div>
+                  <div class="p-4">
+                    <p class="text-xs font-semibold text-slate-500 mb-1">Recommandation</p>
+                    <p class="text-sm text-slate-700">{{ l.recommandation || '—' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 3 : Actions correctrices -->
+          <div class="space-y-4" *ngIf="currentStep === 3">
+            <h3 class="text-lg font-semibold text-slate-900">Actions correctrices</h3>
+
+            <div class="rounded-2xl border border-slate-200 p-4 space-y-3">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="md:col-span-1">
+                  <label class="mb-1 block text-xs font-semibold text-slate-600">Libellé</label>
+                  <input [(ngModel)]="nouvelleActionLibelle" [ngModelOptions]="{standalone: true}" type="text"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none"
+                    placeholder="Décrire l'action correctrice..." />
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-slate-600">Date de début</label>
+                  <input [(ngModel)]="nouvelleActionDateDebut" [ngModelOptions]="{standalone: true}" type="date"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none" />
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-semibold text-slate-600">Date de fin</label>
+                  <input [(ngModel)]="nouvelleActionDateFin" [ngModelOptions]="{standalone: true}" type="date"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none" />
+                </div>
+              </div>
+
+              <p *ngIf="actionCorrectiveError" class="text-xs text-red-600">{{ actionCorrectiveError }}</p>
+
+              <button type="button" (click)="ajouterActionCorrective()"
+                class="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600">
+                + Ajouter
+              </button>
+            </div>
+
+            <div *ngIf="actionsCorrectives.length > 0" class="space-y-2">
+              <div *ngFor="let action of actionsCorrectives; let i = index"
+                class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                    {{ i + 1 }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="text-sm text-slate-700 truncate">{{ action.libelle }}</p>
+                    <p class="text-xs text-slate-400">Du {{ formatDate(action.dateDebut) }} au {{ formatDate(action.dateFin) }}</p>
+                  </div>
+                </div>
+                <button (click)="supprimerActionCorrective(i)" type="button" class="flex-shrink-0 text-slate-400 hover:text-red-600 transition" title="Supprimer cette action">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <p *ngIf="actionsCorrectives.length === 0" class="text-xs text-slate-400 italic">Aucune action correctrice ajoutée.</p>
+          </div>
+
+          <!-- Étape 4 : Conclusion -->
+          <div class="space-y-4" *ngIf="currentStep === 4">
+            <h3 class="text-lg font-semibold text-slate-900">Conclusion</h3>
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-slate-700">Conclusion</label>
+              <textarea formControlName="conclusion" rows="5" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex justify-between gap-3 pt-4 border-t border-slate-100">
+            <button type="button" (click)="cancel()" class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+              Annuler
+            </button>
+            <div class="flex gap-3">
+              <button *ngIf="currentStep > 0" type="button" (click)="previousStep()" class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                Précédent
+              </button>
+              <button *ngIf="currentStep < steps.length - 1" type="button" (click)="nextStep()" class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600">
+                Suivant
+              </button>
+              <button *ngIf="currentStep === steps.length - 1" type="submit" [disabled]="loading" class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
+                Créer
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

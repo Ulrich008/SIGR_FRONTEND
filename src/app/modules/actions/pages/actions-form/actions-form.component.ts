@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -45,6 +45,8 @@ export class ActionsFormComponent implements OnInit {
   loadingAgents = false;
   statutOptions = Object.values(StatutAction);
 
+  risques: RisqueResponse[] = [];
+  risquesDuPlan: RisqueResponse[] = [];
   risqueSelected: RisqueResponse | null = null;
   bonnesPratiques: string[] = [];
   loadingBonnesPratiques = false;
@@ -92,7 +94,7 @@ export class ActionsFormComponent implements OnInit {
   }
 
   get planOptions(): SearchableSelectOption[] {
-    return this.plans.map(p => ({ value: p.code, label: `${p.code} - ${p.libelleRisque}` }));
+    return this.plans.map(p => ({ value: p.code, label: `${p.code} - ${(p.libellesRisques ?? []).join(', ')}` }));
   }
 
   get bonnePratiqueOptions(): SearchableSelectOption[] {
@@ -117,11 +119,13 @@ export class ActionsFormComponent implements OnInit {
       forkJoin({
         plans: this.planMitigationService.getAll(),
         agents: this.agentService.getAll(),
+        risques: this.risqueService.getAll(),
         action: this.actionService.getByCode(codeParam)
       }).subscribe({
         next: (data) => {
           this.plans = data.plans;
           this.agents = this.filtrerAgentsAvecUnite(data.agents);
+          this.risques = data.risques;
           this.patchForm(data.action);
           this.loading = false;
           this.cdr.detectChanges();
@@ -151,11 +155,13 @@ export class ActionsFormComponent implements OnInit {
     this.loading = true;
     forkJoin({
       plans: this.planMitigationService.getAll(),
-      agents: this.agentService.getAll()
+      agents: this.agentService.getAll(),
+      risques: this.risqueService.getAll()
     }).subscribe({
       next: (data) => {
         this.plans = data.plans;
         this.agents = this.filtrerAgentsAvecUnite(data.agents);
+        this.risques = data.risques;
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -185,47 +191,56 @@ export class ActionsFormComponent implements OnInit {
       matriculeResponsable: action.matriculeResponsable
     });
 
-    // Charger le risque associé au plan
+    // Charger la liste des risques du plan, puis présélectionner celui de l'action
     if (action.codePlan) {
-      this.loadRisqueFromPlan(action.codePlan);
+      this.loadRisquesDuPlan(action.codePlan);
+      if (action.codeRisque) {
+        this.risqueSelected = this.risquesDuPlan.find(r => r.code === action.codeRisque) ?? null;
+        if (this.risqueSelected) {
+          this.loadBonnesPratiques(this.risqueSelected);
+        }
+      }
     }
   }
 
   onPlanChange(): void {
     const codePlan = this.form.get('codePlan')?.value;
+    this.risqueSelected = null;
+    this.bonnesPratiques = [];
+    this.form.patchValue({ codeRisque: '', bonnePratique: '' });
+
     if (codePlan) {
-      this.loadRisqueFromPlan(codePlan);
+      this.loadRisquesDuPlan(codePlan);
+      // Un seul risque sur le plan : pas d'ambiguïté, présélection directe
+      // (préserve le comportement historique pour le cas mono-risque).
+      if (this.risquesDuPlan.length === 1) {
+        const risque = this.risquesDuPlan[0];
+        this.risqueSelected = risque;
+        this.form.patchValue({ codeRisque: risque.code });
+        this.loadBonnesPratiques(risque);
+      }
     } else {
-      this.risqueSelected = null;
-      this.bonnesPratiques = [];
-      this.form.patchValue({ codeRisque: '', bonnePratique: '' });
-      this.cdr.detectChanges();
+      this.risquesDuPlan = [];
     }
+    this.cdr.detectChanges();
   }
 
-  loadRisqueFromPlan(codePlan: string): void {
+  /**
+   * Le plan de mitigation peut désormais porter plusieurs risques : on ne
+   * charge plus un risque unique automatiquement, mais la liste des risques
+   * du plan (depuis les codes déjà chargés dans this.risques), pour que
+   * l'utilisateur choisisse activement celui visé par l'action.
+   */
+  private loadRisquesDuPlan(codePlan: string): void {
     const plan = this.plans.find(p => p.code === codePlan);
-    if (plan && plan.codeRisque) {
-      this.risqueService.getByCode(plan.codeRisque).subscribe({
-        next: (risque) => {
-          this.risqueSelected = risque;
-          this.form.patchValue({ codeRisque: risque.code });
-          this.loadBonnesPratiques(risque);
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          this.error = err?.message || 'Impossible de charger le risque associé au plan';
-          this.risqueSelected = null;
-          this.bonnesPratiques = [];
-          this.cdr.detectChanges();
-        }
-      });
-    }
+    const codesRisques = plan?.codesRisques ?? [];
+    this.risquesDuPlan = this.risques.filter(r => codesRisques.includes(r.code));
   }
 
   onRisqueChange(): void {
     const codeRisque = this.form.get('codeRisque')?.value;
-    if (codeRisque && this.risqueSelected) {
+    this.risqueSelected = this.risquesDuPlan.find(r => r.code === codeRisque) ?? null;
+    if (this.risqueSelected) {
       this.loadBonnesPratiques(this.risqueSelected);
     } else {
       this.bonnesPratiques = [];

@@ -1,0 +1,97 @@
+<app-main-layout [menuItems]="menuItems" activeMenu="Risques" searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances" userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">
+            <span *ngIf="risque">{{ risque.code }} — {{ risque.libelle }}</span>
+          </p>
+          <h1 class="text-2xl font-semibold text-slate-900">Historique d'évolution du risque</h1>
+        </div>
+        <button (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+          Retour au risque
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <div *ngIf="!loading && risque" class="rounded-3xl bg-white p-6 shadow-sm space-y-3">
+
+        <div *ngIf="loadingHistorique" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+          Chargement de l'historique...
+        </div>
+
+        <div *ngIf="!loadingHistorique && historique.length === 0" class="rounded-xl bg-slate-50 p-4 flex items-center justify-between gap-4">
+          <p class="text-slate-500 text-sm">Ce risque n'a pas encore été évalué.</p>
+          <a routerLink="/evaluations/nouveau"
+            class="flex-shrink-0 inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-600">
+            Évaluer ce risque
+          </a>
+        </div>
+
+        <div *ngIf="!loadingHistorique && historique.length > 0" class="space-y-4">
+          <!-- Graphique d'évolution (à partir de 2 évaluations, sinon une seule ne fait pas de tendance) -->
+          <div *ngIf="historique.length >= 2" class="rounded-xl border border-slate-200 p-4">
+            <canvas id="historiqueChart" height="90"></canvas>
+          </div>
+          <p *ngIf="historique.length === 1" class="text-xs text-slate-400 italic">
+            Une seule évaluation pour l'instant — le graphique de tendance apparaîtra dès la première réévaluation.
+          </p>
+
+          <!-- Détail de chaque (ré)évaluation -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50">
+                <tr class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  <th class="px-4 py-2">Évaluation</th>
+                  <th class="px-4 py-2">Période</th>
+                  <th class="px-4 py-2">Score inhérent</th>
+                  <th class="px-4 py-2">Score résiduel</th>
+                  <th class="px-4 py-2">Priorité</th>
+                  <th class="px-4 py-2"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr *ngFor="let evaluation of historique; let i = index" class="hover:bg-slate-50">
+                  <td class="px-4 py-2 font-medium text-slate-700">
+                    {{ i === 0 ? 'Initiale' : 'Réévaluation ' + i }}
+                    <span class="block text-xs text-slate-400">{{ evaluation.code }}</span>
+                  </td>
+                  <td class="px-4 py-2 text-slate-600">
+                    {{ evaluation.dateDebut || '—' }} → {{ evaluation.dateFin || '—' }}
+                  </td>
+                  <td class="px-4 py-2">
+                    <span class="text-slate-700">{{ evaluation.scoreInherent }} / 25</span>
+                  </td>
+                  <td class="px-4 py-2">
+                    <span [class]="'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ' + getScoreBadgeClass(evaluation.scoreResiduel)">
+                      {{ evaluation.scoreResiduel }} / 25
+                    </span>
+                  </td>
+                  <td class="px-4 py-2 text-slate-600">{{ evaluation.libellePriorite || '—' }}</td>
+                  <td class="px-4 py-2 text-right">
+                    <button (click)="viewEvaluation(evaluation.code)"
+                      class="text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+                      Voir →
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

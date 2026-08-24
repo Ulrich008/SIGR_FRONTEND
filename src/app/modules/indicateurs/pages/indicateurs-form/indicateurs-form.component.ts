@@ -5,7 +5,7 @@ import {
 } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -213,7 +213,7 @@ export class IndicateursFormComponent implements OnInit {
               this.processus = data.processus;
               this.unitesMesure = data.unitesMesure;
               this.risques = data.risques.filter(r => r.codeProcessus === indicateur.codeProcessus);
-              this.plansMitigation = data.plansMitigation.filter(p => p.codeRisque === indicateur.codeRisque);
+              this.plansMitigation = data.plansMitigation.filter(p => !!indicateur.codeRisque && p.codesRisques?.includes(indicateur.codeRisque));
               this.actions = data.actions.filter(a => a.codePlan === indicateur.codePlanMitigation);
               this.patchForm(indicateur);
               this.loading = false;
@@ -307,7 +307,7 @@ export class IndicateursFormComponent implements OnInit {
     this.loadingPlans = true;
     this.planMitigationService.getAll().subscribe({
       next: (plans) => {
-        this.plansMitigation = plans.filter(p => p.codeRisque === codeRisque);
+        this.plansMitigation = plans.filter(p => p.codesRisques?.includes(codeRisque));
         this.loadingPlans = false;
         this.cdr.detectChanges();
       },

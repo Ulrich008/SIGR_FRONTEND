@@ -54,7 +54,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'roles-profils',
     keywords: ['role', 'profil', 'super_admin', 'admin', 'agent', 'cmmr', 'cci', 'pilote', 'responsable_risques', 'responsable_action', 'auditeur', 'permission', 'droit', 'acces'],
     question: 'Quels sont les rôles et profils ?',
-    answer: "SIGR combine un **rôle technique** (SUPER_ADMIN, ADMIN ou AGENT) et un **profil métier** obligatoire pour les AGENT (RESPONSABLE_RISQUES, PILOTE, CCI, CMMR, RESPONSABLE_ACTION ou AUDITEUR). Ce que vous voyez et pouvez faire dépend des deux : un bouton grisé signifie simplement que l'action n'est pas autorisée pour votre profil.",
+    answer: "SIGR combine un **rôle technique** (SUPER_ADMIN, ADMIN ou AGENT) et un **profil métier** obligatoire pour les AGENT (MANAGER_RISQUE, PILOTE, CCI, CMMR, RESPONSABLE_ACTION ou AUDITEUR). Ce que vous voyez et pouvez faire dépend des deux : un bouton grisé signifie simplement que l'action n'est pas autorisée pour votre profil.",
     anchor: 'roles'
   },
   {
@@ -130,7 +130,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
     id: 'unites-mesure',
     keywords: ['unite de mesure', 'unite mesure', 'symbole', 'mesure kpi'],
     question: "Qu'est-ce qu'une unité de mesure ?",
-    answer: "Menu **Configuration → Unités de mesure**. Définit les unités (numériques ou dates) utilisées pour les indicateurs de performance. Attention : la création n'est pas ouverte depuis l'interface — si la liste est vide, contactez le SUPER_ADMIN.",
+    answer: "Menu **Configuration → Unités de mesure**. Définit les unités (numériques ou dates) utilisées pour les indicateurs de réalisation. Attention : la création n'est pas ouverte depuis l'interface — si la liste est vide, contactez le SUPER_ADMIN.",
     anchor: 'unites-mesure',
     roles: ['ADMIN', 'SUPER_ADMIN']
   },
@@ -189,7 +189,7 @@ export const CHATBOT_KNOWLEDGE_BASE: ChatbotEntry[] = [
   {
     id: 'indicateurs',
     keywords: ['indicateur', 'kpi', 'creer indicateur', 'nouvel indicateur', 'seuil alerte', 'valeur cible'],
-    question: 'Comment créer un indicateur de performance ?',
+    question: 'Comment créer un indicateur de réalisation ?',
     answer: "Menu **Mitigation → Indicateurs**. Renseignez le libellé et la fréquence, rattachez-le à un processus/risque/plan/action, choisissez une unité de mesure, puis définissez dates, seuil d'alerte, valeur cible et valeur obtenue. Si aucune unité de mesure n'est disponible, contactez le SUPER_ADMIN. La page affiche aussi un tableau de bord : compteurs par statut (Objectif atteint, En cours, Attention, En retard — dès que la valeur obtenue atteint la valeur cible, le statut passe à Objectif atteint quelles que soient les dates), graphiques valeurs vs cibles et jauge circulaire par indicateur.",
     anchor: 'mitigation',
     readOnlyRoles: CONSULTATION_SEULE,

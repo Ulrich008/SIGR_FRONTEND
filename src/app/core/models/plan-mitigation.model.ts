@@ -9,7 +9,7 @@ export interface PlanMitigationRequest {
   description?: string;
   libelle?: string;
   dateCreation: string;
-  codeRisque: string;
+  codesRisques: string[];
 }
 
 export interface PlanMitigationResponse {
@@ -19,6 +19,6 @@ export interface PlanMitigationResponse {
   libelle?: string;
   dateCreation: string;
   statut: StatutPlanMitigation;
-  codeRisque: string;
-  libelleRisque: string;
+  codesRisques: string[];
+  libellesRisques: string[];
 }

@@ -141,6 +141,7 @@ export class AlertesListComponent implements OnInit {
       case 'INDICATEUR_SEUIL_DEPASSE':      return 'Seuil dépassé';
       case 'INDICATEUR_ECHEANCE_PROCHE':    return 'Échéance proche';
       case 'RISQUE_EN_ATTENTE_VALIDATION':  return 'En attente de validation';
+      case 'RISQUE_EN_ATTENTE_TRANSMISSION': return 'En attente de transmission';
       default:                               return type;
     }
   }

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -12,12 +12,13 @@ import { AgentResponse } from '../../../../core/models/agent.model';
 import { ImportResult } from '../../../../core/models/import-result.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 import { escapeHtml } from '../../../../core/utils/html-escape.util';
 
 @Component({
   standalone: true,
   selector: 'app-agent-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './agent-list.component.html'
 })
 export class AgentListComponent implements OnInit {
@@ -127,30 +128,11 @@ export class AgentListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredAgents.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   createAgent(): void {
@@ -202,7 +184,8 @@ export class AgentListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (!result.isConfirmed) return;
       this.loading = true;
@@ -252,8 +235,6 @@ export class AgentListComponent implements OnInit {
           showCancelButton: true,
           confirmButtonText: 'Générer le PDF',
           cancelButtonText: 'Annuler',
-          confirmButtonColor: '#047857',
-          cancelButtonColor: '#6b7280',
           preConfirm: () => {
             const select = document.getElementById('ministere-select') as HTMLSelectElement;
             if (!select || !select.value) {
@@ -273,7 +254,7 @@ export class AgentListComponent implements OnInit {
           icon: 'error',
           title: 'Erreur',
           text: err?.message || 'Impossible de charger la liste des ministères',
-          confirmButtonColor: '#ef4444'
+          customClass: sigrSwalButtons('danger')
         });
       }
     });
@@ -301,7 +282,7 @@ export class AgentListComponent implements OnInit {
           icon: 'error',
           title: 'Erreur',
           text: err?.message || 'Impossible de générer le PDF',
-          confirmButtonColor: '#ef4444'
+          customClass: sigrSwalButtons('danger')
         });
       }
     });
@@ -344,7 +325,7 @@ export class AgentListComponent implements OnInit {
           icon: 'error',
           title: 'Erreur',
           text: err?.message || "Impossible d'importer le fichier",
-          confirmButtonColor: '#ef4444'
+          customClass: sigrSwalButtons('danger')
         });
       }
     });
@@ -363,7 +344,6 @@ export class AgentListComponent implements OnInit {
       icon: result.echecs.length ? 'warning' : 'success',
       title: 'Import terminé',
       html: `${escapeHtml(result.succes)} / ${escapeHtml(result.totalLignes)} agent(s) importé(s) avec succès.${listeErreurs}`,
-      confirmButtonColor: '#047857'
     });
   }
 
@@ -384,7 +364,7 @@ export class AgentListComponent implements OnInit {
           icon: 'error',
           title: 'Erreur',
           text: err?.message || 'Impossible de télécharger le modèle',
-          confirmButtonColor: '#ef4444'
+          customClass: sigrSwalButtons('danger')
         });
       }
     });

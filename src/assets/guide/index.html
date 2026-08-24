@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIGR — Guide d'utilisation (En cours d'élaboration)</title>
-<meta name="description" content="Guide complet d'utilisation de la plateforme SIGR (Système Intégré de Gestion des Risques).">
+<title>SIGR — Guide de l'administrateur général</title>
+<meta name="description" content="Guide d'utilisation de la plateforme SIGR (Système Intégré de Gestion des Risques) pour l'administrateur général.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231a4731%22/><text x=%2250%22 y=%2266%22 font-size=%2255%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Georgia,serif%22>S</text></svg>">
 <style>
   :root {
@@ -198,7 +198,7 @@
 
   figure.shot {
     margin: 20px 0; border-radius: var(--radius);
-    overflow: hidden; border: 1px solid var(--line);
+    overflow: hidden; border: 1px solid #c3cec6;
     box-shadow: 0 10px 30px rgba(16, 40, 26, 0.08);
     background: var(--card);
   }
@@ -240,17 +240,6 @@
   .mini-card h5 { margin: 0 0 4px; font-size: 13.5px; font-weight: 750; }
   .mini-card p { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
 
-  .flow {
-    display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 18px 0 22px;
-  }
-  .flow .node {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 10px 14px; font-size: 12.5px; font-weight: 700; color: var(--sigr-900);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-  .flow .arrow { color: var(--ink-soft); font-size: 16px; }
-  .flow .node.final { background: var(--sigr-900); color: white; border-color: var(--sigr-900); }
-
   table.compact { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
   table.compact th, table.compact td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
   table.compact th { background: var(--sigr-50); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ink-soft); }
@@ -285,7 +274,7 @@
   <div class="topbar-brand">
     <div class="topbar-logo">S</div>
     <div>
-      <div class="topbar-title">SIGR — Guide d'utilisation (En cours d'élaboration)</div>
+      <div class="topbar-title">SIGR — Guide de l'administrateur général</div>
       <div class="topbar-subtitle">Système intégré de gestion des risques</div>
     </div>
   </div>
@@ -302,32 +291,48 @@
     <div class="toc-group">
       <h4>Prise en main</h4>
       <a href="#intro"><span class="dot"></span>Bienvenue</a>
-      <a href="#connexion"><span class="dot"></span>Se connecter</a>
-      <a href="#interface"><span class="dot"></span>Découvrir l'interface</a>
-      <a href="#roles"><span class="dot"></span>Rôles &amp; profils</a>
+      <a href="#connexion"><span class="dot"></span>Connexion à l'application</a>
     </div>
     <div class="toc-group">
-      <h4>Administration</h4>
+      <h4>Votre espace</h4>
+      <a href="#tableau-bord"><span class="dot"></span>Tableau de bord</a>
+    </div>
+    <div class="toc-group">
+      <h4>Configuration</h4>
+      <a href="#ministeres"><span class="dot"></span>Ministères</a>
+      <a href="#types-unites"><span class="dot"></span>Types d'unités</a>
+      <a href="#unites-administratives"><span class="dot"></span>Unités administratives</a>
+      <a href="#profils"><span class="dot"></span>Profils</a>
       <a href="#agents"><span class="dot"></span>Agents</a>
       <a href="#affectations"><span class="dot"></span>Affectations</a>
-      <a href="#profils-crud"><span class="dot"></span>Profils métier</a>
-      <a href="#ministeres"><span class="dot"></span>Ministères &amp; unités</a>
       <a href="#unites-mesure"><span class="dot"></span>Unités de mesure</a>
     </div>
     <div class="toc-group">
-      <h4>Gestion des risques</h4>
-      <a href="#processus"><span class="dot"></span>Processus &amp; risques</a>
-      <a href="#evaluations"><span class="dot"></span>Évaluations</a>
-      <a href="#matrice"><span class="dot"></span>Matrice des risques</a>
-      <a href="#mitigation"><span class="dot"></span>Mitigation</a>
-      <a href="#cartographie"><span class="dot"></span>Cartographie &amp; validation</a>
-      <a href="#audit"><span class="dot"></span>Plan d'audit</a>
+      <h4>Formalisation du risque</h4>
+      <a href="#processus"><span class="dot"></span>Processus</a>
+      <a href="#risques"><span class="dot"></span>Risques</a>
     </div>
     <div class="toc-group">
-      <h4>Mon espace</h4>
-      <a href="#alertes"><span class="dot"></span>Alertes</a>
-      <a href="#profil"><span class="dot"></span>Mon profil</a>
-      <a href="#faq"><span class="dot"></span>Questions fréquentes</a>
+      <h4>Évaluations</h4>
+      <a href="#evaluations"><span class="dot"></span>Gestion des évaluations</a>
+    </div>
+    <div class="toc-group">
+      <h4>Mitigation</h4>
+      <a href="#plans-mitigation"><span class="dot"></span>Plans de mitigation</a>
+      <a href="#actions"><span class="dot"></span>Actions</a>
+      <a href="#indicateurs"><span class="dot"></span>Indicateurs de réalisation</a>
+    </div>
+    <div class="toc-group">
+      <h4>Audit</h4>
+      <a href="#plans-audit"><span class="dot"></span>Plans d'audit</a>
+    </div>
+    <div class="toc-group">
+      <h4>Cartographie des risques</h4>
+      <a href="#matrice"><span class="dot"></span>Matrice des risques</a>
+      <a href="#projet-cartographie"><span class="dot"></span>Projet de cartographie</a>
+      <a href="#cartographie-differee"><span class="dot"></span>Différée et rejetée</a>
+      <a href="#cartographie-validee"><span class="dot"></span>Cartographie validée</a>
+      <a href="#cartographie-definitive"><span class="dot"></span>Cartographie définitive</a>
     </div>
   </nav>
 
@@ -336,995 +341,954 @@
 
     <!-- HERO -->
     <div class="hero" id="intro">
-      <span class="hero-eyebrow">📘 Guide officiel</span>
-      <h1>Tout savoir pour bien utiliser SIGR</h1>
+      <span class="hero-eyebrow">📘 Guide de l'administrateur général</span>
+      <h1>Bien utiliser SIGR en tant qu'administrateur</h1>
       <p>
-        Suivez ce guide étape par étape pour prendre en main la plateforme : connexion,
-        navigation, gestion des agents, formalisation et évaluation des risques, mitigation
-        et circuit de validation de la cartographie. Chaque section s'appuie sur de vraies
-        captures d'écran de l'application, pour que vous vous y retrouviez rapidement.
+        Ce guide présente pas à pas l'utilisation complète de l'application SIGR : connexion,
+        tableau de bord, paramétrage de la Configuration (structures, unités, profils,
+        agents), puis les modules métier — Formalisation du risque, Évaluations, Mitigation,
+        Audit et Cartographie des risques. L'administrateur général dispose d'un accès complet
+        à l'ensemble de ces modules.
       </p>
       <div class="hero-actions">
         <a class="hero-btn" href="#connexion">Commencer la lecture →</a>
-        <a class="hero-btn ghost" href="#roles">Voir les rôles &amp; profils</a>
+        <a class="hero-btn ghost" href="#tableau-bord">Aller au tableau de bord</a>
       </div>
     </div>
 
-    <!-- CONNEXION -->
+    <!-- 1. CONNEXION -->
     <section class="doc" id="connexion">
-      <div class="doc-kicker">Étape 1</div>
+      <div class="doc-kicker">1. Connexion à l'application</div>
       <h2>Se connecter à la plateforme</h2>
       <p class="lead">
-        L'accès à SIGR se fait avec un <b>matricule</b> et un <b>mot de passe</b> fournis par
-        votre administrateur. Aucune auto-inscription n'est possible : seul un agent
-        ADMIN ou SUPER_ADMIN peut créer un compte.
-      </p>
-
-      <ol class="steps">
-        <li>Ouvrez la page de connexion de SIGR.</li>
-        <li>Saisissez votre <b>matricule</b> (ex. <code>AGT-003</code>) dans le premier champ.</li>
-        <li>Saisissez votre <b>mot de passe</b> dans le second champ.</li>
-        <li>Cliquez sur <b>« Se connecter »</b>. Vous êtes redirigé vers le tableau de bord.</li>
-      </ol>
-
-      <div class="shot-grid">
-        <figure class="shot">
-          <img src="images/01-login.png" alt="Écran de connexion SIGR">
-          <figcaption>🔐 Écran de connexion — matricule et mot de passe</figcaption>
-        </figure>
-        <figure class="shot">
-          <img src="images/02-login-filled.png" alt="Formulaire de connexion rempli">
-          <figcaption>✍️ Formulaire rempli, prêt à valider</figcaption>
-        </figure>
-      </div>
-
-      <div class="callout warn">
-        <span class="icon">⚠️</span>
-        <div><b>Mot de passe oublié ?</b>Contactez votre administrateur ministériel ou le SUPER_ADMIN : lui seul peut réinitialiser un compte.</div>
-      </div>
-      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
-    </section>
-
-    <!-- INTERFACE -->
-    <section class="doc" id="interface">
-      <div class="doc-kicker">Étape 2</div>
-      <h2>Découvrir l'interface</h2>
-      <p class="lead">
-        Une fois connecté, vous arrivez sur le <b>tableau de bord</b>. Trois zones structurent
-        toute la plateforme : le menu latéral à gauche, la barre supérieure, et la zone de
-        contenu principale.
+        Le SIGR (Système Intégré de Gestion des Risques) est accessible via un navigateur
+        web. Cette section explique comment se connecter à votre espace de travail.
       </p>
 
       <figure class="shot">
-        <img src="images/03-dashboard.png" alt="Tableau de bord SIGR">
-        <figcaption>🏠 Tableau de bord — vue d'ensemble des indicateurs clés</figcaption>
+        <img src="images/admin-login.png" alt="Page de connexion au SIGR">
+        <figcaption>🔐 Page de connexion au SIGR</figcaption>
       </figure>
 
-      <div class="card-grid">
-        <div class="mini-card">
-          <div class="mc-icon">☰</div>
-          <h5>Menu latéral (gauche)</h5>
-          <p>Regroupe les modules par rubrique. Cliquez sur une rubrique pour déplier ses sous-menus. Le menu affiché dépend de votre rôle et profil.</p>
-        </div>
-        <div class="mini-card">
-          <div class="mc-icon">⤴</div>
-          <h5>Barre supérieure</h5>
-          <p>Guide d'utilisation, cloche de notifications (avec compteur des non-lues), déconnexion, ministère de rattachement et accès à votre profil (avatar, en haut à droite).</p>
-        </div>
-        <div class="mini-card">
-          <div class="mc-icon">▦</div>
-          <h5>Zone de contenu</h5>
-          <p>Listes, formulaires et détails s'affichent ici. La plupart des listes proposent recherche, filtres et pagination.</p>
-        </div>
-      </div>
-
-      <div class="subsection">
-        <h3>Les indicateurs clés du tableau de bord</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          La partie centrale du tableau de bord affiche des compteurs chiffrés qui donnent un
-          aperçu rapide de la situation du ministère :
-        </p>
-        <div class="card-grid">
-          <div class="mini-card"><div class="mc-icon">📌</div><h5>Nombre de risques</h5><p>Total des risques enregistrés et nombre d'évaluations réalisées.</p></div>
-          <div class="mini-card"><div class="mc-icon">🔺</div><h5>Risques critiques</h5><p>Nombre de risques nécessitant une attention particulière.</p></div>
-          <div class="mini-card"><div class="mc-icon">⚙️</div><h5>Processus métiers</h5><p>Nombre de processus actifs suivis par l'application.</p></div>
-          <div class="mini-card"><div class="mc-icon">📈</div><h5>Indicateurs KPI</h5><p>Nombre d'indicateurs de performance et de plans associés.</p></div>
-          <div class="mini-card"><div class="mc-icon">🛡️</div><h5>Plans de mitigation</h5><p>Nombre de plans en place et d'actions associées.</p></div>
-          <div class="mini-card"><div class="mc-icon">🔧</div><h5>Actions</h5><p>Nombre d'actions en cours de traitement.</p></div>
-          <div class="mini-card"><div class="mc-icon">👥</div><h5>Agents</h5><p>Nombre d'agents actifs sur la plateforme.</p></div>
-        </div>
-        <p style="font-size:13.5px;color:var(--ink-soft);">
-          En bas de page, un graphique présente les risques identifiés par processus métier,
-          et l'encart <b>« Activités récentes »</b> liste les dernières actions effectuées sur le système
-          (risques identifiés, évaluations complétées…).
-        </p>
-        <div class="callout tip">
-          <span class="icon">👑</span>
-          <div><b>Vue étendue pour les administrateurs.</b>Un <b>ADMIN</b> voit en plus un tableau « Unités administratives de mon ministère » (nombre d'agents par unité). Un <b>SUPER_ADMIN</b> voit un tableau « Répartition par ministère » (unités administratives et agents, tous ministères confondus).</div>
-        </div>
-      </div>
-
-      <div class="subsection">
-        <h3>Déplier un sous-menu</h3>
-        <p class="lead" style="margin-bottom:14px;">Cliquez sur une rubrique du menu (ex. « Configuration ») pour afficher ses pages.</p>
-        <figure class="shot">
-          <img src="images/04-sidebar-menu.png" alt="Menu latéral déplié sur la rubrique Configuration">
-          <figcaption>📂 La rubrique « Configuration » dépliée, avec ses sous-pages</figcaption>
-        </figure>
-      </div>
-
-      <div class="subsection">
-        <h3>Champs obligatoires et sélecteur de date</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Deux conventions valables sur <b>tous</b> les formulaires de l'application :
-        </p>
-        <ul class="steps">
-          <li>Un champ obligatoire est toujours signalé par un <b>astérisque rouge</b> à côté de son libellé ; si vous le laissez vide, un message précis (et non un simple « Ce champ est requis ») indique quoi corriger.</li>
-          <li>Tous les champs de type date s'ouvrent via un <b>calendrier</b> (jour/mois/année) au clic, plutôt qu'une saisie libre — cliquez simplement sur le champ pour choisir une date au lieu de la taper.</li>
-          <li>Les champs qui font référence à une donnée de la base (risque, processus, agent, unité administrative, ministère, plan de mitigation, action, profil, type d'unité, unité de mesure...) sont des <b>champs de recherche</b> plutôt que des listes déroulantes classiques : tapez quelques lettres pour filtrer, puis cliquez sur le résultat souhaité.</li>
-        </ul>
-      </div>
-
-      <div class="subsection">
-        <h3>Le guide, les notifications et votre profil</h3>
-        <figure class="shot">
-          <img src="images/20-header-closeup.png" alt="Gros plan sur la barre supérieure">
-          <figcaption>🔎 Barre supérieure : guide d'utilisation, notifications, déconnexion, ministère et avatar</figcaption>
-        </figure>
-        <ul class="steps">
-          <li>L'icône <b>livre ouvert</b> ouvre ce guide dans un nouvel onglet, à tout moment.</li>
-          <li>La <b>cloche</b> affiche un badge avec le nombre de notifications non lues et vous emmène vers le <a href="#alertes">centre de notifications</a>. Le badge se met à jour automatiquement, sans recharger la page.</li>
-          <li>Votre <b>avatar</b> (initiales, en haut à droite) ouvre la page « Mon profil ».</li>
-        </ul>
-      </div>
-
-      <div class="subsection">
-        <h3>L'assistant SIGR (chatbot)</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Une bulle de discussion 💬 reste accessible en bas à droite sur toutes les pages.
-          Elle répond aux questions courantes sur l'utilisation de la plateforme (connexion,
-          création d'un risque, circuit de validation, rôles…) en s'appuyant directement sur
-          le contenu de ce guide — aucune connexion internet ni clé externe n'est nécessaire.
-        </p>
-        <figure class="shot">
-          <img src="images/42-chatbot-widget.png" alt="Assistant conversationnel SIGR ouvert">
-          <figcaption>💬 Assistant SIGR — questions suggérées et recherche dans le guide</figcaption>
-        </figure>
-        <ul class="steps">
-          <li>Cliquez sur la bulle verte pour ouvrir la conversation.</li>
-          <li>Choisissez une <b>suggestion</b> ou tapez votre question librement.</li>
-          <li>Chaque réponse propose un lien <b>« En savoir plus dans le guide »</b> vers la section correspondante.</li>
-        </ul>
-        <div class="callout tip">
-          <span class="icon">💡</span>
-          <div><b>Pas de question hors sujet.</b>L'assistant ne connaît que le fonctionnement de SIGR : il ne remplace pas une recherche internet générale.</div>
-        </div>
-      </div>
-      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
-    </section>
-
-    <!-- ROLES -->
-    <section class="doc" id="roles">
-      <div class="doc-kicker">Étape 3</div>
-      <h2>Comprendre les rôles &amp; profils</h2>
-      <p class="lead">
-        SIGR combine deux notions complémentaires : le <b>rôle technique</b> (ce que le compte
-        est autorisé à administrer) et le <b>profil métier</b> (ce que l'agent fait dans le
-        circuit de gestion des risques).
-      </p>
-
-      <table class="compact">
-        <thead><tr><th>Rôle technique</th><th>Portée</th></tr></thead>
-        <tbody>
-          <tr><td><b>SUPER_ADMIN</b></td><td>Accès total, tous ministères confondus. Seul rôle pouvant créer un autre SUPER_ADMIN.</td></tr>
-          <tr><td><b>ADMIN</b></td><td>Administration complète, limitée à son propre ministère (agents, structures, unités).</td></tr>
-          <tr><td><b>AGENT</b></td><td>Compte opérationnel rattaché à un <b>profil métier</b> obligatoire (voir ci-dessous).</td></tr>
-        </tbody>
-      </table>
-
-      <div class="card-grid">
-        <div class="mini-card"><div class="mc-icon">📋</div><h5>RESPONSABLE_RISQUES</h5><p>Formalise les risques et transmet la cartographie au Pilote.</p></div>
-        <div class="mini-card"><div class="mc-icon">🧭</div><h5>PILOTE</h5><p>Valide, diffère ou rejette au niveau du processus.</p></div>
-        <div class="mini-card"><div class="mc-icon">🏛️</div><h5>CCI</h5><p>Consolide avec le CODIR avant transmission au CMMR.</p></div>
-        <div class="mini-card"><div class="mc-icon">✅</div><h5>CMMR</h5><p>Valide la cartographie du ministère — étape finale du circuit.</p></div>
-        <div class="mini-card"><div class="mc-icon">🛠️</div><h5>RESPONSABLE_ACTION</h5><p>Gère les plans de mitigation et les actions correctives.</p></div>
-        <div class="mini-card"><div class="mc-icon">🔍</div><h5>AUDITEUR</h5><p>Accès en lecture seule + gestion du plan d'audit.</p></div>
-      </div>
+      <p style="font-size:14px;">Pour se connecter :</p>
+      <ol class="steps">
+        <li>Ouvrez votre navigateur et rendez-vous sur la page de connexion du SIGR à travers l'URL.</li>
+        <li>Saisissez votre <b>matricule</b> dans le champ « Matricule ».</li>
+        <li>Saisissez votre <b>mot de passe</b> dans le champ « Mot de passe ».</li>
+        <li>Cochez la case <b>« Se souvenir de moi »</b> si vous souhaitez que l'application mémorise votre connexion sur cet ordinateur.</li>
+        <li>Cliquez sur le bouton vert <b>« Se connecter »</b>.</li>
+      </ol>
 
       <div class="callout tip">
         <span class="icon">💡</span>
-        <div><b>Ce que vous voyez dépend de qui vous êtes.</b>Le menu, les boutons et les colonnes des tableaux s'adaptent automatiquement à votre rôle et à votre profil : un bouton grisé signifie simplement que l'action n'est pas autorisée pour votre profil.</div>
+        <div><b>À noter.</b>Si vous avez oublié votre mot de passe, cliquez sur le lien « Mot de passe oublié ? » situé au-dessus du bouton de connexion.</div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
-    <!-- AGENTS -->
-    <section class="doc" id="agents">
-      <div class="doc-kicker">Administration</div>
-      <h2>Gérer les agents</h2>
-      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
+    <!-- 2. TABLEAU DE BORD -->
+    <section class="doc" id="tableau-bord">
+      <div class="doc-kicker">2. Le tableau de bord</div>
+      <h2>Le tableau de bord</h2>
       <p class="lead">
-        Menu <b>Configuration → Agents</b>. Créez, modifiez, activez/désactivez ou
-        supprimez les comptes. Un SUPER_ADMIN voit tous les ministères ; un ADMIN ne voit
-        que le sien.
+        Une fois connecté, vous arrivez automatiquement sur le Tableau de bord. C'est la page
+        d'accueil de l'application : elle vous donne une vue d'ensemble de la gestion des
+        risques du ministère.
       </p>
 
       <figure class="shot">
-        <img src="images/05-agents-list.png" alt="Liste des agents">
-        <figcaption>👥 Liste des agents — recherche, statut et actions rapides</figcaption>
+        <img src="images/admin-dashboard.png" alt="Tableau de bord de vue d'ensemble">
+        <figcaption>📊 Tableau de bord de vue d'ensemble</figcaption>
       </figure>
 
-      <div class="subsection">
-        <h3>Créer un nouvel agent</h3>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Nouvel agent »</b> en haut de la liste.</li>
-          <li>Renseignez l'état civil (dont le <b>NPI</b>, exactement 10 chiffres, sans lettre), puis choisissez le <b>ministère</b> et l'<b>unité administrative</b> de rattachement.</li>
-          <li>Si le rôle choisi est <b>AGENT</b>, sélectionnez obligatoirement un <b>profil métier</b>.</li>
-          <li>Définissez le mot de passe initial de l'agent, puis enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/06-agent-form.png" alt="Formulaire de création d'un agent">
-          <figcaption>📝 Formulaire « Nouvel agent »</figcaption>
-        </figure>
-        <div class="callout tip">
-          <span class="icon">🔑</span>
-          <div><b>Le matricule n'est pas saisi.</b>Il est généré automatiquement par le système à la création : ce champ n'existe pas dans le formulaire de création.</div>
-        </div>
-        <div class="callout tip">
-          <span class="icon">📄</span>
-          <div><b>Export PDF.</b>Depuis la liste, le bouton « Exporter PDF » génère un répertoire imprimable des agents, filtrable par ministère et par unité administrative.</div>
-        </div>
+      <div class="subsection" id="menu-principal">
+        <h3>2.1. Le menu principal</h3>
+        <p style="font-size:14px;">
+          Sur la gauche de l'écran se trouve le menu principal, toujours visible, qui permet
+          de naviguer entre les différentes sections de l'application :
+        </p>
+        <ul style="font-size:14px;padding-left:20px;">
+          <li><b>Tableau de bord</b> : la page d'accueil (vue d'ensemble).</li>
+          <li><b>Configuration</b> : paramétrage des structures, unités, profils et agents.</li>
+          <li><b>Formalisation du risque</b> : identification et description des risques suivant le processus.</li>
+          <li><b>Évaluations</b> : évaluation des risques identifiés.</li>
+          <li><b>Mitigation</b> : gestion des plans et actions de réduction des risques.</li>
+          <li><b>Audit</b> : pré-planification des audits.</li>
+          <li><b>Cartographie des risques</b> : visualisation et validation de la cartographie des risques.</li>
+        </ul>
       </div>
 
-      <div class="subsection">
-        <h3>Importer plusieurs agents depuis un fichier Excel</h3>
-        <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Depuis la liste des agents, le bouton <b>« Importer »</b> permet de créer plusieurs agents
-          d'un coup à partir d'un fichier Excel (.xlsx), sans les saisir un par un.
+      <div class="subsection" id="indicateurs-cles">
+        <h3>2.2. Synthèse des indicateurs clés</h3>
+        <p style="font-size:14px;">
+          La partie centrale affiche des indicateurs chiffrés qui donnent un aperçu rapide de
+          la situation :
         </p>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Télécharger le modèle »</b> (à côté du bouton Importer) pour récupérer le fichier Excel avec les colonnes attendues et une ligne d'exemple.</li>
-          <li>Remplissez une ligne par agent, en respectant les colonnes du modèle (NPI, nom, prénoms, sexe, rôle, profil, dates, unité, ministère, email, mot de passe…).</li>
-          <li>Cliquez sur <b>« Importer »</b> et sélectionnez votre fichier rempli.</li>
-          <li>Un résumé s'affiche à la fin : nombre de lignes importées avec succès, et le détail des lignes en erreur (numéro de ligne et motif).</li>
-        </ol>
+        <ul style="font-size:14px;padding-left:20px;">
+          <li><b>Nombre de risques</b> : total des risques enregistrés et nombre d'évaluations réalisées.</li>
+          <li><b>Risques critiques</b> : nombre de risques nécessitant une attention particulière.</li>
+          <li><b>Processus</b> : nombre de processus actifs suivis par l'application.</li>
+          <li><b>Indicateurs KPI</b> : nombre d'indicateurs de réalisation et de plans associés.</li>
+          <li><b>Plans de mitigation</b> : nombre de plans en place et d'actions associées.</li>
+          <li><b>Actions</b> : nombre d'actions en cours de traitement.</li>
+          <li><b>Agents</b> : nombre d'agents actifs sur la plateforme.</li>
+        </ul>
+        <p style="font-size:14px;">
+          En bas de page, un graphique présente les risques identifiés par processus, et un
+          flux « Activités récentes » liste les dernières actions effectuées sur le système.
+        </p>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 3. CONFIGURATION : MINISTÈRES -->
+    <section class="doc" id="ministeres">
+      <div class="doc-kicker">3. Configuration : gestion des ministères</div>
+      <h2>Ministères</h2>
+      <p class="lead">
+        Le menu « Configuration » regroupe les paramètres de base de l'application. La
+        première rubrique, « Structures », permet de gérer la liste des ministères
+        enregistrés dans le SIGR.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-ministeres-list.png" alt="Liste des ministères (Configuration > Structures)">
+        <figcaption>🏛️ Liste des ministères (Configuration &gt; Structures)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Configuration / Structures — sur cette page, vous retrouvez, pour
+        chaque ministère : son code, son nom complet, son sigle et le nom de l'utilisateur qui
+        l'a créé.
+      </p>
+
+      <div class="subsection" id="ajouter-ministere">
+        <h3>3.1. Ajouter un nouveau ministère</h3>
         <figure class="shot">
-          <img src="images/41-agents-import.png" alt="Import Excel des agents et résultat">
-          <figcaption>📥 Boutons Importer / Télécharger le modèle, et résumé après import</figcaption>
+          <img src="images/admin-ministere-form.png" alt="Formulaire de création d'un ministère">
+          <figcaption>📝 Formulaire de création d'un ministère</figcaption>
         </figure>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« Nouveau ministère »</b> en haut à droite.</li>
+          <li>Renseignez les informations demandées (code, nom, sigle).</li>
+          <li>Validez pour enregistrer le nouveau ministère dans la liste.</li>
+        </ol>
+      </div>
+
+      <div class="subsection" id="modifier-ministere">
+        <h3>3.2. Modifier ou supprimer un ministère</h3>
+        <p style="font-size:14px;">
+          Dans la colonne « Actions », à droite de chaque ligne, deux icônes sont
+          disponibles : l'icône <b>crayon</b> permet de modifier les informations du
+          ministère, l'icône <b>corbeille</b> permet de le supprimer.
+        </p>
+        <div class="callout danger">
+          <span class="icon">⚠️</span>
+          <div><b>À noter.</b>La suppression d'un ministère est définitive. Assurez-vous qu'aucune unité administrative n'y est encore rattachée avant de le supprimer.</div>
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 4. CONFIGURATION : TYPES D'UNITÉS -->
+    <section class="doc" id="types-unites">
+      <div class="doc-kicker">4. Configuration : gestion des types d'unités</div>
+      <h2>Types d'unités</h2>
+      <p class="lead">
+        Les « types d'unités » définissent les catégories auxquelles peuvent appartenir les
+        unités administratives (par exemple : Direction générale, Direction opérationnelle).
+        Ils sont utilisés lors de la création d'une unité administrative.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-types-unites-list.png" alt="Liste des types d'unités">
+        <figcaption>🏷️ Liste des types d'unités</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Configuration / Unités administratives / Types d'unités — la liste
+        affiche, pour chaque type : son code, son libellé, une description explicative et le
+        nom du créateur.
+      </p>
+
+      <div class="subsection" id="ajouter-type-unite">
+        <h3>4.1. Ajouter un nouveau type d'unité</h3>
+        <figure class="shot">
+          <img src="images/admin-type-unite-form.png" alt="Formulaire de création d'un type d'unité">
+          <figcaption>📝 Formulaire de création d'un type d'unité</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« + Nouveau type »</b> en haut à droite.</li>
+          <li>Renseignez le code, le libellé et une description claire du type d'unité.</li>
+          <li>Validez pour l'ajouter à la liste.</li>
+        </ol>
+      </div>
+
+      <div class="subsection" id="modifier-type-unite">
+        <h3>4.2. Modifier ou supprimer un type d'unité</h3>
+        <p style="font-size:14px;">
+          Utilisez, comme précédemment, les icônes crayon et corbeille dans la colonne
+          « Actions » pour modifier ou supprimer un type d'unité existant.
+        </p>
         <div class="callout tip">
           <span class="icon">💡</span>
-          <div><b>Aucune ligne ne bloque les autres.</b>Si une ligne contient une erreur (NPI déjà utilisé, unité introuvable…), seule cette ligne échoue : les autres agents valides du fichier sont bien créés.</div>
+          <div><b>À noter.</b>Il est recommandé de bien définir les types d'unités avant de créer les unités administratives, car ce champ est obligatoire lors de la création d'une unité.</div>
         </div>
       </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
 
-      <div class="subsection">
-        <h3>Modifier, désactiver ou supprimer un agent</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Dans la colonne « Actions », trois icônes sont disponibles pour chaque agent :
+    <!-- 5. CONFIGURATION : UNITÉS ADMINISTRATIVES -->
+    <section class="doc" id="unites-administratives">
+      <div class="doc-kicker">5. Configuration : gestion des unités administratives</div>
+      <h2>Unités administratives</h2>
+      <p class="lead">
+        Chaque ministère est organisé en unités administratives (directions générales,
+        directions opérationnelles, etc.). Cette section du SIGR permet de gérer ces unités.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-unites-administratives-list.png" alt="Liste des unités administratives">
+        <figcaption>🏢 Liste des unités administratives</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Configuration / Unités administratives / Unités administratives —
+        la liste affiche, pour chaque unité : son code, son libellé, son type, le ministère
+        de rattachement et son niveau hiérarchique.
+      </p>
+
+      <div class="subsection" id="filtrer-unites">
+        <h3>5.1. Filtrer les unités</h3>
+        <p style="font-size:14px;">
+          En haut de la page, le menu déroulant « Filtrer par unité parent » permet
+          d'afficher uniquement les unités rattachées à une unité parente précise, au lieu
+          de la liste complète.
         </p>
-        <ul class="steps">
+      </div>
+
+      <div class="subsection" id="ajouter-unite">
+        <h3>5.2. Ajouter une nouvelle unité</h3>
+        <figure class="shot">
+          <img src="images/admin-unite-administrative-form.png" alt="Formulaire de création d'une unité administrative">
+          <figcaption>📝 Formulaire de création d'une unité administrative</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« + Nouvelle unité »</b> en haut à droite.</li>
+          <li>Renseignez le code, le libellé, le type d'unité et le ministère de rattachement.</li>
+          <li>Validez pour créer l'unité.</li>
+        </ol>
+      </div>
+
+      <div class="subsection" id="modifier-unite">
+        <h3>5.3. Modifier ou supprimer une unité</h3>
+        <p style="font-size:14px;">
+          Comme pour les ministères, les icônes crayon et corbeille dans la colonne
+          « Actions » permettent respectivement de modifier ou de supprimer une unité
+          administrative.
+        </p>
+        <div class="callout tip">
+          <span class="icon">💡</span>
+          <div><b>À noter.</b>La configuration des types d'unités administratives doit être faite préalablement à la création des unités administratives.</div>
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 6. CONFIGURATION : PROFILS -->
+    <section class="doc" id="profils">
+      <div class="doc-kicker">6. Configuration : gestion des profils</div>
+      <h2>Profils</h2>
+      <p class="lead">
+        Les profils définissent les fonctions ou rôles métiers qui peuvent être attribués aux
+        agents (par exemple : Directeur de l'Informatique, Chef de service). Ils sont ensuite
+        associés aux agents lors de leur création.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-profils-list.png" alt="Liste des profils (Configuration / Profils)">
+        <figcaption>🆔 Liste des profils (Configuration / Profils)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Configuration / Profils / Liste des profils — la liste affiche, pour
+        chaque profil : son code, son libellé et une description facultative.
+      </p>
+
+      <div class="subsection" id="ajouter-profil">
+        <h3>6.1. Ajouter un nouveau profil</h3>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« + Nouveau profil »</b> en haut à droite.</li>
+          <li>Renseignez le code et le libellé du profil, ainsi qu'une description si nécessaire.</li>
+          <li>Validez pour enregistrer le nouveau profil.</li>
+        </ol>
+      </div>
+
+      <div class="subsection" id="modifier-profil">
+        <h3>6.2. Modifier ou supprimer un profil</h3>
+        <p style="font-size:14px;">
+          Comme pour les autres listes, les icônes crayon et corbeille dans la colonne
+          « Actions » permettent de modifier ou de supprimer un profil existant.
+        </p>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 7. CONFIGURATION : AGENTS -->
+    <section class="doc" id="agents">
+      <div class="doc-kicker">7. Configuration : gestion des agents</div>
+      <h2>Agents</h2>
+      <p class="lead">
+        Les agents sont les utilisateurs du SIGR : chaque personne amenée à se connecter à
+        l'application doit être enregistrée comme agent, avec un matricule, un rôle et un
+        profil.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-agents-list.png" alt="Liste des agents (Configuration / Agents)">
+        <figcaption>👥 Liste des agents (Configuration / Agents)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Configuration / Agents / Liste des agents — la liste affiche, pour
+        chaque agent : son matricule, son nom et prénoms, son NPI, son rôle (Manager,
+        Admin…), son profil, son unité de rattachement et son statut (Actif ou non).
+      </p>
+
+      <div class="subsection" id="filtrer-agents">
+        <h3>7.1. Filtrer les agents</h3>
+        <p style="font-size:14px;">
+          En haut de la page, deux menus déroulants permettent de filtrer la liste :
+          « Filtrer par unité » et « Filtrer par rôle ».
+        </p>
+      </div>
+
+      <div class="subsection" id="ajouter-agent">
+        <h3>7.2. Ajouter un nouvel agent</h3>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« + Nouvel agent »</b> en haut à droite.</li>
+          <li>Renseignez le matricule, le nom et prénoms, le NPI, le rôle, le profil et l'unité de l'agent.</li>
+          <li>Validez pour créer l'agent.</li>
+        </ol>
+      </div>
+
+      <div class="subsection" id="modifier-agent">
+        <h3>7.3. Modifier, désactiver ou supprimer un agent</h3>
+        <p style="font-size:14px;">Dans la colonne « Actions », trois icônes sont disponibles pour chaque agent :</p>
+        <ul style="font-size:14px;padding-left:20px;">
           <li>L'icône <b>crayon</b> permet de modifier les informations de l'agent.</li>
-          <li>L'icône <b>orange</b> (bascule vers <b>vert</b> une fois le compte désactivé) permet de désactiver — ou réactiver — le compte de l'agent, sans le supprimer.</li>
+          <li>L'icône <b>orange</b> permet de désactiver (ou réactiver) le compte de l'agent, sans le supprimer.</li>
           <li>L'icône <b>corbeille</b> permet de supprimer définitivement l'agent.</li>
         </ul>
         <div class="callout tip">
           <span class="icon">💡</span>
-          <div><b>Préférez la désactivation à la suppression.</b>Désactiver un agent l'empêche de se connecter (son compte devient « Inactif ») tout en conservant tout son historique dans le système. Réservez la suppression définitive aux comptes qui ne reviendront jamais.</div>
-        </div>
-        <div class="callout warn">
-          <span class="icon">⚠️</span>
-          <div><b>Suppression parfois bloquée.</b>Un agent encore rattaché à des données (processus dont il est propriétaire, actions dont il est responsable, notifications reçues…) ne peut pas toujours être supprimé immédiatement : un message d'erreur l'indique. Réaffectez ou nettoyez d'abord les éléments concernés, ou préférez la désactivation.</div>
+          <div><b>À noter.</b>Seuls les utilisateurs dont le rôle est agent ont la possibilité d'avoir un profil en tant qu'acteur de gestion des risques.</div>
         </div>
       </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
 
-      <div class="subsection" id="affectations">
-        <h3>Affectations</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Menu <b>Configuration → Agents → Affectations</b>. Une affectation trace
-          l'<b>historique des postes</b> occupés par un agent au sein d'une unité
-          administrative (poste, date de début, date de fin) — distinct
-          de l'unité de rattachement principale définie sur la fiche de l'agent.
-        </p>
-        <figure class="shot">
-          <img src="images/23-affectations-list.png" alt="Liste des affectations">
-          <figcaption>🗓️ Affectations — historique des postes par agent et unité</figcaption>
-        </figure>
+    <!-- 8. CONFIGURATION : AFFECTATIONS -->
+    <section class="doc" id="affectations">
+      <div class="doc-kicker">8. Configuration : gestion des affectations</div>
+      <h2>Affectations</h2>
+      <p class="lead">
+        Une affectation relie un agent à une unité administrative et à un poste précis, sur
+        une période donnée (date de début et date de fin). Elle permet de conserver
+        l'historique des postes occupés par chaque agent.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-affectations-list.png" alt="Liste des affectations (Configuration / Affectations)">
+        <figcaption>📋 Liste des affectations (Configuration / Affectations)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Configuration / Agents / Affectations — la liste affiche, pour
+        chaque affectation : son code, l'agent concerné, l'unité de rattachement, le poste
+        occupé, ainsi que les dates de début et de fin.
+      </p>
+
+      <div class="subsection" id="ajouter-affectation">
+        <h3>8.1. Ajouter une nouvelle affectation</h3>
         <ol class="steps">
-          <li>Cliquez sur <b>« Nouvelle affectation »</b>.</li>
-          <li>Sélectionnez l'<b>agent</b> et l'<b>unité administrative</b> concernés.</li>
-          <li>Renseignez le <b>poste</b> occupé, ainsi que la <b>date de début</b> et la <b>date de fin</b> (toutes deux obligatoires).</li>
-          <li>Enregistrez.</li>
+          <li>Cliquez sur le bouton vert <b>« + Nouvelle affectation »</b> en haut à droite.</li>
+          <li>Sélectionnez l'agent, l'unité administrative et le poste concernés.</li>
+          <li>Renseignez la date de début et, si elle est déjà connue, la date de fin.</li>
+          <li>Validez pour enregistrer l'affectation.</li>
         </ol>
-        <figure class="shot">
-          <img src="images/28-affectation-form.png" alt="Formulaire de nouvelle affectation">
-          <figcaption>📝 Formulaire « Nouvelle affectation »</figcaption>
-        </figure>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin:14px 0;">
-          Les icônes <b>crayon</b> et <b>corbeille</b>, dans la colonne « Actions », permettent
+      </div>
+
+      <div class="subsection" id="modifier-affectation">
+        <h3>8.2. Modifier ou supprimer une affectation</h3>
+        <p style="font-size:14px;">
+          Les icônes crayon et corbeille dans la colonne « Actions » permettent
           respectivement de modifier ou de supprimer une affectation existante.
         </p>
         <div class="callout tip">
           <span class="icon">💡</span>
-          <div><b>Une date de fin ne signifie pas un départ.</b>Elle peut simplement marquer la fin d'un poste avant qu'une nouvelle affectation ne soit créée pour le même agent.</div>
+          <div><b>À noter.</b>Une date de fin ne signifie pas nécessairement que l'agent a quitté le système : elle peut simplement marquer la fin d'un poste avant une nouvelle affectation.</div>
         </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
-    <!-- PROFILS CRUD -->
-    <section class="doc" id="profils-crud">
-      <h2>Gérer les profils métier</h2>
-      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
-      <p class="lead">
-        Menu <b>Configuration → Profils</b>. C'est ici que sont définis les profils
-        métier (code, libellé, description) proposés lors de la création d'un agent
-        — voir la section <a href="#roles">Rôles &amp; profils</a> pour comprendre leur rôle
-        dans le circuit de validation.
-      </p>
-      <figure class="shot">
-        <img src="images/21-profils-list.png" alt="Liste des profils métier">
-        <figcaption>🪪 Profils métier disponibles pour les agents</figcaption>
-      </figure>
-      <div class="subsection">
-        <h3>Créer un profil</h3>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Nouveau profil »</b>.</li>
-          <li>Renseignez le <b>code</b> (identifiant technique, ex. <code>PILOTE</code>), le <b>libellé</b> et une <b>description</b>.</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/29-profil-form.png" alt="Formulaire de nouveau profil">
-          <figcaption>📝 Formulaire « Nouveau profil »</figcaption>
-        </figure>
-      </div>
-      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
-    </section>
-
-    <!-- MINISTERES -->
-    <section class="doc" id="ministeres">
-      <h2>Ministères &amp; unités administratives</h2>
-      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
-      <p class="lead">
-        Menu <b>Configuration → Structures</b> et <b>Unités administratives</b>. C'est ici que
-        se construit l'organisation hiérarchique utilisée partout ailleurs dans l'application
-        (processus, risques, agents…).
-      </p>
-      <div class="shot-grid">
-        <figure class="shot">
-          <img src="images/07-ministeres-list.png" alt="Liste des ministères">
-          <figcaption>🏛️ Liste des ministères (structures)</figcaption>
-        </figure>
-        <figure class="shot">
-          <img src="images/08-unites-list.png" alt="Liste des unités administratives">
-          <figcaption>🧩 Unités administratives, rattachées à un ministère</figcaption>
-        </figure>
-      </div>
-      <div class="callout warn">
-        <span class="icon">⚠️</span>
-        <div><b>Cloisonnement par ministère.</b>Un agent ADMIN ou AGENT ne voit et ne modifie que les données de son propre ministère. Seul le SUPER_ADMIN a une vue transversale.</div>
-      </div>
-
-      <div class="subsection">
-        <h3>Créer un ministère</h3>
-        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span></div>
-        <ol class="steps">
-          <li>Depuis <b>Structures</b>, cliquez sur <b>« Nouveau ministère »</b>.</li>
-          <li>Renseignez le <b>code</b>, le <b>libellé</b>, le <b>sigle</b> et une description optionnelle.</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/30-ministere-form.png" alt="Formulaire de création d'un ministère">
-          <figcaption>📝 Formulaire « Créer un ministère »</figcaption>
-        </figure>
-      </div>
-
-      <div class="subsection">
-        <h3>Modifier ou supprimer un ministère</h3>
-        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span></div>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Dans la colonne « Actions », l'icône <b>crayon</b> permet de modifier les informations
-          du ministère (y compris son code), l'icône <b>corbeille</b> permet de le supprimer.
-        </p>
-        <div class="callout danger">
-          <span class="icon">⛔</span>
-          <div><b>Suppression définitive.</b>Assurez-vous qu'aucune unité administrative (ni aucun agent) n'est encore rattachée à ce ministère avant de le supprimer : sinon, l'opération est refusée pour préserver l'intégrité des données déjà enregistrées.</div>
-        </div>
-      </div>
-
-      <div class="subsection">
-        <h3>Créer une unité administrative</h3>
-        <ol class="steps">
-          <li>Depuis <b>Unités administratives</b>, cliquez sur <b>« Nouvelle unité »</b>.</li>
-          <li>Renseignez le <b>sigle</b> et le <b>libellé</b>, choisissez le <b>type d'unité</b> et le <b>ministère</b> de rattachement.</li>
-          <li>Optionnel : sélectionnez une <b>unité parent</b> pour construire la hiérarchie — le <b>niveau hiérarchique</b> se calcule alors automatiquement.</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/31-unite-administrative-form.png" alt="Formulaire de création d'une unité administrative">
-          <figcaption>📝 Formulaire « Nouvelle unité administrative »</figcaption>
-        </figure>
-        <figure class="shot">
-          <img src="images/43-unites-import.png" alt="Import Excel des unités administratives">
-          <figcaption>📥 Boutons Importer / Télécharger le modèle pour les unités administratives</figcaption>
-        </figure>
-        <div class="callout tip">
-          <span class="icon">📥</span>
-          <div><b>Import en masse.</b>Le bouton « Importer » (haut de la liste des unités administratives) permet de créer plusieurs unités d'un coup depuis un fichier Excel, selon le même principe que pour les agents (modèle téléchargeable, rapport ligne par ligne). Une unité parente référencée dans le fichier doit déjà exister, en base ou sur une ligne précédente du même fichier.</div>
-        </div>
-      </div>
-
-      <div class="subsection">
-        <h3>Types d'unités</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Menu <b>Configuration → Unités administratives → Types d'unités</b>. Ces types
-          (ex. Direction Générale, Secrétariat Général…) qualifient chaque unité
-          administrative et sont sélectionnés lors de sa création.
-        </p>
-        <figure class="shot">
-          <img src="images/24-type-unite-list.png" alt="Liste des types d'unités">
-          <figcaption>🏷️ Types d'unités</figcaption>
-        </figure>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Nouveau type »</b>.</li>
-          <li>Renseignez le <b>code</b>, le <b>libellé</b> et une description optionnelle.</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/32-type-unite-form.png" alt="Formulaire de création d'un type d'unité">
-          <figcaption>📝 Formulaire « Nouveau type d'unité »</figcaption>
-        </figure>
-        <div class="callout tip">
-          <span class="icon">💡</span>
-          <div><b>À définir en premier.</b>Il est recommandé de bien définir les types d'unités avant de créer les unités administratives, car ce champ est obligatoire lors de la création d'une unité.</div>
-        </div>
-      </div>
-      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
-    </section>
-
-    <!-- UNITES DE MESURE -->
+    <!-- 9. CONFIGURATION : UNITÉS DE MESURE -->
     <section class="doc" id="unites-mesure">
+      <div class="doc-kicker">9. Configuration : gestion des unités de mesure</div>
       <h2>Unités de mesure</h2>
-      <div class="role-tags"><span class="role-tag">ADMIN</span><span class="role-tag">SUPER_ADMIN</span></div>
       <p class="lead">
-        Menu <b>Configuration → Unités de mesure</b>. Définit les unités (numériques
-        ou dates) utilisées pour exprimer la valeur cible et la valeur réelle des
-        <b>indicateurs de performance (KPI)</b> du module Mitigation.
+        Les unités de mesure définissent la façon dont sont exprimées certaines valeurs dans
+        l'application (scores, pourcentages, durées, quantités, montants...). Elles servent
+        notamment de référence pour le paramétrage des indicateurs.
       </p>
+
       <figure class="shot">
-        <img src="images/22-unites-mesure-list.png" alt="Liste des unités de mesure">
-        <figcaption>📏 Unités de mesure des indicateurs</figcaption>
+        <img src="images/admin-unites-mesure-list.png" alt="Liste des unités de mesure (Configuration > Unités de mesure)">
+        <figcaption>📏 Liste des unités de mesure (Configuration &gt; Unités de mesure)</figcaption>
       </figure>
-      <div class="callout warn">
-        <span class="icon">⚠️</span>
-        <div><b>Liste de référence.</b>La création d'unités de mesure n'est pas ouverte depuis l'interface : si la liste est vide, un indicateur de performance ne pourra pas se voir attribuer d'unité tant qu'aucune n'a été initialisée côté administration technique.</div>
-      </div>
+
+      <p style="font-size:14px;">
+        Menu principal / Configuration / Unités de mesure — la liste affiche, pour chaque
+        unité de mesure, son code, son libellé, son symbole et une description.
+      </p>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
-    <!-- PROCESSUS & RISQUES -->
+    <!-- 10. FORMALISATION : PROCESSUS -->
     <section class="doc" id="processus">
-      <h2>Processus &amp; formalisation des risques</h2>
+      <div class="doc-kicker">10. Formalisation du risque : gestion des processus</div>
+      <h2>Processus</h2>
       <p class="lead">
-        Menu <b>Formalisation du risque inhérent</b>. Un risque est toujours rattaché à un
-        <b>processus/mission</b> métier.
+        Le module « Formalisation du risque » permet de décrire les processus métiers de
+        l'organisation ainsi que les risques qui leur sont associés. La rubrique
+        « Processus » liste l'ensemble des processus enregistrés.
       </p>
-      <div class="shot-grid">
-        <figure class="shot">
-          <img src="images/09-processus-list.png" alt="Liste des processus">
-          <figcaption>⚙️ Processus / missions</figcaption>
-        </figure>
-        <figure class="shot">
-          <img src="images/10-risques-list.png" alt="Liste des risques">
-          <figcaption>⚠️ Risques identifiés</figcaption>
-        </figure>
-      </div>
-      <p style="font-size:13.5px;color:var(--ink-soft);">
-        En haut de la liste des processus, des compteurs indiquent le nombre total de processus
-        ainsi que leur répartition par type (Métier, Support, Pilotage). Le filtre
-        « Filtrer par unité administrative » permet d'afficher uniquement les processus d'une
-        unité donnée. Dans la colonne « Actions », trois icônes permettent de <b>consulter</b> (œil),
-        <b>modifier</b> (crayon) ou <b>supprimer</b> (corbeille) un processus.
-      </p>
-
-      <div class="subsection">
-        <h3>Créer un processus</h3>
-        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span><span class="role-tag">RESPONSABLE_RISQUES</span></div>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Nouveau processus »</b>.</li>
-          <li>Renseignez le <b>libellé</b>, le <b>type de processus</b> et l'<b>unité administrative</b> propriétaire.</li>
-          <li>Ajoutez une ou plusieurs <b>finalités</b> (saisir puis « Ajouter ») — <b>au moins une finalité est obligatoire</b>.</li>
-          <li>Sélectionnez un <b>propriétaire</b> parmi les managers de l'unité (obligatoire, profil Pilote de processus).</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/34-processus-form.png" alt="Formulaire de nouveau processus">
-          <figcaption>📝 Formulaire « Nouveau processus »</figcaption>
-        </figure>
-        <div class="callout warn">
-          <span class="icon">⚠️</span>
-          <div><b>Suppression parfois bloquée.</b>Un processus déjà relié à des risques, indicateurs ou plans d'audit ne peut pas être supprimé tant que ces éléments existent : traitez-les d'abord.</div>
-        </div>
-      </div>
-
-      <div class="subsection">
-        <h3>Créer un risque</h3>
-        <div class="role-tags"><span class="role-tag">SUPER_ADMIN</span><span class="role-tag">RESPONSABLE_RISQUES</span></div>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Nouveau risque »</b>.</li>
-          <li>Sélectionnez le <b>processus</b> concerné et le <b>type de risque</b>.</li>
-          <li>Décrivez le risque : <b>libellé</b>, <b>date d'identification</b>, <b>statut</b>.</li>
-          <li>Ajoutez au moins une <b>cause probable</b>, une <b>conséquence probable</b> et une <b>bonne pratique</b> (en la classant Prévention ou Protection).</li>
-          <li>Enregistrez. Le risque part à l'étape <b>Formalisation</b> du circuit de validation.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/35-risque-form.png" alt="Formulaire de nouveau risque">
-          <figcaption>📝 Formulaire « Nouveau risque »</figcaption>
-        </figure>
-        <div class="callout warn">
-          <span class="icon">⚠️</span>
-          <div><b>Champs obligatoires.</b>Les causes probables, conséquences probables et bonnes pratiques sont obligatoires : au moins un élément de chaque type doit être ajouté avant de pouvoir créer le risque.</div>
-        </div>
-        <p style="font-size:13.5px;color:var(--ink-soft);">
-          En haut de la liste des risques, des compteurs indiquent le nombre total ainsi que
-          leur répartition par statut (Actif, En cours, Maîtrisé, Clôturé). Le filtre
-          « Filtrer par processus » permet d'afficher uniquement les risques d'un processus donné.
-        </p>
-        <div class="callout warn">
-          <span class="icon">🔒</span>
-          <div><b>Verrouillé une fois transmis.</b>Dès qu'un risque est transmis (voir <a href="#cartographie">circuit de validation</a>), le Responsable des risques ne peut plus modifier ni le risque ni son évaluation tant qu'il n'est pas revenu à l'étape Formalisation (différé jusqu'au bout par le Pilote). La ligne entière est alors grisée dans les deux listes, avec un badge <b>🔒 Transmis</b> à côté du libellé. Le SUPER_ADMIN n'est pas soumis à ce verrou.</div>
-        </div>
-        <div class="callout tip">
-          <span class="icon">📍</span>
-          <div><b>Suivre l'avancement d'un dossier transmis.</b>La colonne <b>« Étape »</b> de la liste des risques indique en permanence chez quel profil se trouve actuellement le dossier — Responsable Risque, Pilote, CCI, CMMR, ou Validé/Rejeté (terminé) — sans avoir à demander à chacun où en est le traitement.</div>
-        </div>
-      </div>
-      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
-    </section>
-
-    <!-- EVALUATIONS -->
-    <section class="doc" id="evaluations">
-      <h2>Évaluer les risques</h2>
-      <p class="lead">Menu <b>Évaluations → Évaluer Risque</b>. Chaque risque formalisé est noté selon sa probabilité et son impact, ce qui détermine automatiquement son niveau de criticité, visible ensuite sous forme de matrice.</p>
-      <figure class="shot">
-        <img src="images/11-evaluations-list.png" alt="Liste des évaluations">
-        <figcaption>📊 Évaluations des risques</figcaption>
-      </figure>
-      <p style="font-size:13.5px;color:var(--ink-soft);">
-        En haut de la page, des compteurs indiquent le nombre d'évaluations par niveau de
-        criticité : Faible, Moyen, Élevé, Critique.
-      </p>
-
-      <div class="subsection">
-        <h3>Créer une évaluation</h3>
-        <table class="compact">
-          <thead><tr><th>Échelle</th><th>Valeurs</th></tr></thead>
-          <tbody>
-            <tr><td>Impact / Probabilité</td><td>1 (très faible) à 5 (très élevé)</td></tr>
-            <tr><td>Protection / Prévention</td><td>0 (aucun) à 3 (élevé)</td></tr>
-          </tbody>
-        </table>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin:10px 0 0;">
-          Le niveau de criticité (<b>Faible</b>, <b>Moyen</b> ou <b>Élevé</b>) est déterminé automatiquement à partir de ces valeurs — vous n'avez rien à calculer vous-même.
-        </p>
-        <ol class="steps">
-          <li>Sélectionnez le <b>risque</b> à évaluer et, si besoin, l'<b>agent évaluateur</b> (optionnel).</li>
-          <li>Renseignez la <b>période d'évaluation</b> : <b>date de début</b> et <b>date de fin</b> (toutes deux obligatoires).</li>
-          <li>Renseignez l'<b>impact</b> et la <b>probabilité</b> inhérents (échelle 1 à 5).</li>
-          <li>Décrivez les <b>bonnes pratiques existantes</b> et <b>manquantes</b>, et cochez si le risque <b>est déjà survenu</b>.</li>
-          <li>Ajoutez, si nécessaire, une <b>recommandation</b> (1000 caractères maximum).</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/36-evaluation-form.png" alt="Formulaire de nouvelle évaluation">
-          <figcaption>📝 Formulaire « Nouvelle évaluation »</figcaption>
-        </figure>
-        <div class="callout tip">
-          <span class="icon">💡</span>
-          <div><b>Protection et prévention sont calculées automatiquement.</b>Ces deux champs sont en lecture seule : ils se déduisent des bonnes pratiques du risque cochées comme « existantes », selon la formule <code>(nombre de bonnes pratiques du type sélectionnées × 3) / nombre total de bonnes pratiques de ce type</code>, arrondie et plafonnée à 3. Ce calcul est vérifié et recalculé côté serveur à l'enregistrement — impossible de le contourner.</div>
-        </div>
-        <div class="callout warn">
-          <span class="icon">🔁</span>
-          <div><b>Réévaluer un risque déjà évalué.</b>Si le risque choisi possède déjà une évaluation, un message le signale et demande si vous souhaitez procéder à une <b>réévaluation</b>. En répondant « Oui », les bonnes pratiques du risque sont automatiquement réparties selon la précédente évaluation dans deux listes déplaçables : <b>Existantes</b> et <b>Existantes à venir</b>. Utilisez la flèche sur chaque élément pour le faire passer d'une liste à l'autre, et le champ dédié pour ajouter une nouvelle bonne pratique directement dans l'une des deux listes. Ces listes alimentent automatiquement les champs texte « Bonnes pratiques existants »/« inexistant », que vous pouvez aussi modifier librement. Répondre « Non » réinitialise le choix du risque.
-          <br><br>⛔ <b>Tant que le risque est transmis et en cours de circuit de validation</b> (chez Pilote, CCI ou CMMR), la réévaluation est bloquée : un message l'indique et le choix du risque est réinitialisé. Il faut attendre que le circuit se termine — validation finale, rejet, ou retour en Formalisation via un différé — avant de pouvoir le réévaluer.</div>
-        </div>
-      </div>
-
-      <div class="subsection" id="matrice">
-        <h3>Matrice des risques</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Menu <b>Évaluations → Matrice</b>. Vue croisée <b>probabilité / impact</b> de
-          tous les risques évalués : chaque case se colore selon la criticité
-          (faible, moyen, élevé). Cliquez sur une case pour voir le détail
-          des risques qu'elle contient.
-        </p>
-        <div class="callout tip">
-          <span class="icon">💡</span>
-          <div><b>Score résiduel, pas inhérent.</b>Le positionnement et la couleur des cases se basent sur le <b>score résiduel</b> du risque (impact et probabilité après prise en compte des mesures de prévention/protection), et non sur le score inhérent affiché dans le formulaire d'évaluation.</div>
-        </div>
-        <figure class="shot">
-          <img src="images/25-matrices-list.png" alt="Matrice des risques">
-          <figcaption>🟩🟨🟥 Matrice d'évaluation des risques — code couleur par niveau de criticité</figcaption>
-        </figure>
-        <div class="callout tip">
-          <span class="icon">💡</span>
-          <div><b>Cases vides masquées.</b>Seules les cases contenant au moins une évaluation sont affichées dans la section « Détail par cellule », sous la matrice.</div>
-        </div>
-      </div>
-      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
-    </section>
-
-    <!-- MITIGATION -->
-    <section class="doc" id="mitigation">
-      <h2>Mitigation : plans, actions, indicateurs</h2>
-      <p class="lead">Menu <b>Mitigation</b>. Un <b>plan de mitigation</b> regroupe des <b>actions</b> correctives, suivies par des <b>indicateurs de performance (KPI)</b>.</p>
-      <div class="role-tags"><span class="role-tag">RESPONSABLE_ACTION</span><span class="role-tag">SUPER_ADMIN</span></div>
-      <div class="shot-grid">
-        <figure class="shot">
-          <img src="images/12-plans-mitigation-list.png" alt="Liste des plans de mitigation">
-          <figcaption>🛡️ Plans de mitigation</figcaption>
-        </figure>
-        <figure class="shot">
-          <img src="images/13-actions-list.png" alt="Liste des actions">
-          <figcaption>🔧 Actions correctives</figcaption>
-        </figure>
-      </div>
-      <figure class="shot">
-        <img src="images/14-indicateurs-list.png" alt="Liste des indicateurs de performance">
-        <figcaption>📈 Indicateurs de performance (KPI)</figcaption>
-      </figure>
-
-      <div class="subsection">
-        <h3>Créer un plan de mitigation</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Des compteurs, en haut de la liste, indiquent le nombre de plans selon leur statut :
-          <b>Planifié</b>, <b>En cours</b>, <b>Terminé</b>, <b>Clôturé</b>.
-        </p>
-        <ol class="steps">
-          <li>Depuis <b>Plans de mitigation</b>, cliquez sur <b>« Nouveau plan »</b>.</li>
-          <li>Renseignez le <b>libellé</b>, la <b>date de création</b>, le <b>risque associé</b> et une description.</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/37-plan-mitigation-form.png" alt="Formulaire de nouveau plan de mitigation">
-          <figcaption>📝 Formulaire « Nouveau plan de mitigation »</figcaption>
-        </figure>
-        <div class="callout tip">
-          <span class="icon">💡</span>
-          <div><b>Statut entièrement automatique.</b>Il n'y a plus de champ « Statut » à choisir : un plan tout juste créé (sans action liée) est <b>Planifié</b> ; dès qu'une action lui est rattachée et non terminée, il passe à <b>En cours</b> ; une fois toutes ses actions terminées, il passe à <b>Terminé</b>. Seul le <b>CCI</b> (ou un SUPER_ADMIN) peut ensuite le faire passer définitivement à <b>Clôturé</b>, via le bouton dédié sur la liste — après quoi le statut n'évolue plus automatiquement.</div>
-        </div>
-      </div>
-
-      <div class="subsection">
-        <h3>Créer une action</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Le filtre « Filtrer par plan de mitigation » affiche uniquement les actions d'un plan
-          donné. Des compteurs indiquent le nombre d'actions par statut : <b>En cours</b>,
-          <b>Terminée</b>, <b>En retard</b>, <b>Annulée</b>.
-        </p>
-        <ol class="steps">
-          <li>Depuis <b>Actions</b>, cliquez sur <b>« Nouvelle action »</b>.</li>
-          <li>Sélectionnez le <b>plan de mitigation</b>, le <b>risque associé</b> et la <b>bonne pratique inexistante</b> visée (obligatoire) — issue des contrôles inexistants relevés lors de l'évaluation du risque.</li>
-          <li>Ajoutez un ou plusieurs <b>libellés d'actions</b> — <b>au moins un est obligatoire</b>.</li>
-          <li>Sélectionnez un <b>statut</b>, renseignez les <b>dates de début/fin</b> et choisissez un <b>responsable</b> (seuls les agents rattachés à une unité administrative apparaissent dans cette liste).</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/38-action-form.png" alt="Formulaire de nouvelle action">
-          <figcaption>📝 Formulaire « Nouvelle action »</figcaption>
-        </figure>
-      </div>
-
-      <div class="subsection">
-        <h3>Le tableau de bord des indicateurs</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          La page <b>Indicateurs</b> combine une liste de gestion et un véritable tableau de
-          bord de suivi. En haut, des compteurs indiquent le nombre d'indicateurs par statut :
-          <b>Objectif atteint</b>, <b>En cours</b>, <b>Attention</b>, <b>En retard</b>. Trois
-          graphiques complètent la vue : <b>« Vue d'ensemble »</b> (valeurs obtenues vs cibles),
-          <b>« Répartition par Statut »</b> (proportion d'indicateurs par statut) et
-          <b>« Taux d'Atteinte par Indicateur »</b> (performance relative par rapport à la cible).
-        </p>
-        <div class="callout tip">
-          <span class="icon">🎯</span>
-          <div><b>L'atteinte de la cible prime sur les dates.</b>Dès que la <b>valeur obtenue</b> égale ou dépasse la <b>valeur cible</b> (indicateurs numériques uniquement), le statut passe à <b>Objectif atteint</b> — même si l'échéance est par ailleurs dépassée.</div>
-        </div>
-        <p style="font-size:13.5px;color:var(--ink-soft);">
-          La section « Détail des Indicateurs » liste chaque indicateur avec son code, son
-          libellé, le plan de mitigation associé, le processus concerné, sa fréquence de suivi
-          (annuelle, trimestrielle…), son écart par rapport à la cible, son seuil et son taux
-          d'atteinte représenté sous forme de <b>jauge circulaire</b>.
-        </p>
-      </div>
-
-      <div class="subsection">
-        <h3>Créer un indicateur de performance</h3>
-        <ol class="steps">
-          <li>Depuis <b>Indicateurs</b>, cliquez sur <b>« Nouvel indicateur »</b>.</li>
-          <li>Renseignez le <b>libellé</b> et la <b>fréquence</b> de suivi.</li>
-          <li>Rattachez-le à un <b>processus</b>, un <b>risque</b>, un <b>plan de mitigation</b> et/ou une <b>action</b>.</li>
-          <li>Choisissez une <b>unité de mesure</b>, définissez les <b>dates</b>, le <b>seuil d'alerte</b>, la <b>valeur cible</b> et la <b>valeur obtenue</b>.</li>
-          <li>Enregistrez.</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/39-indicateur-form.png" alt="Formulaire de nouvel indicateur de performance">
-          <figcaption>📝 Formulaire « Nouvel indicateur de performance »</figcaption>
-        </figure>
-        <div class="callout warn">
-          <span class="icon">⚠️</span>
-          <div><b>« Aucune unité de mesure disponible ».</b>Ce message apparaît si la liste des <a href="#unites-mesure">unités de mesure</a> est vide. Rapprochez-vous du SUPER_ADMIN pour les faire initialiser.</div>
-        </div>
-      </div>
-      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
-    </section>
-
-    <!-- CARTOGRAPHIE -->
-    <section class="doc" id="cartographie">
-      <h2>Cartographie des risques &amp; circuit de validation</h2>
-      <p class="lead">
-        Menu <b>Cartographie des risques</b>. C'est le cœur du dispositif : chaque risque
-        formalisé suit un <b>circuit de validation</b> à quatre étapes avant de devenir définitif.
-      </p>
-
-      <div class="flow">
-        <div class="node">Responsable des risques</div>
-        <div class="arrow">→</div>
-        <div class="node">Pilote</div>
-        <div class="arrow">→</div>
-        <div class="node">CCI</div>
-        <div class="arrow">→</div>
-        <div class="node final">CMMR (validation finale)</div>
-      </div>
 
       <figure class="shot">
-        <img src="images/15-cartographie-projet.png" alt="Projet de cartographie de risques">
-        <figcaption>📋 Projet de cartographie — sélection des risques à transmettre</figcaption>
+        <img src="images/admin-processus-list.png" alt="Liste des processus (Formalisation du risque > Processus)">
+        <figcaption>🗂️ Liste des processus (Formalisation du risque &gt; Processus)</figcaption>
       </figure>
 
-      <div class="subsection">
-        <h3>Transmettre un risque</h3>
-        <div class="role-tags"><span class="role-tag">RESPONSABLE_RISQUES</span><span class="role-tag">SUPER_ADMIN</span></div>
-        <ol class="steps">
-          <li>Cochez un ou plusieurs risques dans la liste.</li>
-          <li>Cliquez sur <b>« Transmettre »</b> : le dossier avance à l'étape Pilote.</li>
-        </ol>
-        <div class="callout warn">
-          <span class="icon">⚠️</span>
-          <div><b>Le risque doit être évalué au préalable.</b>Un risque n'apparaît dans ce projet de cartographie qu'une fois qu'il possède au moins une évaluation (voir <a href="#evaluations">Évaluer les risques</a>). Tant qu'aucune évaluation n'existe, le risque reste invisible ici et ne peut pas être transmis.</div>
-        </div>
-      </div>
+      <p style="font-size:14px;">
+        Menu principal / Formalisation du risque / Processus — en haut de la page, des
+        compteurs indiquent le nombre total de processus ainsi que leur répartition par type
+        (Métier, Support, Pilotage). Le filtre « Filtrer par unité administrative » permet
+        d'afficher uniquement les processus d'une unité donnée.
+      </p>
+      <p style="font-size:14px;">
+        La liste affiche, pour chaque processus, son code, son libellé, son type, l'unité
+        administrative de rattachement et son propriétaire. Dans la colonne « Actions »,
+        trois icônes permettent de consulter (œil), modifier (crayon) ou supprimer
+        (corbeille) un processus.
+      </p>
 
-      <div class="subsection">
-        <h3>Valider, différer ou rejeter</h3>
-        <div class="role-tags"><span class="role-tag">PILOTE</span><span class="role-tag">CCI</span><span class="role-tag">CMMR</span></div>
-        <ul class="steps">
-          <li><b>Valider</b> fait avancer le dossier à l'étape suivante du circuit.</li>
-          <li><b>Différer</b> renvoie le dossier à l'étape précédente — un <b>motif est obligatoire</b>.</li>
-          <li><b>Rejeter</b> clôture définitivement le dossier — un <b>motif est obligatoire</b>.</li>
-        </ul>
+      <div class="subsection" id="ajouter-processus">
+        <h3>10.1. Ajouter un nouveau processus</h3>
+        <figure class="shot">
+          <img src="images/admin-processus-form.png" alt="Formulaire de création d'un nouveau processus">
+          <figcaption>📝 Formulaire de création d'un nouveau processus</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« + Nouveau processus »</b> en haut à droite.</li>
+          <li>Renseignez le libellé du processus (200 caractères maximum) et sélectionnez son type.</li>
+          <li>Indiquez le code de l'unité administrative de rattachement.</li>
+          <li>Ajoutez au moins une <b>finalité</b> : saisissez le texte puis appuyez sur Entrée ou cliquez sur « + Ajouter ». Vous pouvez répéter l'opération pour ajouter plusieurs finalités.</li>
+          <li>Si nécessaire, sélectionnez un propriétaire parmi les managers (champ optionnel).</li>
+          <li>Cliquez sur « Créer » pour enregistrer le processus.</li>
+        </ol>
         <div class="callout danger">
-          <span class="icon">⛔</span>
-          <div><b>Motif obligatoire.</b>Impossible de différer ou de rejeter un risque sans saisir de motif : le formulaire bloque l'enregistrement tant que le champ est vide.</div>
+          <span class="icon">⚠️</span>
+          <div><b>À noter.</b>Le champ « Finalités » est obligatoire : au moins une finalité doit être ajoutée avant de pouvoir créer le processus.</div>
         </div>
-        <div class="callout tip">
-          <span class="icon">👁️</span>
-          <div><b>Avis précédent consultable.</b>La fenêtre de décision affiche, avant de donner son propre avis, l'avis précédemment rendu (par qui, avec quel motif le cas échéant) — utile pour le CCI ou le CMMR qui doivent tenir compte de ce qu'a déjà décidé le profil précédent.</div>
-        </div>
-      </div>
-
-      <div class="subsection">
-        <h3>Retrouver les dossiers selon leur statut</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Trois vues complémentaires permettent de suivre les dossiers transmis dans le circuit :
-        </p>
-        <figure class="shot">
-          <img src="images/16-cartographie-definitive.png" alt="Cartographie définitif des risques">
-          <figcaption>📚 <b>Cartographie définitif des risques</b> — uniquement les dossiers ayant reçu la validation finale du CMMR</figcaption>
-        </figure>
-        <figure class="shot">
-          <img src="images/26-cartographie-differees-rejetees.png" alt="Cartographie différée et rejetée">
-          <figcaption>⏸️ <b>Cartographie différée et rejetée</b> — dossiers renvoyés en arrière ou clôturés négativement, avec leur motif</figcaption>
-        </figure>
-        <figure class="shot">
-          <img src="images/27-cartographie-validees.png" alt="Cartographie validée">
-          <figcaption>✅ <b>Cartographie validée</b> — dossiers validés à une étape intermédiaire (Pilote ou CCI), avec la colonne « Émis par » indiquant qui a rendu cet avis</figcaption>
-        </figure>
-        <p style="font-size:13.5px;color:var(--ink-soft);">
-          Sur la page « Cartographie définitif des risques » ne figurent que les risques ayant
-          reçu la <b>validation finale du CMMR</b> — pas simplement transmis, ni validés à une
-          étape intermédiaire. Des compteurs indiquent le nombre total de risques ainsi que leur
-          répartition selon l'avis rendu. Le bouton « voir détails » ouvre la fiche complète d'un
-          risque, et le bouton <b>« Cartographie définitive »</b>, en haut à droite, ouvre une
-          fenêtre proposant deux modes d'export Excel : <b>« Par Unité Administrative »</b>
-          (un classeur avec un onglet par unité) ou <b>« Global »</b> (toutes les unités
-          confondues dans un seul document). Dans les deux cas, un second écran permet de
-          choisir une <b>année</b> précise (déduite des dates d'identification des risques
-          disponibles) ou <b>« Toutes les années »</b> pour ne pas filtrer.
-        </p>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
-    <!-- AUDIT -->
-    <section class="doc" id="audit">
-      <h2>Plan d'audit</h2>
-      <div class="role-tags"><span class="role-tag">AUDITEUR</span><span class="role-tag">PILOTE</span><span class="role-tag">CCI</span><span class="role-tag">CMMR</span><span class="role-tag">SUPER_ADMIN</span></div>
-      <p class="lead">Menu <b>Audit → Plan d'audit</b>. Planifiez et suivez les missions d'audit rattachées à un processus ou un risque.</p>
-      <figure class="shot">
-        <img src="images/17-plan-audit.png" alt="Liste des plans d'audit">
-        <figcaption>🗂️ Plan d'audit</figcaption>
-      </figure>
-      <p style="font-size:13.5px;color:var(--ink-soft);">
-        Des compteurs indiquent le nombre total de plans d'audit ainsi que leur répartition
-        par type (Opérationnel, Conformité, Contrôle interne). Les filtres « Recherche »,
-        « Unité administrative » et « Audit proposé » permettent d'affiner la liste.
+    <!-- 11. FORMALISATION : RISQUES -->
+    <section class="doc" id="risques">
+      <div class="doc-kicker">11. Formalisation du risque : gestion des risques</div>
+      <h2>Risques</h2>
+      <p class="lead">
+        Une fois les processus définis, chaque risque identifié doit être rattaché à l'un
+        d'entre eux. La rubrique « Risques » permet de consulter et de gérer l'ensemble des
+        risques formalisés.
       </p>
 
-      <div class="subsection">
-        <h3>Créer un plan d'audit</h3>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Nouveau plan d'audit »</b>.</li>
-          <li>Renseignez le <b>libellé</b>, la <b>date de création</b> et l'<b>unité administrative</b> concernée.</li>
-          <li>Dans la <b>pré-planification</b>, choisissez le <b>processus</b> puis, si besoin, le <b>risque inhérent</b> associé.</li>
-          <li>Précisez le <b>type d'audit proposé</b>, le <b>type de revue</b>, l'<b>objectif</b> et l'<b>effort d'audit indicatif</b>.</li>
-          <li>Enregistrez.</li>
-        </ol>
+      <figure class="shot">
+        <img src="images/admin-risques-list.png" alt="Liste des risques (Formalisation du risque > Risques)">
+        <figcaption>⚠️ Liste des risques (Formalisation du risque &gt; Risques)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Formalisation du risque / Risques — en haut de la page, des
+        compteurs indiquent le nombre total de risques ainsi que leur répartition selon leur
+        statut (Actif, En cours, Maîtrisé, Clôturé). Le filtre « Filtrer par processus »
+        permet d'afficher uniquement les risques liés à un processus donné.
+      </p>
+
+      <div class="subsection" id="ajouter-risque">
+        <h3>11.1. Ajouter un nouveau risque</h3>
         <figure class="shot">
-          <img src="images/40-plan-audit-form.png" alt="Formulaire de nouveau plan d'audit">
-          <figcaption>📝 Formulaire « Nouveau plan d'audit »</figcaption>
+          <img src="images/admin-risque-form-1.png" alt="Formulaire de création d'un risque (1/3)">
+          <figcaption>📝 Formulaire de création d'un risque (1/3)</figcaption>
         </figure>
+        <figure class="shot">
+          <img src="images/admin-risque-form-2.png" alt="Formulaire de création d'un risque (2/3)">
+          <figcaption>📝 Formulaire de création d'un risque (2/3)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/admin-risque-form-3.png" alt="Formulaire de création d'un risque (3/3)">
+          <figcaption>📝 Formulaire de création d'un risque (3/3)</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur <b>« + Nouveau risque »</b>.</li>
+          <li>Sélectionnez le processus concerné et le type de risque.</li>
+          <li>Si besoin, associez le risque à une cartographie existante (champ optionnel).</li>
+          <li>Saisissez le libellé du risque (200 caractères maximum) ainsi que sa date d'identification et son statut.</li>
+          <li>Ajoutez les causes probables et les conséquences probables, en saisissant le texte puis en cliquant sur « + Ajouter ».</li>
+          <li>Ajoutez les bonnes pratiques, en précisant s'il s'agit d'une bonne pratique de « Prévention » ou de « Protection ».</li>
+          <li>Cliquez sur « Créer » pour enregistrer le risque.</li>
+        </ol>
+        <div class="callout danger">
+          <span class="icon">⚠️</span>
+          <div><b>À noter.</b>Les causes probables, conséquences probables et bonnes pratiques sont obligatoires.</div>
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 12. ÉVALUATIONS -->
+    <section class="doc" id="evaluations">
+      <div class="doc-kicker">12. Évaluations : gestion des évaluations</div>
+      <h2>Gestion des évaluations</h2>
+      <p class="lead">
+        Chaque risque formalisé doit être évalué afin de déterminer son niveau de criticité.
+        La rubrique « Évaluations » permet de consulter les évaluations réalisées et d'en
+        créer de nouvelles.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-evaluations-list.png" alt="Liste des évaluations (Évaluations)">
+        <figcaption>📋 Liste des évaluations (Évaluations)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Évaluations — en haut de la page, des compteurs indiquent le nombre
+        d'évaluations par niveau de criticité : Faible, Moyen, Élevé, Critique. La liste
+        affiche, pour chaque évaluation, son code, le risque concerné, le score inhérent, les
+        scores de prévention et de protection, le score résiduel, la période d'évaluation, la
+        priorité et l'agent évaluateur.
+      </p>
+
+      <div class="subsection" id="ajouter-evaluation">
+        <h3>12.1. Ajouter une nouvelle évaluation</h3>
+        <figure class="shot">
+          <img src="images/admin-evaluation-form-1.png" alt="Formulaire de création d'une évaluation (1/6)">
+          <figcaption>📝 Formulaire de création d'une évaluation (1/6)</figcaption>
+        </figure>
+        <p style="font-size:14px;">
+          En haut du formulaire, un encadré rappelle l'échelle d'évaluation utilisée :
+          l'impact et la probabilité sont notés de 1 à 5, la prévention et la protection de 0
+          à 3, et le score inhérent (impact × probabilité) permet de classer le risque en
+          Faible (1-7), Moyen (8-14) ou Élevé (15-25).
+        </p>
+        <figure class="shot">
+          <img src="images/admin-evaluation-form-2.png" alt="Formulaire de création d'une évaluation (2/6)">
+          <figcaption>📝 Formulaire de création d'une évaluation (2/6)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/admin-evaluation-form-3.png" alt="Formulaire de création d'une évaluation (3/6)">
+          <figcaption>📝 Formulaire de création d'une évaluation (3/6)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/admin-evaluation-form-4.png" alt="Formulaire de création d'une évaluation (4/6)">
+          <figcaption>📝 Formulaire de création d'une évaluation (4/6)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/admin-evaluation-form-5.png" alt="Formulaire de création d'une évaluation (5/6)">
+          <figcaption>📝 Formulaire de création d'une évaluation (5/6)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/admin-evaluation-form-6.png" alt="Formulaire de création d'une évaluation (5/6)">
+          <figcaption>📝 Formulaire de création d'une évaluation (5/6)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/admin-evaluation-form-7.png" alt="Formulaire de création d'une évaluation (6/6)">
+          <figcaption>📝 Formulaire de création d'une évaluation (6/6)</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Sélectionnez le risque à évaluer et, si besoin, l'agent évaluateur (champ optionnel).</li>
+          <li>Renseignez la période d'évaluation (date de début et date de fin, toutes deux optionnelles).</li>
+          <li>Indiquez l'impact inhérent et la probabilité inhérente du risque.</li>
+          <li>Décrivez les bonnes pratiques existantes ainsi que les bonnes pratiques manquantes. Si le risque s'est déjà réalisé, cochez la case « Le risque est déjà survenu ».</li>
+          <li>Renseignez, si besoin, les scores de protection et de prévention (0 à 3).</li>
+          <li>Ajoutez, si nécessaire, une recommandation (1000 caractères maximum).</li>
+          <li>Cliquez sur « Créer » pour enregistrer l'évaluation.</li>
+        </ol>
+        <div class="callout tip">
+          <span class="icon">🧮</span>
+          <div><b>À noter.</b>Les scores de Protection et de Prévention sont calculés automatiquement à partir des bonnes pratiques existantes sélectionnées, selon la formule : (nombre de bonnes pratiques sélectionnées du type × 3) / nombre total de bonnes pratiques de ce type.</div>
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 13. MATRICE DES RISQUES -->
+    <section class="doc" id="matrice">
+      <div class="doc-kicker">13. Cartographie des risques : matrice des risques</div>
+      <h2>Matrice des risques</h2>
+      <p class="lead">
+        La matrice des risques offre une visualisation synthétique du niveau de criticité de
+        l'ensemble des risques évalués, en croisant leur impact et leur probabilité.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-matrice-1.png" alt="Matrice des risques (1/2)">
+        <figcaption>🎯 Matrice des risques (1/2)</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="images/admin-matrice-2.png" alt="Matrice des risques (2/2)">
+        <figcaption>🎯 Matrice des risques (2/2)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Cartographie des risques / Matrice des risques — en haut de la page,
+        des compteurs indiquent le nombre d'évaluations par niveau de criticité : Faible
+        (score de 1 à 7), Moyen (score de 8 à 14) et Élevé (score de 15 à 25).
+      </p>
+      <p style="font-size:14px;">
+        La matrice croise, en lignes, l'impact (de 1 à 5) et, en colonnes, la probabilité (de
+        1 à 5). Chaque case affiche le score correspondant (impact × probabilité) et, le cas
+        échéant, le nombre d'évaluations qui s'y trouvent. Les couleurs vert, jaune et rouge
+        permettent d'identifier rapidement le niveau de criticité de chaque case, selon la
+        légende affichée sous la matrice.
+      </p>
+
+      <div class="subsection" id="detail-cellule">
+        <h3>13.1. Consulter le détail d'une case</h3>
+        <ol class="steps">
+          <li>Cliquez sur une case de la matrice contenant des évaluations.</li>
+        </ol>
+        <p style="font-size:14px;">
+          La section « Détail par cellule » affiche alors la liste des évaluations
+          correspondant à ce couple impact/probabilité, avec le code et le libellé résumé de
+          chaque risque concerné.
+        </p>
         <div class="callout tip">
           <span class="icon">💡</span>
-          <div><b>Sélection en cascade.</b>Le choix du processus n'est possible qu'après avoir sélectionné l'unité administrative, et le choix du risque inhérent qu'après avoir sélectionné le processus.</div>
+          <div><b>À noter.</b>Seules les cases contenant au moins une évaluation sont affichées dans la section « Détail par cellule ».</div>
         </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
-    <!-- ALERTES -->
-    <section class="doc" id="alertes">
-      <h2>Centre de notifications</h2>
+    <!-- 14. MITIGATION : PLANS -->
+    <section class="doc" id="plans-mitigation">
+      <div class="doc-kicker">14. Mitigation : gestion des plans de mitigation</div>
+      <h2>Plans de mitigation</h2>
       <p class="lead">
-        Menu <b>Alertes</b> (visible dans le menu principal) ou icône <b>cloche</b> dans la
-        barre supérieure. Contrairement à une liste d'alertes générale, chaque notification
-        est <b>personnelle</b> : elle vous est adressée spécifiquement parce que votre
-        rôle/profil et votre étape dans le circuit de validation la concernent.
+        Un plan de mitigation regroupe les actions mises en place pour traiter un risque
+        donné. La rubrique « Plans de Mitigation » permet de consulter et de gérer l'ensemble
+        de ces plans.
       </p>
 
       <figure class="shot">
-        <img src="images/18-alertes.png" alt="Centre de notifications">
-        <figcaption>🔔 Centre de notifications — filtres, compteurs et recherche</figcaption>
+        <img src="images/admin-plans-mitigation-list.png" alt="Liste des plans de mitigation">
+        <figcaption>🛠️ Liste des plans de mitigation (Gestion des risques &gt; Plans de Mitigation)</figcaption>
       </figure>
 
-      <div class="subsection">
-        <h3>Comment une notification vous est adressée</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Une tâche planifiée analyse la plateforme toutes les heures et crée une notification
-          pour chaque agent concerné par une situation à traiter :
-        </p>
-        <table class="compact">
-          <thead><tr><th>Situation détectée</th><th>Sévérité</th><th>Destinataire(s)</th></tr></thead>
-          <tbody>
-            <tr><td>Risque sans plan de mitigation</td><td>Critique</td><td>Responsable des risques + Responsable d'action du ministère</td></tr>
-            <tr><td>Risque avec plan mais sans action en cours</td><td>Haute</td><td>Responsable d'action du ministère</td></tr>
-            <tr><td>Seuil d'alerte d'un indicateur dépassé</td><td>Haute</td><td>Responsable d'action du ministère</td></tr>
-            <tr><td>Échéance d'action proche (≤ 7 jours)</td><td>Moyenne</td><td>Responsable d'action du ministère</td></tr>
-            <tr><td>Risque en attente de votre décision</td><td>Moyenne</td><td>Le profil correspondant à l'étape (Pilote, CCI ou CMMR)</td></tr>
-          </tbody>
-        </table>
-        <div class="callout tip">
-          <span class="icon">📧</span>
-          <div><b>Email.</b>Les notifications Critique et Haute sont, en plus de l'in-app, envoyées par email si une adresse email a été renseignée sur votre fiche agent.</div>
-        </div>
-        <div class="callout tip">
-          <span class="icon">🔁</span>
-          <div><b>Pas de doublon.</b>Tant qu'une notification n'est pas marquée comme lue, la situation qu'elle décrit ne génère pas de second avis identique — inutile de la traiter deux fois.</div>
-        </div>
-      </div>
+      <p style="font-size:14px;">
+        Menu principal / Mitigation / Plans de Mitigation — en haut de la page, des
+        compteurs indiquent le nombre de plans selon leur statut : Planifié, En cours,
+        Terminé, Annulé. Chaque plan est présenté sous forme de fiche affichant son code, son
+        statut, sa description, le risque auquel il est rattaché et sa date de création. Les
+        icônes « Voir », modifier (crayon) et supprimer (corbeille) permettent de gérer
+        chaque plan.
+      </p>
 
-      <div class="subsection">
-        <h3>Filtrer et rechercher</h3>
-        <ul class="steps">
-          <li>Les cartes en haut de page (<b>Total, Non lues, Critique, Haute, Moyenne, Faible</b>) filtrent la liste en un clic.</li>
-          <li>La barre de recherche filtre par titre, description, élément ou processus concerné.</li>
-          <li>Une notification non lue affiche un badge <b>« Nouveau »</b> et reste mise en avant visuellement.</li>
-        </ul>
-      </div>
-
-      <div class="subsection">
-        <h3>Consulter et marquer comme lu</h3>
-        <ul class="steps">
-          <li>Cliquez sur une notification pour ouvrir son <b>détail</b> : elle est automatiquement marquée comme lue à l'ouverture.</li>
-          <li>Le détail propose un lien direct <b>« Ouvrir l'élément concerné »</b> vers le risque ou l'indicateur en cause.</li>
-          <li>Le bouton <b>« Tout marquer comme lu »</b> (visible s'il reste des notifications non lues) traite la liste entière en un clic.</li>
-        </ul>
+      <div class="subsection" id="ajouter-plan-mitigation">
+        <h3>14.1. Ajouter un nouveau plan de mitigation</h3>
+        <figure class="shot">
+          <img src="images/admin-plan-mitigation-form.png" alt="Formulaire de création d'un plan de mitigation">
+          <figcaption>📝 Formulaire de création d'un plan de mitigation</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« + Nouveau plan »</b> en haut à droite.</li>
+          <li>Saisissez le libellé du plan et sélectionnez son statut.</li>
+          <li>Indiquez la date de création et sélectionnez le risque associé.</li>
+          <li>Ajoutez, si besoin, une description du plan.</li>
+          <li>Cliquez sur « Créer » pour enregistrer le plan de mitigation.</li>
+        </ol>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
-    <!-- PROFIL -->
-    <section class="doc" id="profil">
-      <h2>Mon profil</h2>
+    <!-- 15. MITIGATION : ACTIONS -->
+    <section class="doc" id="actions">
+      <div class="doc-kicker">15. Mitigation : gestion des actions</div>
+      <h2>Actions</h2>
       <p class="lead">
-        Cliquez sur votre <b>avatar</b> (haut droite) pour consulter vos informations :
-        état civil, matricule, rôle, profil métier, ministère et unité de rattachement.
-        Cette page permet aussi de modifier vous-même votre <b>email</b> et votre
-        <b>mot de passe</b>, sans passer par un administrateur.
+        Chaque plan de mitigation se décline en actions concrètes à mettre en œuvre. La
+        rubrique « Actions » permet de consulter et de gérer ces actions.
       </p>
+
       <figure class="shot">
-        <img src="images/19-mon-profil.png" alt="Page Mon profil">
-        <figcaption>🙍 Mon profil — identité, informations personnelles et affectation</figcaption>
+        <img src="images/admin-actions-list.png" alt="Liste des actions (Gestion des risques > Actions)">
+        <figcaption>✅ Liste des actions (Gestion des risques &gt; Actions)</figcaption>
       </figure>
 
-      <div class="subsection">
-        <h3>Modifier mon email</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">
-          Dans la section « Compte », l'email est modifiable directement — il sert uniquement
-          à recevoir les notifications critiques et hautes par email, en plus de l'in-app.
-        </p>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Modifier »</b> à côté de votre email.</li>
-          <li>Saisissez la nouvelle adresse, puis cliquez sur <b>« Enregistrer »</b> (ou « Annuler » pour abandonner).</li>
-        </ol>
-        <figure class="shot">
-          <img src="images/33-mon-profil-email.png" alt="Modification de l'email dans Mon profil">
-          <figcaption>✉️ Modifier son email depuis « Mon profil »</figcaption>
-        </figure>
-      </div>
+      <p style="font-size:14px;">
+        Menu principal / Mitigation / Actions — le filtre « Filtrer par plan de mitigation »
+        permet d'afficher uniquement les actions d'un plan donné. Des compteurs indiquent le
+        nombre d'actions par statut : En cours, Terminée, En retard, Annulée. Chaque action
+        est présentée sous forme de fiche affichant son code, son statut, son libellé, ses
+        dates de début et de fin, le plan de mitigation associé et le responsable désigné.
+      </p>
 
-      <div class="subsection">
-        <h3>Changer mon mot de passe</h3>
-        <ol class="steps">
-          <li>Cliquez sur <b>« Changer mon mot de passe »</b>, dans la section « Compte ».</li>
-          <li>Saisissez votre <b>mot de passe actuel</b>, puis le <b>nouveau mot de passe</b> et sa confirmation.</li>
-          <li>Cliquez sur <b>« Changer le mot de passe »</b> pour valider.</li>
-        </ol>
+      <div class="subsection" id="ajouter-action">
+        <h3>15.1. Ajouter une nouvelle action</h3>
         <figure class="shot">
-          <img src="images/33b-mon-profil-mot-de-passe.png" alt="Fenêtre de changement de mot de passe">
-          <figcaption>🔒 Changer son mot de passe soi-même, sans passer par un administrateur</figcaption>
+          <img src="images/admin-action-form-1.png" alt="Formulaire de création d'une action (1/2)">
+          <figcaption>📝 Formulaire de création d'une action (1/2)</figcaption>
         </figure>
+        <figure class="shot">
+          <img src="images/admin-action-form-2.png" alt="Formulaire de création d'une action (2/2)">
+          <figcaption>📝 Formulaire de création d'une action (2/2)</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur <b>« + Nouvelle action »</b>.</li>
+          <li>Sélectionnez le plan de mitigation et le risque associé.</li>
+          <li>Sélectionnez la bonne pratique inexistante liée à l'action.</li>
+          <li>Ajoutez un libellé d'action : saisissez le texte puis appuyez sur Entrée ou cliquez sur « + Ajouter ».</li>
+          <li>Sélectionnez le statut de l'action et renseignez ses dates de début et de fin.</li>
+          <li>Sélectionnez le responsable de l'action.</li>
+          <li>Cliquez sur « Créer » pour enregistrer l'action.</li>
+        </ol>
+        <div class="callout danger">
+          <span class="icon">⚠️</span>
+          <div><b>À noter.</b>Le choix des bonnes pratiques inexistantes est obligatoire.</div>
+        </div>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 16. INDICATEURS DE RÉALISATION -->
+    <section class="doc" id="indicateurs">
+      <div class="doc-kicker">16. Tableau de bord : indicateurs de réalisation</div>
+      <h2>Indicateurs de réalisation</h2>
+      <p class="lead">
+        Cette page permet de suivre les indicateurs de réalisation (KPI) mis en place dans
+        le cadre des plans de mitigation, et de visualiser leur évolution par rapport aux
+        cibles fixées.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-indicateurs-1.png" alt="Indicateurs de réalisation (1/3)">
+        <figcaption>📈 Indicateurs de réalisation (1/3)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Tableau de bord / Indicateurs de Réalisation — en haut de la page,
+        des compteurs indiquent le nombre d'indicateurs selon leur statut : En cours,
+        Attention, En retard, Non disponible. Le graphique « Vue d'ensemble » compare, pour
+        chaque indicateur, la valeur obtenue et la cible fixée.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-indicateurs-2.png" alt="Indicateurs de réalisation (2/3)">
+        <figcaption>📈 Indicateurs de réalisation (2/3)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Deux graphiques complètent la vue d'ensemble : la « Répartition par Statut », qui
+        montre la proportion d'indicateurs par statut, et le « Taux d'Atteinte par
+        Indicateur », qui affiche la performance relative de chaque indicateur par rapport à
+        sa cible.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-indicateurs-3.png" alt="Indicateurs de réalisation (3/3)">
+        <figcaption>📈 Indicateurs de réalisation (3/3)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        La section « Détail des Indicateurs » liste chaque indicateur avec son code, son
+        libellé, le plan de mitigation associé, le processus concerné, sa fréquence de suivi
+        (annuelle, trimestrielle...), son écart par rapport à la cible, son seuil et son taux
+        d'atteinte représenté sous forme de jauge circulaire. Les icônes permettent de
+        consulter, modifier ou supprimer un indicateur.
+      </p>
+
+      <div class="subsection" id="ajouter-indicateur">
+        <h3>Ajouter un indicateur</h3>
+        <ol class="steps">
+          <li>Cliquez sur <b>« + Nouvel indicateur »</b>.</li>
+          <li>Entrez le libellé de l'indicateur, la fréquence, le processus, le risque, le plan de mitigation, l'action, l'unité de mesure.</li>
+          <li>Renseignez les dates de début et de fin et la date du seuil d'alerte.</li>
+          <li>Renseignez les valeurs cibles et les valeurs obtenues.</li>
+          <li>Cliquez sur « Créer » pour enregistrer l'indicateur.</li>
+        </ol>
+      </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 17. AUDIT -->
+    <section class="doc" id="plans-audit">
+      <div class="doc-kicker">17. Audit : gestion des plans d'audit</div>
+      <h2>Plans d'audit</h2>
+      <p class="lead">
+        Un plan d'audit permet de planifier la vérification d'un risque et des dispositifs de
+        maîtrise associés. La rubrique « Plans d'audit » permet de consulter et de gérer ces
+        plans.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-plans-audit-list.png" alt="Liste des plans d'audit (Organisation > Plans d'audit)">
+        <figcaption>📋 Liste des plans d'audit (Organisation &gt; Plans d'audit)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Audit / Plans d'audit — en haut de la page, des compteurs indiquent
+        le nombre total de plans d'audit ainsi que leur répartition par type (Opérationnel,
+        Conformité, Contrôle interne). Les filtres « Recherche », « Unité administrative » et
+        « Audit proposé » permettent d'affiner la liste.
+      </p>
+      <p style="font-size:14px;">
+        Chaque plan est présenté sous forme de fiche affichant son code, son libellé, ses
+        tags (type de performance et d'assurance), la direction et le processus concernés, le
+        risque associé et sa date de création. Les icônes permettent de consulter, modifier
+        ou supprimer un plan.
+      </p>
+
+      <div class="subsection" id="ajouter-plan-audit">
+        <h3>17.1. Ajouter un nouveau plan d'audit</h3>
+        <figure class="shot">
+          <img src="images/admin-plan-audit-form-1.png" alt="Formulaire de création d'un plan d'audit (1/2)">
+          <figcaption>📝 Formulaire de création d'un plan d'audit (1/2)</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="images/admin-plan-audit-form-2.png" alt="Formulaire de création d'un plan d'audit (2/2)">
+          <figcaption>📝 Formulaire de création d'un plan d'audit (2/2)</figcaption>
+        </figure>
+        <ol class="steps">
+          <li>Cliquez sur le bouton vert <b>« + Nouveau plan d'audit »</b>.</li>
+          <li>Dans la section « Informations générales », saisissez le libellé du plan, la date de création et le code de l'unité administrative concernée.</li>
+          <li>Dans la section « Pré-planification d'audit », sélectionnez le processus (après avoir choisi l'unité administrative) puis le risque inhérent correspondant.</li>
+          <li>Sélectionnez le type d'audit proposé ainsi que le type de revue.</li>
+          <li>Renseignez, si besoin, l'objectif d'audit et l'effet d'audit indicatif.</li>
+          <li>Cliquez sur « Créer » pour enregistrer le plan d'audit.</li>
+        </ol>
         <div class="callout tip">
           <span class="icon">💡</span>
-          <div><b>Ancien mot de passe requis.</b>Le changement est refusé si le mot de passe actuel saisi est incorrect, ou si le nouveau mot de passe et sa confirmation ne correspondent pas.</div>
+          <div><b>À noter.</b>Le choix du processus n'est possible qu'après avoir sélectionné l'unité administrative, et le choix du risque inhérent qu'après avoir sélectionné le processus.</div>
         </div>
       </div>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
-    <!-- FAQ -->
-    <section class="doc" id="faq">
-      <h2>Questions fréquentes</h2>
+    <!-- 18. PROJET DE CARTOGRAPHIE -->
+    <section class="doc" id="projet-cartographie">
+      <div class="doc-kicker">18. Cartographie des risques : projet de cartographie des risques</div>
+      <h2>Projet de cartographie des risques</h2>
+      <p class="lead">
+        Cette page permet de sélectionner les risques à soumettre pour validation, en vue de
+        constituer la cartographie définitive des risques.
+      </p>
 
-      <div class="subsection" style="margin-top:0; padding-top:0; border-top:none;">
-        <h3>Un bouton est grisé, pourquoi ?</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);">Votre rôle ou profil métier ne dispose pas des droits nécessaires pour cette action. Ce n'est pas une erreur : c'est le contrôle d'accès qui protège les données.</p>
-      </div>
-      <div class="subsection">
-        <h3>Je ne vois pas les données d'un autre ministère, est-ce normal ?</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);">Oui. Sauf pour un SUPER_ADMIN, chaque compte est cloisonné à son ministère par sécurité.</p>
-      </div>
-      <div class="subsection">
-        <h3>J'ai différé un risque par erreur, que faire ?</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);">Le dossier revient à l'étape précédente du circuit. La personne responsable de cette étape peut le re-transmettre normalement.</p>
-      </div>
-      <div class="subsection">
-        <h3>Comment obtenir un compte ?</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);">Seul un agent ADMIN (de votre ministère) ou le SUPER_ADMIN peut créer votre compte, depuis Configuration → Agents.</p>
-      </div>
-      <div class="subsection">
-        <h3>Je ne reçois pas mes notifications par email</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);">Vérifiez qu'une adresse email est renseignée sur votre fiche agent (Configuration → Agents). Sans email, vous restez notifié normalement en in-app, seul le canal email est indisponible.</p>
-      </div>
-      <div class="subsection">
-        <h3>Une notification a disparu de ma liste ?</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);">Aucune notification n'est supprimée automatiquement. Vérifiez vos filtres (« Non lues », sévérité) ou la barre de recherche : la notification est probablement simplement masquée par un filtre actif.</p>
-      </div>
+      <figure class="shot">
+        <img src="images/admin-cartographie-projet.png" alt="Projet de cartographie de risques">
+        <figcaption>📤 Projet de cartographie de risques (Gestion des risques &gt; Projet de cartographie de risques)</figcaption>
+      </figure>
 
-      <div class="callout tip" style="margin-top:26px;">
-        <span class="icon">✉️</span>
-        <div><b>Besoin d'aide supplémentaire ?</b>Rapprochez-vous de l'administrateur SIGR de votre ministère.</div>
+      <p style="font-size:14px;">
+        Menu principal / Cartographie des risques / Projet de cartographie de risques — la
+        liste affiche, pour chaque risque, son code, son libellé et le processus concerné.
+        Une case à cocher, en début de ligne, permet de sélectionner un ou plusieurs risques.
+      </p>
+      <ol class="steps">
+        <li>Cochez les risques à soumettre.</li>
+        <li>Cliquez sur le bouton <b>« Transmettre »</b> (le nombre entre parenthèses indique le nombre de risques sélectionnés).</li>
+      </ol>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 19. CARTOGRAPHIE DIFFÉRÉE ET REJETÉE -->
+    <section class="doc" id="cartographie-differee">
+      <div class="doc-kicker">19. Cartographie des risques : cartographie différée et rejetée</div>
+      <h2>Cartographie différée et rejetée</h2>
+      <p class="lead">
+        Cette page présente la liste des risques dont la cartographie a été <b>reportée</b>
+        ou <b>rejetée</b> lors du processus de validation.
+      </p>
+      <p style="font-size:14px;">Un risque peut se retrouver ici lorsque :</p>
+      <ul style="font-size:14px;padding-left:20px;">
+        <li>Le valideur a jugé les informations insuffisantes et a demandé un complément avant validation (différé) ;</li>
+        <li>Le risque a été jugé non pertinent ou mal formalisé et a été refusé (rejeté).</li>
+      </ul>
+
+      <figure class="shot">
+        <img src="images/admin-cartographie-differees-rejetees.png" alt="Cartographie différée et rejetée">
+        <figcaption>↩️ Cartographie différée et rejetée — « Aucun risque différé ou rejeté pour le moment »</figcaption>
+      </figure>
+
+      <div class="callout tip">
+        <span class="icon">💡</span>
+        <div><b>À noter.</b>Cette page permet un suivi transparent des risques en attente de correction, évitant qu'ils ne soient perdus ou oubliés dans le processus de gestion des risques.</div>
       </div>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 20. CARTOGRAPHIE VALIDÉE -->
+    <section class="doc" id="cartographie-validee">
+      <div class="doc-kicker">20. Cartographie des risques : cartographie validée</div>
+      <h2>Cartographie validée</h2>
+      <p class="lead">
+        Cette page liste l'ensemble des risques dont la cartographie a été <b>validée</b>,
+        c'est-à-dire ceux ayant franchi toutes les étapes de vérification et d'approbation.
+      </p>
+      <p style="font-size:14px;">Le tableau affiche pour chaque risque :</p>
+      <ul style="font-size:14px;padding-left:20px;">
+        <li><b>Code</b> : identifiant unique du risque (ex. R_DI001) ;</li>
+        <li><b>Libellé</b> : intitulé décrivant le risque ;</li>
+        <li><b>Processus</b> : le processus ou la mission auquel le risque est rattaché.</li>
+      </ul>
+
+      <figure class="shot">
+        <img src="images/admin-cartographie-validees.png" alt="Cartographie validée">
+        <figcaption>✔️ Cartographie validée</figcaption>
+      </figure>
+      <a class="top-link" href="#toc">↑ Retour au sommaire</a>
+    </section>
+
+    <!-- 21. CARTOGRAPHIE DÉFINITIVE -->
+    <section class="doc" id="cartographie-definitive">
+      <div class="doc-kicker">21. Cartographie des risques : cartographie définitive des risques</div>
+      <h2>Cartographie définitive des risques</h2>
+      <p class="lead">
+        Une fois les risques transmis, cette page permet de suivre leur validation et de
+        consulter la cartographie définitive des risques de l'organisation.
+      </p>
+
+      <figure class="shot">
+        <img src="images/admin-cartographie-definitive.png" alt="Cartographie définitive des risques">
+        <figcaption>📌 Cartographie définitive des risques (Gestion des risques &gt; Cartographie définitive des risques)</figcaption>
+      </figure>
+
+      <p style="font-size:14px;">
+        Menu principal / Cartographie des risques / Cartographie définitive des risques — en
+        haut de la page, des compteurs indiquent le nombre total de risques ainsi que leur
+        répartition selon l'avis rendu : Validé, Différé, Rejeté.
+      </p>
+      <p style="font-size:14px;">
+        La liste affiche, pour chaque risque, son code, son libellé, le processus concerné,
+        son type, son statut et l'avis rendu (Validé, Différé ou Rejeté). Le bouton
+        « voir détails » permet de consulter la fiche complète du risque.
+      </p>
+      <p style="font-size:14px;">
+        Le bouton <b>« Cartographie définitive »</b> en haut à droite permet de générer le
+        document final de la cartographie.
+      </p>
       <a class="top-link" href="#toc">↑ Retour au sommaire</a>
     </section>
 
@@ -1332,7 +1296,7 @@
 </div>
 
 <footer class="doc-footer">
-  SIGR — Système Intégré de Gestion des Risques · République du Bénin · Ministère de l'Économie et des Finances
+  SIGR — Système Intégré de Gestion des Risques · République du Bénin · Ministère de l'Économie et des Finances · Guide de l'administrateur général
 </footer>
 
 <script>

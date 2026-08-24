@@ -66,15 +66,39 @@
                 </p>
               </div>
 
-              <!-- Risque -->
+              <!-- Risques -->
               <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-semibold text-slate-700">Risque associé <span *ngIf="isRequired('codeRisque')" class="text-red-500">*</span></label>
-                <app-searchable-select formControlName="codeRisque"
-                  [options]="risqueOptions" placeholder="Rechercher un risque par code ou libellé..."></app-searchable-select>
-                <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Risques associés <span *ngIf="isRequired('codesRisques')" class="text-red-500">*</span></label>
+                <div class="flex gap-2">
+                  <app-searchable-select [(ngModel)]="nouveauCodeRisque" [ngModelOptions]="{standalone: true}"
+                    [options]="risqueOptions" placeholder="Rechercher un risque par code ou libellé..." class="flex-1"></app-searchable-select>
+                  <button type="button" (click)="ajouterRisque()" [disabled]="!nouveauCodeRisque"
+                    class="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Ajouter
+                  </button>
+                </div>
+                <p *ngIf="form.get('codesRisques')?.invalid && form.get('codesRisques')?.touched"
                    class="mt-1 text-xs text-red-600">
-                  {{ getFieldError('codeRisque') }}
+                  {{ getFieldError('codesRisques') }}
                 </p>
+
+                <div *ngIf="risquesSelectionnes.length > 0" class="mt-3 space-y-2">
+                  <div *ngFor="let risque of risquesSelectionnes"
+                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <span class="flex-shrink-0 inline-flex items-center rounded-full bg-emerald-100 text-emerald-700 px-2.5 py-0.5 text-xs font-semibold">
+                        {{ risque.code }}
+                      </span>
+                      <span class="text-sm text-slate-700 truncate">{{ risque.libelle }}</span>
+                    </div>
+                    <button (click)="supprimerRisque(risque.code)" type="button"
+                      class="flex-shrink-0 text-slate-400 hover:text-red-600 transition" title="Retirer ce risque">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
 
             </div>

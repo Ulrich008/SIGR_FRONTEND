@@ -1,0 +1,63 @@
+<app-main-layout [menuItems]="menuItems" activeMenu="Risques" searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances" userInitials="AD">
+
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">
+            <span *ngIf="risque">{{ risque.code }} — {{ risque.libelle }}</span>
+          </p>
+          <h1 class="text-2xl font-semibold text-slate-900">Historique des avis de validation</h1>
+        </div>
+        <button (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+          Retour au risque
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {{ error }}
+      </div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement des données...</span>
+      </div>
+
+      <div *ngIf="!loading && risque" class="rounded-3xl bg-white p-6 shadow-sm space-y-3">
+
+        <div *ngIf="loadingHistoriqueAvis" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+          Chargement de l'historique...
+        </div>
+
+        <div *ngIf="!loadingHistoriqueAvis && historiqueAvis.length === 0" class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+          Ce risque n'est pas encore entré dans le circuit de validation.
+        </div>
+
+        <ol *ngIf="!loadingHistoriqueAvis && historiqueAvis.length > 0" class="space-y-0">
+          <li *ngFor="let entree of historiqueAvis; let last = last" class="relative pl-6 pb-5">
+            <!-- Ligne verticale de la frise -->
+            <span *ngIf="!last" class="absolute left-[5px] top-3 bottom-0 w-px bg-slate-200"></span>
+            <span class="absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full bg-emerald-600"></span>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <span [class]="'inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ' + getAvisBadgeClass(entree.avis)">
+                {{ getAvisLabel(entree.avis) }}
+              </span>
+              <span class="text-xs text-slate-400">{{ entree.date | date:'dd/MM/yyyy à HH:mm' }}</span>
+            </div>
+            <p class="mt-1 text-sm text-slate-700">
+              <span *ngIf="entree.nomAuteur">Par {{ entree.nomAuteur }}</span>
+              <span *ngIf="!entree.nomAuteur" class="italic text-slate-400">Auteur non renseigné</span>
+            </p>
+            <p *ngIf="entree.motif" class="mt-1 text-sm text-slate-600 bg-slate-50 rounded-lg px-3 py-2 whitespace-pre-line">
+              {{ entree.motif }}
+            </p>
+          </li>
+        </ol>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

@@ -1,3 +1,5 @@
+import { StatutSuiviRecommandation } from './suivi-recommandation.model';
+
 export enum TypeRisque {
   STRATEGIQUE_PILOTAGE = 'STRATEGIQUE_PILOTAGE',
   OPERATIONNEL = 'OPERATIONNEL',
@@ -33,11 +35,18 @@ export enum AvisRisque {
   EN_ATTENTE = 'EN_ATTENTE'
 }
 
-// Circuit de validation : Formalisation -> Pilote -> CCI -> CMMR -> Validée/Rejetée
+// Circuit de validation : Formalisation (Correspondant) -> Manager Risque
+// -> CCI -> Responsable (visa) -> CCI -> CMMR -> Validée/Rejetée. Manager
+// Risque et CCI ne font que relayer (action "Transmettre") ; seuls
+// Responsable et CMMR rendent un avis (Valider/Différer/Rejeter). Un
+// différé revient toujours à Manager Risque, qui relaie ensuite au
+// Correspondant pour correction.
 export enum EtapeValidation {
   FORMALISATION = 'FORMALISATION',
-  PILOTE = 'PILOTE',
-  CCI = 'CCI',
+  MANAGER_RISQUE = 'MANAGER_RISQUE',
+  CCI_VERS_RESPONSABLE = 'CCI_VERS_RESPONSABLE',
+  RESPONSABLE = 'RESPONSABLE',
+  CCI_VERS_CMMR = 'CCI_VERS_CMMR',
   CMMR = 'CMMR',
   VALIDEE = 'VALIDEE',
   REJETEE = 'REJETEE'
@@ -51,6 +60,8 @@ export interface AvisRisqueRequest {
 export interface RisqueRequest {
   code?: string;
   libelle: string;
+  /** Finalité du processus (parmi Processus.finalites) menacée par ce risque. */
+  finalite: string;
   causeProbable?: string[];
   consequenceProbable?: string[];
   bonnesPratiques?: string[];
@@ -68,6 +79,7 @@ export interface RisqueResponse {
   id: string;
   code: string;
   libelle: string;
+  finalite?: string;
   causeProbable?: string[];
   consequenceProbable?: string[];
   bonnesPratiques?: string[];
@@ -88,6 +100,9 @@ export interface RisqueResponse {
   emetteurAvisLibelleProfil?: string;
   /** Vrai si le risque a au moins une évaluation liée (condition pour être transmis). */
   evalue: boolean;
+  statutSuivi?: StatutSuiviRecommandation;
+  decisionSuivi?: string;
+  dateDecisionSuivi?: string;
 }
 
 /**

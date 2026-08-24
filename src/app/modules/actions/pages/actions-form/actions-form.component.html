@@ -57,12 +57,12 @@
                 <select
                   formControlName="codeRisque"
                   (change)="onRisqueChange()"
-                  [disabled]="!risqueSelected"
+                  [disabled]="risquesDuPlan.length === 0"
                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                 >
                   <option value="">Sélectionner un risque</option>
-                  <option *ngIf="risqueSelected" [value]="risqueSelected.code">
-                    {{ risqueSelected.code }} - {{ risqueSelected.libelle }}
+                  <option *ngFor="let risque of risquesDuPlan" [value]="risque.code">
+                    {{ risque.code }} - {{ risque.libelle }}
                   </option>
                 </select>
                 <p *ngIf="form.get('codeRisque')?.invalid && form.get('codeRisque')?.touched"

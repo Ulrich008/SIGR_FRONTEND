@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal } from '../../../../core/utils/sigr-swal';
 
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
@@ -50,6 +50,7 @@ export class RisquesFormComponent implements OnInit {
 
   processus: ProcessusResponse[] = [];
   finalitesProcessus: string[] = [];
+  selectedFinalite: string | null = null;
 
   causesProbables: string[] = [];
   consequencesProbables: string[] = [];
@@ -144,6 +145,7 @@ export class RisquesFormComponent implements OnInit {
     this.form = this.fb.group({
       code: [{ value: '', disabled: true }],
       libelle: [''],
+      finalite: [''],
       dateIdentification: [''],
       codeProcessus: [''],
       typeRisque: ['']
@@ -240,6 +242,7 @@ export class RisquesFormComponent implements OnInit {
     this.form.patchValue({
       code: risque.code,
       libelle: risque.libelle,
+      finalite: risque.finalite,
       dateIdentification: this.formatDateForInput(risque.dateIdentification),
       codeProcessus: risque.codeProcessus,
       typeRisque: risque.typeRisque
@@ -262,6 +265,8 @@ export class RisquesFormComponent implements OnInit {
   loadFinalitesProcessus(codeProcessus: string): void {
     if (!codeProcessus) {
       this.finalitesProcessus = [];
+      this.selectedFinalite = null;
+      this.form.patchValue({ finalite: '' }, { emitEvent: false });
       return;
     }
 
@@ -273,11 +278,34 @@ export class RisquesFormComponent implements OnInit {
       this.finalitesProcessus = [];
     }
 
+    // Si la finalité déjà présente dans le formulaire (chargement d'un
+    // risque existant) appartient toujours à ce processus, on la conserve.
+    // Sinon (véritable changement de processus par l'utilisateur), elle ne
+    // s'applique plus : on la réinitialise pour forcer un nouveau choix.
+    const finaliteActuelle = this.form.get('finalite')?.value;
+    if (finaliteActuelle && this.finalitesProcessus.includes(finaliteActuelle)) {
+      this.selectedFinalite = finaliteActuelle;
+    } else {
+      this.selectedFinalite = null;
+      this.form.patchValue({ finalite: '' }, { emitEvent: false });
+    }
+
     this.cdr.detectChanges();
   }
 
+  /**
+   * La finalité choisie est une donnée à part entière du risque (obligatoire
+   * à la création, vérifiée aussi côté backend) : elle indique laquelle des
+   * finalités du processus ce risque menace concrètement.
+   */
+  selectFinalite(finalite: string): void {
+    this.selectedFinalite = finalite;
+    this.form.patchValue({ finalite });
+    this.form.get('finalite')?.markAsTouched();
+  }
+
   isStep0Valid(): boolean {
-    return ['codeProcessus', 'typeRisque', 'libelle', 'dateIdentification']
+    return ['codeProcessus', 'typeRisque', 'libelle', 'finalite', 'dateIdentification']
       .every(field => {
         const control = this.form.get(field);
         return !control || control.disabled || control.valid;
@@ -302,7 +330,7 @@ export class RisquesFormComponent implements OnInit {
     applyZodValidation(this.form, risqueSchema, this.form.getRawValue());
 
     if (this.currentStep === 0) {
-      ['codeProcessus', 'typeRisque', 'libelle', 'dateIdentification'].forEach(field => this.form.get(field)?.markAsTouched());
+      ['codeProcessus', 'typeRisque', 'libelle', 'finalite', 'dateIdentification'].forEach(field => this.form.get(field)?.markAsTouched());
       if (!this.isStep0Valid()) {
         return;
       }
@@ -391,6 +419,7 @@ export class RisquesFormComponent implements OnInit {
     const request: RisqueRequest = {
       code: raw.code,
       libelle: raw.libelle,
+      finalite: raw.finalite,
       causeProbable: this.causesProbables,
       consequenceProbable: this.consequencesProbables,
       bonnesPratiques: this.bonnesPratiques,

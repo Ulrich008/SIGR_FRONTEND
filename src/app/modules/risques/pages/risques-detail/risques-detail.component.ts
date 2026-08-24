@@ -1,24 +1,15 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import Chart from 'chart.js/auto';
 
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 
 import { MenuService } from '../../../../core/services/menu.service';
 import { RisqueService } from '../../../../core/services/risque.service';
-import { EvaluationService } from '../../../../core/services/evaluation.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
-import {
-  AvisHistoriqueResponse,
-  AvisRisque,
-  RisqueResponse,
-  StatutRisque,
-  TypeRisque
-} from '../../../../core/models/risque.model';
-import { EvaluationResponse } from '../../../../core/models/evaluation.model';
+import { RisqueResponse, StatutRisque, TypeRisque } from '../../../../core/models/risque.model';
 
 @Component({
   standalone: true,
@@ -26,27 +17,17 @@ import { EvaluationResponse } from '../../../../core/models/evaluation.model';
   imports: [CommonModule, RouterModule, MainLayoutComponent],
   templateUrl: './risques-detail.component.html'
 })
-export class RisquesDetailComponent implements OnInit, OnDestroy {
+export class RisquesDetailComponent implements OnInit {
 
   risque: RisqueResponse | null = null;
 
   loading = false;
   error: string | null = null;
 
-  /** Toutes les (ré)évaluations de ce risque, dans leur ordre de création (voir loadHistorique). */
-  historique: EvaluationResponse[] = [];
-  loadingHistorique = false;
-  private historiqueChart: Chart | null = null;
-
-  /** Historique des avis de validation (Transmis, Validé, Différé, Rejeté) de ce risque. */
-  historiqueAvis: AvisHistoriqueResponse[] = [];
-  loadingHistoriqueAvis = false;
-
   menuItems: MenuItem[];
 
   constructor(
     private risqueService: RisqueService,
-    private evaluationService: EvaluationService,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
@@ -66,10 +47,6 @@ export class RisquesDetailComponent implements OnInit, OnDestroy {
     }
 
     this.loadRisque();
-  }
-
-  ngOnDestroy(): void {
-    this.historiqueChart?.destroy();
   }
 
   loadRisque(): void {
@@ -94,9 +71,6 @@ export class RisquesDetailComponent implements OnInit, OnDestroy {
         this.loading = false;
 
         this.cdr.detectChanges();
-
-        this.loadHistorique(risque.code);
-        this.loadHistoriqueAvis(risque.code);
       },
 
       error: (err) => {
@@ -109,141 +83,15 @@ export class RisquesDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Une réévaluation crée une nouvelle ligne d'évaluation sans supprimer
-   * l'ancienne (voir EvaluationServiceImpl.create côté backend) : ce risque
-   * peut donc avoir plusieurs évaluations. On les récupère toutes et on les
-   * garde dans leur ordre de création (l'API ne renvoie pas de date de
-   * création exploitable côté DTO, mais l'ordre du tableau y correspond —
-   * même convention que dans evaluations-form et matrices-list).
-   */
-  private loadHistorique(codeRisque: string): void {
-    this.loadingHistorique = true;
-
-    this.evaluationService.getAll().subscribe({
-      next: (evaluations) => {
-        this.historique = evaluations.filter(e => e.codeRisque === codeRisque);
-        this.loadingHistorique = false;
-        this.cdr.detectChanges();
-        setTimeout(() => this.initHistoriqueChart(), 0);
-      },
-      error: () => {
-        // Silencieux : l'historique est une vue complémentaire, son échec
-        // ne doit pas empêcher la consultation du risque lui-même.
-        this.loadingHistorique = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  private initHistoriqueChart(): void {
-    if (this.historique.length < 2) {
-      return;
-    }
-
-    const canvas = document.getElementById('historiqueChart') as HTMLCanvasElement;
-    if (!canvas) {
-      return;
-    }
-
-    this.historiqueChart?.destroy();
-
-    this.historiqueChart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: this.historique.map((e, i) => `${i === 0 ? 'Initiale' : 'Réévaluation ' + i}\n${e.code}`),
-        datasets: [
-          {
-            label: 'Score inhérent',
-            data: this.historique.map(e => e.scoreInherent),
-            borderColor: '#94a3b8',
-            backgroundColor: '#94a3b8',
-            borderDash: [5, 4],
-            tension: 0.3,
-            pointRadius: 4
-          },
-          {
-            label: 'Score résiduel',
-            data: this.historique.map(e => e.scoreResiduel),
-            borderColor: '#1a5c38',
-            backgroundColor: '#1a5c38',
-            tension: 0.3,
-            pointRadius: 4,
-            borderWidth: 2
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 11 } } },
-          tooltip: {
-            callbacks: {
-              label: (c) => `${c.dataset.label}: ${c.raw} / 25`
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 25,
-            ticks: { stepSize: 5, font: { size: 11 } },
-            grid: { color: '#f1f5f9' }
-          },
-          x: {
-            ticks: { font: { size: 10 } },
-            grid: { display: false }
-          }
-        }
-      }
-    });
-  }
-
-  viewEvaluation(code: string): void {
-    this.router.navigate(['/evaluations', code]);
-  }
-
-  getScoreBadgeClass(score: number): string {
-    if (score >= 15) return 'bg-red-100 text-red-700';
-    if (score >= 8) return 'bg-yellow-100 text-yellow-700';
-    return 'bg-green-100 text-green-700';
-  }
-
-  private loadHistoriqueAvis(codeRisque: string): void {
-    this.loadingHistoriqueAvis = true;
-
-    this.risqueService.getHistoriqueAvis(codeRisque).subscribe({
-      next: (historiqueAvis) => {
-        this.historiqueAvis = historiqueAvis;
-        this.loadingHistoriqueAvis = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        // Silencieux : vue complémentaire, ne doit pas bloquer la fiche du risque.
-        this.loadingHistoriqueAvis = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  getAvisLabel(avis?: AvisRisque): string {
-    switch (avis) {
-      case AvisRisque.VALIDE: return 'Validé';
-      case AvisRisque.DIFFERE: return 'Différé';
-      case AvisRisque.REJETE: return 'Rejeté';
-      case AvisRisque.EN_ATTENTE: return 'Transmis, en attente d\'avis';
-      default: return '—';
+  goToHistoriqueEvolution(): void {
+    if (this.risque) {
+      this.router.navigate(['/risques', this.risque.code, 'historique-evolution']);
     }
   }
 
-  getAvisBadgeClass(avis?: AvisRisque): string {
-    switch (avis) {
-      case AvisRisque.VALIDE: return 'bg-green-100 text-green-700';
-      case AvisRisque.DIFFERE: return 'bg-yellow-100 text-yellow-700';
-      case AvisRisque.REJETE: return 'bg-red-100 text-red-700';
-      case AvisRisque.EN_ATTENTE: return 'bg-blue-100 text-blue-700';
-      default: return 'bg-gray-100 text-gray-700';
+  goToHistoriqueAvis(): void {
+    if (this.risque) {
+      this.router.navigate(['/risques', this.risque.code, 'historique-avis']);
     }
   }
 

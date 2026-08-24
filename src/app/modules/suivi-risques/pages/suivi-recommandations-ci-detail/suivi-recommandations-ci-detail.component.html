@@ -1,0 +1,182 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Suivi des Recommandations des CI"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <p class="text-sm text-gray-500">Suivi des Risques</p>
+          <h1 class="text-2xl font-semibold text-slate-900">Suivi des Recommandations des CI</h1>
+        </div>
+        <button (click)="retour()" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+          Retour
+        </button>
+      </div>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ error }}</div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement...</span>
+      </div>
+
+      <div *ngIf="!loading && rapport" class="rounded-3xl bg-white p-6 shadow-sm space-y-6">
+
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-6 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <span class="inline-block rounded-md bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{{ rapport.code }}</span>
+              <span [class]="'inline-block rounded-full px-3 py-1 text-sm font-medium ' + getStatutBadgeClass(rapport.statutSuivi)">
+                {{ getStatutLabel(rapport.statutSuivi) }}
+              </span>
+            </div>
+            <h2 class="text-xl font-semibold text-slate-900">{{ rapport.libelleUniteAdministrative }}</h2>
+            <p class="text-sm text-slate-500">{{ rapport.libelleProcessus }} — émis le {{ formatDate(rapport.dateEmission) }}</p>
+          </div>
+
+          <div class="flex flex-col gap-2 items-end">
+            <button *ngIf="canModifierStatut" (click)="ouvrirStatutModal()"
+              class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600">
+              Mettre à jour le statut
+            </button>
+            <button *ngIf="canDecider" (click)="ouvrirDecisionModal()"
+              class="inline-flex items-center justify-center rounded-lg bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-200">
+              Donner la décision
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Recommandations</h3>
+          <p *ngIf="recommandations.length === 0" class="text-sm text-slate-400 italic">Aucune recommandation.</p>
+          <ul *ngIf="recommandations.length > 0" class="space-y-1">
+            <li *ngFor="let r of recommandations" class="text-sm text-slate-700">• {{ r }}</li>
+          </ul>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Actions correctrices</h3>
+          <p *ngIf="!rapport.actionsCorrectives || rapport.actionsCorrectives.length === 0" class="text-sm text-slate-400 italic">Aucune action correctrice.</p>
+          <ul *ngIf="rapport.actionsCorrectives && rapport.actionsCorrectives.length > 0" class="space-y-1">
+            <li *ngFor="let action of rapport.actionsCorrectives" class="text-sm text-slate-700">
+              • {{ action.libelle }} <span class="text-xs text-slate-400">(du {{ formatDate(action.dateDebut) }} au {{ formatDate(action.dateFin) }})</span>
+            </li>
+          </ul>
+        </div>
+
+        <div *ngIf="rapport.decisionSuivi" class="rounded-xl bg-blue-50 p-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-blue-500 mb-1">Décision de la CCI — {{ formatDate(rapport.dateDecisionSuivi) }}</p>
+          <p class="text-sm text-blue-700 whitespace-pre-line">{{ rapport.decisionSuivi }}</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== Modale statut (Contrôleur Interne) ===== -->
+  <div *ngIf="showStatutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-slate-900">Statut d'avancement</h2>
+          <button (click)="fermerStatutModal()" class="text-slate-400 hover:text-slate-600 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <p *ngIf="rapport" class="text-sm text-slate-500 mb-4">
+          {{ rapport.code }} — {{ rapport.libelleUniteAdministrative }} / {{ rapport.libelleProcessus }}
+        </p>
+
+        <label class="mb-2 block text-sm font-semibold text-slate-700">Statut de suivi</label>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <button type="button" (click)="statutSelectionne = StatutSuiviRecommandation.NON_ENTAME"
+            [class.bg-slate-200]="statutSelectionne === StatutSuiviRecommandation.NON_ENTAME"
+            [class.border-slate-400]="statutSelectionne === StatutSuiviRecommandation.NON_ENTAME"
+            [class.bg-slate-50]="statutSelectionne !== StatutSuiviRecommandation.NON_ENTAME"
+            [class.border-slate-200]="statutSelectionne !== StatutSuiviRecommandation.NON_ENTAME"
+            class="rounded-xl border px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
+            Non entamé
+          </button>
+          <button type="button" (click)="statutSelectionne = StatutSuiviRecommandation.EN_COURS"
+            [class.bg-amber-100]="statutSelectionne === StatutSuiviRecommandation.EN_COURS"
+            [class.border-amber-400]="statutSelectionne === StatutSuiviRecommandation.EN_COURS"
+            [class.bg-slate-50]="statutSelectionne !== StatutSuiviRecommandation.EN_COURS"
+            [class.border-slate-200]="statutSelectionne !== StatutSuiviRecommandation.EN_COURS"
+            class="rounded-xl border px-3 py-3 text-sm font-medium text-amber-700 transition hover:bg-amber-50">
+            En cours
+          </button>
+          <button type="button" (click)="statutSelectionne = StatutSuiviRecommandation.REALISEE"
+            [class.bg-green-100]="statutSelectionne === StatutSuiviRecommandation.REALISEE"
+            [class.border-green-400]="statutSelectionne === StatutSuiviRecommandation.REALISEE"
+            [class.bg-slate-50]="statutSelectionne !== StatutSuiviRecommandation.REALISEE"
+            [class.border-slate-200]="statutSelectionne !== StatutSuiviRecommandation.REALISEE"
+            class="rounded-xl border px-3 py-3 text-sm font-medium text-green-700 transition hover:bg-green-50">
+            Réalisée
+          </button>
+          <button type="button" (click)="statutSelectionne = StatutSuiviRecommandation.NON_REALISEE"
+            [class.bg-red-100]="statutSelectionne === StatutSuiviRecommandation.NON_REALISEE"
+            [class.border-red-400]="statutSelectionne === StatutSuiviRecommandation.NON_REALISEE"
+            [class.bg-slate-50]="statutSelectionne !== StatutSuiviRecommandation.NON_REALISEE"
+            [class.border-slate-200]="statutSelectionne !== StatutSuiviRecommandation.NON_REALISEE"
+            class="rounded-xl border px-3 py-3 text-sm font-medium text-red-700 transition hover:bg-red-50">
+            Non réalisée
+          </button>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button (click)="fermerStatutModal()" class="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            Annuler
+          </button>
+          <button (click)="enregistrerStatut()" [disabled]="!statutSelectionne"
+            class="rounded-lg bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modale décision (CCI) ===== -->
+  <div *ngIf="showDecisionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-slate-900">Décision de la CCI</h2>
+          <button (click)="fermerDecisionModal()" class="text-slate-400 hover:text-slate-600 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <p *ngIf="rapport" class="text-sm text-slate-500 mb-4">
+          {{ rapport.code }} — {{ rapport.libelleUniteAdministrative }} / {{ rapport.libelleProcessus }}
+        </p>
+
+        <label class="mb-2 block text-sm font-semibold text-slate-700">Décision <span class="text-xs font-normal text-slate-400">(optionnel)</span></label>
+        <textarea [(ngModel)]="decision" rows="4"
+          class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none mb-4"
+          placeholder="Précisez la décision prise sur le suivi de ces recommandations..."></textarea>
+
+        <div class="flex justify-end gap-3">
+          <button (click)="fermerDecisionModal()" class="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            Annuler
+          </button>
+          <button (click)="enregistrerDecision()"
+            class="rounded-lg bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</app-main-layout>

@@ -1,12 +1,21 @@
 // src/app/core/services/menu.service.ts
 import { Injectable } from '@angular/core';
 import { MenuItem } from '../../layout/sidebar/sidebar.component';
+import {
+  GESTION_RISQUE_ROLES,
+  GESTION_RISQUE_ROLES_PLUS_CI,
+  AUDIT_ROLES,
+  PROJET_CARTOGRAPHIE_ROLES,
+  CONTROLE_INTERNE_ROLES,
+  RAPPORT_CI_ROLES,
+  SUIVI_RECOMMANDATIONS_CI_ROLES
+} from '../../app.routes';
 
 @Injectable({ providedIn: 'root' })
 export class MenuService {
   readonly items: MenuItem[] = [
-    { icon: 'fas fa-th',                   label: 'Tableau de bord', path: '/dashboard', roles: ['SUPER_ADMIN', 'ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
-    { icon: 'fas fa-bell',                 label: 'Alertes',         path: '/alertes',   roles: ['SUPER_ADMIN', 'ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
+    { icon: 'fas fa-th',                   label: 'Tableau de bord', path: '/dashboard', roles: [...GESTION_RISQUE_ROLES_PLUS_CI, 'ADMIN'] },
+    { icon: 'fas fa-bell',                 label: 'Alertes',         path: '/alertes',   roles: [...GESTION_RISQUE_ROLES_PLUS_CI, 'ADMIN'] },
     {
       icon: 'fas fa-cogs',
       label: 'Configuration',
@@ -53,53 +62,79 @@ export class MenuService {
     {
       icon: 'fas fa-exclamation-triangle',
       label: 'Formalisation du risque Inhérent',
-      roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'],
+      roles: GESTION_RISQUE_ROLES,
       children: [
-        { icon: 'fas fa-chart-line', label: 'Processus/Mission', path: '/processus', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
-        { icon: 'fas fa-exclamation-circle', label: 'Risques', path: '/risques', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] }
+        { icon: 'fas fa-chart-line', label: 'Processus/Mission', path: '/processus', roles: GESTION_RISQUE_ROLES },
+        { icon: 'fas fa-exclamation-circle', label: 'Risques', path: '/risques', roles: GESTION_RISQUE_ROLES }
       ]
     },
     {
       icon: 'fas fa-clipboard-list',
       label: 'Évaluations',
-      roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'],
+      roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
-        { icon: 'fas fa-clipboard-check', label: 'Évaluer Risque', path: '/evaluations', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
-        { icon: 'fas fa-table', label: 'Matrice', path: '/matrices', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] }
+        { icon: 'fas fa-clipboard-check', label: 'Évaluer Risque', path: '/evaluations', roles: GESTION_RISQUE_ROLES_PLUS_CI },
+        { icon: 'fas fa-table', label: 'Matrice', path: '/matrices', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
     {
       icon: 'fas fa-shield-alt',
       label: 'Mitigation',
-      roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'],
+      roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
         {
           icon: 'fas fa-clipboard-list',
           label: 'Plans de mitigation',
           path: '/plans-mitigation',
-          roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR']
+          roles: GESTION_RISQUE_ROLES_PLUS_CI
         },
-        { icon: 'fas fa-tasks', label: 'Actions', path: '/actions', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
-        { icon: 'fas fa-chart-simple', label: 'Indicateurs', path: '/indicateurs', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] }
+        { icon: 'fas fa-tasks', label: 'Actions', path: '/actions', roles: GESTION_RISQUE_ROLES_PLUS_CI },
+        { icon: 'fas fa-chart-simple', label: 'Indicateurs', path: '/indicateurs', roles: GESTION_RISQUE_ROLES_PLUS_CI }
+      ]
+    },
+    {
+      icon: 'fas fa-chart-line',
+      label: 'Suivi des Risques',
+      roles: [...new Set([...GESTION_RISQUE_ROLES_PLUS_CI, ...SUIVI_RECOMMANDATIONS_CI_ROLES])],
+      children: [
+        { icon: 'fas fa-tasks', label: 'Suivi des actions de mitigations', path: '/suivi-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI },
+        // Menu "Suivi des recommandations" du document de référence : accès
+        // restreint au Contrôleur Interne (statut) et à la CCI (décision).
+        { icon: 'fas fa-user-shield', label: 'Suivi des Recommandations des CI', path: '/suivi-risques/recommandations-ci', roles: SUIVI_RECOMMANDATIONS_CI_ROLES },
+        { icon: 'fas fa-file-alt', label: 'Suivi des recommandations d\'audit', path: '/suivi-risques/recommandations-audit', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
     {
       icon: 'fas fa-clipboard-check',
       label: 'Audit',
-      roles: ['SUPER_ADMIN', 'AUDITEUR', 'PILOTE', 'CCI', 'CMMR'],
+      roles: AUDIT_ROLES,
       children: [
-        { icon: 'fas fa-file-alt', label: 'Plan d\'audit', path: '/plans-audit', roles: ['SUPER_ADMIN', 'AUDITEUR', 'PILOTE', 'CCI', 'CMMR'] }
+        { icon: 'fas fa-file-alt', label: 'Plan d\'audit', path: '/plans-audit', roles: AUDIT_ROLES }
       ]
     },
     {
+      icon: 'fas fa-user-shield',
+      label: 'Contrôle Interne',
+      roles: CONTROLE_INTERNE_ROLES,
+      children: [
+        { icon: 'fas fa-magnifying-glass', label: 'Contrôle de second niveau', path: '/controle-interne/controles-second-niveau', roles: CONTROLE_INTERNE_ROLES },
+        { icon: 'fas fa-file-lines', label: 'Rapport', path: '/controle-interne/rapports', roles: CONTROLE_INTERNE_ROLES },
+        { icon: 'fas fa-paper-plane', label: 'Transmission', path: '/controle-interne/transmission', roles: CONTROLE_INTERNE_ROLES }
+      ]
+    },
+    { icon: 'fas fa-file-shield', label: 'Rapport CI', path: '/rapport-ci', roles: RAPPORT_CI_ROLES },
+    {
       icon: 'fas fa-map',
       label: 'Cartographie des risques',
-      roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'],
+      roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
-        { icon: 'fas fa-clipboard-list', label: 'Projet de cartographie de risques', path: '/plans-cartographie', roles: ['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'PILOTE', 'CCI', 'CMMR'] },
-        { icon: 'fas fa-clock-rotate-left', label: 'Cartographie différée et rejetée', path: '/cartographie-risques/differees-rejetees', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
-        { icon: 'fas fa-check-circle', label: 'Cartographie validée', path: '/cartographie-risques/validees', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] },
-        { icon: 'fas fa-chart-area', label: 'Cartographie définitif des risques', path: '/cartographie-risques', roles: ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'] }
+        { icon: 'fas fa-clipboard-list', label: 'Projet de cartographie de risques', path: '/plans-cartographie', roles: PROJET_CARTOGRAPHIE_ROLES },
+        { icon: 'fas fa-clock-rotate-left', label: 'Cartographie différée et rejetée', path: '/cartographie-risques/differees-rejetees', roles: GESTION_RISQUE_ROLES },
+        { icon: 'fas fa-check-circle', label: 'Cartographie validée', path: '/cartographie-risques/validees', roles: GESTION_RISQUE_ROLES },
+        // Seul sous-écran de Cartographie accessible au Contrôleur Interne
+        // (voir cartographie-risques-routing.module.ts pour la restriction
+        // équivalente au niveau des routes).
+        { icon: 'fas fa-chart-area', label: 'Cartographie définitif des risques', path: '/cartographie-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
   ];

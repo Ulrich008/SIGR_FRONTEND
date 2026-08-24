@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -13,12 +13,13 @@ import { RisqueResponse, AvisRisque, EtapeValidation } from '../../../../core/mo
 import { AuthService } from '../../../../core/services/auth.service';
 import { UniteAdministrativeResponse } from '../../../../core/models/unite-administrative.model';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 import { escapeHtml } from '../../../../core/utils/html-escape.util';
 
 @Component({
   standalone: true,
   selector: 'app-cartographie-risques-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './cartographie-risques-list.component.html'
 })
 export class CartographieRisquesListComponent implements OnInit {
@@ -123,30 +124,11 @@ export class CartographieRisquesListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredRisques.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   viewRisque(code: string): void {
@@ -266,8 +248,6 @@ export class CartographieRisquesListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Générer',
       cancelButtonText: 'Annuler',
-      confirmButtonColor: '#10b981',
-      cancelButtonColor: '#6b7280',
       didOpen: () => {
         const select = document.getElementById('unite-select') as HTMLSelectElement;
         if (select) {
@@ -309,8 +289,6 @@ export class CartographieRisquesListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Générer',
       cancelButtonText: 'Annuler',
-      confirmButtonColor: '#10b981',
-      cancelButtonColor: '#6b7280',
       preConfirm: () => {
         const select = document.getElementById('annee-select-global') as HTMLSelectElement;
         return select?.value ? Number(select.value) : undefined;
@@ -362,8 +340,7 @@ export class CartographieRisquesListComponent implements OnInit {
     Swal.fire({
       icon: 'success',
       title: 'Succès',
-      text: 'La cartographie définitive a été générée avec succès',
-      confirmButtonColor: '#10b981'
+      text: 'La cartographie définitive a été générée avec succès'
     });
   }
 
@@ -374,7 +351,7 @@ export class CartographieRisquesListComponent implements OnInit {
       icon: 'error',
       title: 'Erreur',
       text: this.error || 'Une erreur est survenue',
-      confirmButtonColor: '#ef4444'
+      customClass: sigrSwalButtons('danger')
     });
   }
 }

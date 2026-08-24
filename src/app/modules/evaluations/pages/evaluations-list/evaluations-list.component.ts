@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -11,11 +11,12 @@ import { EvaluationResponse } from '../../../../core/models/evaluation.model';
 import { EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 
 @Component({
   standalone: true,
   selector: 'app-evaluations-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './evaluations-list.component.html'
 })
 export class EvaluationsListComponent implements OnInit {
@@ -101,36 +102,17 @@ export class EvaluationsListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.allEvaluations.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   // Le profil Responsable d'action n'a qu'un accès en lecture seule au
   // module Évaluation : ni création, ni modification, ni suppression.
   get canWrite(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE']);
   }
 
   /**
@@ -140,7 +122,7 @@ export class EvaluationsListComponent implements OnInit {
    */
   estVerrouillee(evaluation: EvaluationResponse): boolean {
     if (this.authService.hasAnyRole(['SUPER_ADMIN'])) return false;
-    if (!this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) return false;
+    if (!this.authService.hasAnyRole(['MANAGER_RISQUE', 'CORRESPONDANT_RISQUE'])) return false;
     return !!(evaluation.risqueTransmis && evaluation.risqueEtapeValidation !== EtapeValidation.FORMALISATION);
   }
 
@@ -173,7 +155,8 @@ export class EvaluationsListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (result.isConfirmed) {
         // Utiliser le paramètre 'code' au lieu de 'id'

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -11,12 +11,13 @@ import { UniteAdministrativeResponse } from '../../../../core/models/unite-admin
 import { ImportResult } from '../../../../core/models/import-result.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 import { escapeHtml } from '../../../../core/utils/html-escape.util';
 
 @Component({
   standalone: true,
   selector: 'app-unite-administrative-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './unite-administrative-list.component.html'
 })
 export class UniteAdministrativeListComponent implements OnInit {
@@ -109,30 +110,11 @@ export class UniteAdministrativeListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredUnites.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   createUnite(): void {
@@ -151,7 +133,8 @@ export class UniteAdministrativeListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (!result.isConfirmed) return;
 
@@ -200,7 +183,7 @@ export class UniteAdministrativeListComponent implements OnInit {
           icon: 'error',
           title: 'Erreur',
           text: err?.message || "Impossible d'importer le fichier",
-          confirmButtonColor: '#ef4444'
+          customClass: sigrSwalButtons('danger')
         });
       }
     });
@@ -219,7 +202,6 @@ export class UniteAdministrativeListComponent implements OnInit {
       icon: result.echecs.length ? 'warning' : 'success',
       title: 'Import terminé',
       html: `${escapeHtml(result.succes)} / ${escapeHtml(result.totalLignes)} unité(s) importée(s) avec succès.${listeErreurs}`,
-      confirmButtonColor: '#047857'
     });
   }
 
@@ -240,7 +222,7 @@ export class UniteAdministrativeListComponent implements OnInit {
           icon: 'error',
           title: 'Erreur',
           text: err?.message || 'Impossible de télécharger le modèle',
-          confirmButtonColor: '#ef4444'
+          customClass: sigrSwalButtons('danger')
         });
       }
     });

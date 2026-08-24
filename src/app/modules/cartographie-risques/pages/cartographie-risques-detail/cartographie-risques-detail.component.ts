@@ -63,7 +63,7 @@ export class CartographieRisquesDetailComponent implements OnInit {
   }
 
   get canWrite(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE']);
   }
 
   editCartographie(): void {

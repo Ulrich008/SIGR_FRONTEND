@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -62,7 +62,7 @@ export class PlanAuditFormComponent implements OnInit {
 
   private stepFields: string[][] = [
     ['libelle', 'dateCreation', 'codeUniteAdministrative'],
-    ['codeProcessus', 'codeRisque', 'auditPropose', 'typeRevue', 'objectifAudit', 'effetAuditIndicatif']
+    ['codeProcessus', 'codeRisque', 'auditPropose', 'typeRevue', 'objectifAudit', 'effetAuditIndicatif', 'recommandation']
   ];
 
   isStepValid(step: number): boolean {
@@ -121,7 +121,8 @@ export class PlanAuditFormComponent implements OnInit {
       auditPropose: [''],
       typeRevue: [''],
       objectifAudit: [''],
-      effetAuditIndicatif: ['']
+      effetAuditIndicatif: [''],
+      recommandation: ['']
     });
 
     this.form.valueChanges.subscribe(() =>
@@ -300,7 +301,8 @@ export class PlanAuditFormComponent implements OnInit {
       auditPropose: planAudit.auditPropose,
       typeRevue: planAudit.typeRevue,
       objectifAudit: planAudit.objectifAudit,
-      effetAuditIndicatif: planAudit.effetAuditIndicatif
+      effetAuditIndicatif: planAudit.effetAuditIndicatif,
+      recommandation: planAudit.recommandation
     });
 
     // Charger les processus et risques pour l'unité et le processus sélectionnés
@@ -368,7 +370,8 @@ export class PlanAuditFormComponent implements OnInit {
       auditPropose: raw.auditPropose,
       typeRevue: raw.typeRevue,
       objectifAudit: raw.objectifAudit,
-      effetAuditIndicatif: raw.effetAuditIndicatif
+      effetAuditIndicatif: raw.effetAuditIndicatif,
+      recommandation: raw.recommandation
     };
 
     if (this.isEditMode && this.code) {

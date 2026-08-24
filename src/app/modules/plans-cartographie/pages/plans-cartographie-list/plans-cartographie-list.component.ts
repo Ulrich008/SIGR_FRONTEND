@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -10,11 +10,12 @@ import { RisqueService } from '../../../../core/services/risque.service';
 import { RisqueResponse, AvisRisque, EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 
 @Component({
   standalone: true,
   selector: 'app-plans-cartographie-list',
-  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './plans-cartographie-list.component.html'
 })
 export class PlansCartographieListComponent implements OnInit {
@@ -50,16 +51,17 @@ export class PlansCartographieListComponent implements OnInit {
     this.loadRisques();
   }
 
-  // Seul le Responsable des risques transmet le dossier (après formalisation
-  // complète) ; CMMR/CCI/PILOTE ne font que se prononcer via validerAvis().
+  // Correspondant Risque, Manager Risque et CCI relaient le dossier (action
+  // "Transmettre", sans avis) ; Responsable Risque/CMMR ne font que se
+  // prononcer via validerAvis().
   get canTransmettre(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE', 'CCI']);
   }
 
-  // Seuls les profils de validation se prononcent (Valider/Différer/Rejeter) ;
-  // le Responsable des risques ne fait que consulter et transmettre.
+  // Seuls les profils qui rendent un véritable avis (Valider/Différer/
+  // Rejeter) ; le CCI et le Manager Risque ne font que relayer.
   get canValiderAvis(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'PILOTE', 'CCI', 'CMMR']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'CMMR']);
   }
 
   get filteredRisques(): RisqueResponse[] {
@@ -70,6 +72,35 @@ export class PlansCartographieListComponent implements OnInit {
       r.libelle?.toLowerCase().includes(terme) ||
       r.nomProcessus?.toLowerCase().includes(terme)
     );
+  }
+
+  currentPage = 1;
+  itemsPerPage = 10;
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredRisques.length / this.itemsPerPage));
+  }
+
+  get pagedRisques(): RisqueResponse[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredRisques.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
+    this.cdr.detectChanges();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.cdr.detectChanges();
+  }
+
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.cdr.detectChanges();
   }
 
   loadRisques(): void {
@@ -98,17 +129,24 @@ export class PlansCartographieListComponent implements OnInit {
       // Vue d'ensemble : tout ce qui n'est pas encore finalisé
       return etape !== EtapeValidation.VALIDEE && etape !== EtapeValidation.REJETEE;
     }
-    if (this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) {
-      // Un risque non évalué ne peut pas être transmis : il n'apparaît donc
-      // pas encore dans le projet de cartographie (voir aussi le contrôle
-      // équivalent côté backend, RisqueServiceImpl.transmettre()).
+    // Un risque non évalué ne peut pas être transmis : il n'apparaît donc
+    // pas encore dans le projet de cartographie (voir aussi le contrôle
+    // équivalent côté backend, RisqueServiceImpl.transmettre()).
+    if (this.authService.hasAnyRole(['CORRESPONDANT_RISQUE'])) {
       return etape === EtapeValidation.FORMALISATION && risque.evalue;
     }
-    if (this.authService.hasAnyRole(['PILOTE'])) {
-      return etape === EtapeValidation.PILOTE;
+    if (this.authService.hasAnyRole(['MANAGER_RISQUE'])) {
+      // Le Manager Risque transmet aussi bien les dossiers fraîchement
+      // évalués (Formalisation) que ceux qui lui reviennent d'un différé,
+      // pour les relayer au CCI ou les renvoyer au Correspondant.
+      return (etape === EtapeValidation.FORMALISATION && risque.evalue)
+          || etape === EtapeValidation.MANAGER_RISQUE;
     }
     if (this.authService.hasAnyRole(['CCI'])) {
-      return etape === EtapeValidation.CCI;
+      return etape === EtapeValidation.CCI_VERS_RESPONSABLE || etape === EtapeValidation.CCI_VERS_CMMR;
+    }
+    if (this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) {
+      return etape === EtapeValidation.RESPONSABLE;
     }
     if (this.authService.hasAnyRole(['CMMR'])) {
       return etape === EtapeValidation.CMMR;
@@ -209,9 +247,7 @@ export class PlansCartographieListComponent implements OnInit {
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Oui, transmettre',
-      cancelButtonText: 'Annuler',
-      confirmButtonColor: '#10b981',
-      cancelButtonColor: '#64748b'
+      cancelButtonText: 'Annuler'
     }).then((result) => {
       if (!result.isConfirmed) return;
 

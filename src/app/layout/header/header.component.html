@@ -65,9 +65,9 @@
               (click)="ouvrirMonProfil()"
               class="flex items-center gap-1.5 rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)] hover:bg-gray-50 transition-colors"
               [attr.aria-label]="nomComplet ? 'Voir mon profil (' + nomComplet + ')' : 'Voir mon profil'">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-             style="background: var(--sigr-900);">
-          {{ userInitials }}
+        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-[var(--sigr-100)] shadow-sm"
+             style="background: linear-gradient(135deg, var(--sigr-600), var(--sigr-900));">
+          <i class="fas fa-user text-white text-xs"></i>
         </div>
         <i class="fas fa-chevron-down hidden md:block text-[10px] text-gray-400"></i>
       </button>
@@ -79,6 +79,7 @@
 .sigr-header {
   --sigr-900: #1a4731;
   --sigr-700: #22703f;
+  --sigr-600: #2f8659;
   --sigr-100: #eaf5ee;
 }
 </style>

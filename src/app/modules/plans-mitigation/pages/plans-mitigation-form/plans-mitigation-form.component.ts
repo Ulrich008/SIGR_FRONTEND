@@ -1,9 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -21,7 +21,7 @@ import { applyZodValidation, isRequired, zodError } from '../../../../core/valid
 @Component({
   standalone: true,
   selector: 'app-plans-mitigation-form',
-  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MainLayoutComponent, DatePickerComponent, SearchableSelectComponent, PageHeaderComponent],
   templateUrl: './plans-mitigation-form.component.html'
 })
 export class PlansMitigationFormComponent implements OnInit {
@@ -34,6 +34,7 @@ export class PlansMitigationFormComponent implements OnInit {
 
   risques: RisqueResponse[] = [];
   loadingRisques = false;
+  nouveauCodeRisque: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -51,7 +52,7 @@ export class PlansMitigationFormComponent implements OnInit {
       libelle: [''],
       description: [''],
       dateCreation: [''],
-      codeRisque: ['']
+      codesRisques: [[] as string[]]
     });
 
     this.form.valueChanges.subscribe(() =>
@@ -60,7 +61,34 @@ export class PlansMitigationFormComponent implements OnInit {
   }
 
   get risqueOptions(): SearchableSelectOption[] {
-    return this.risques.map(r => ({ value: r.code, label: `${r.code} - ${r.libelle}` }));
+    const codesSelectionnes: string[] = this.form.get('codesRisques')?.value ?? [];
+    return this.risques
+      .filter(r => !codesSelectionnes.includes(r.code))
+      .map(r => ({ value: r.code, label: `${r.code} - ${r.libelle}` }));
+  }
+
+  get risquesSelectionnes(): RisqueResponse[] {
+    const codesSelectionnes: string[] = this.form.get('codesRisques')?.value ?? [];
+    return codesSelectionnes
+      .map(code => this.risques.find(r => r.code === code))
+      .filter((r): r is RisqueResponse => !!r);
+  }
+
+  ajouterRisque(): void {
+    if (!this.nouveauCodeRisque) return;
+
+    const codesRisques: string[] = this.form.get('codesRisques')?.value ?? [];
+    if (!codesRisques.includes(this.nouveauCodeRisque)) {
+      this.form.get('codesRisques')?.setValue([...codesRisques, this.nouveauCodeRisque]);
+      this.form.get('codesRisques')?.markAsTouched();
+    }
+    this.nouveauCodeRisque = null;
+  }
+
+  supprimerRisque(code: string): void {
+    const codesRisques: string[] = this.form.get('codesRisques')?.value ?? [];
+    this.form.get('codesRisques')?.setValue(codesRisques.filter(c => c !== code));
+    this.form.get('codesRisques')?.markAsTouched();
   }
 
   isRequired(field: string): boolean {
@@ -122,7 +150,7 @@ export class PlansMitigationFormComponent implements OnInit {
       libelle: plan.libelle,
       description: plan.description,
       dateCreation: this.formatDateForInput(plan.dateCreation),
-      codeRisque: plan.codeRisque
+      codesRisques: plan.codesRisques ?? []
     });
   }
 
@@ -159,7 +187,7 @@ export class PlansMitigationFormComponent implements OnInit {
       libelle: raw.libelle,
       description: raw.description,
       dateCreation: raw.dateCreation,
-      codeRisque: raw.codeRisque
+      codesRisques: raw.codesRisques
     };
 
     if (this.isEditMode && this.code) {

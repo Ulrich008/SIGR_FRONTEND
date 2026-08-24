@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -10,11 +10,12 @@ import { ActionService } from '../../../../core/services/action.service';
 import { ActionResponse, StatutAction } from '../../../../core/models/action.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 
 @Component({
   standalone: true,
   selector: 'app-actions-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './actions-list.component.html'
 })
 export class ActionsListComponent implements OnInit {
@@ -102,38 +103,19 @@ export class ActionsListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredActions.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   get canCreateOrDelete(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE', 'RESPONSABLE_ACTION']);
   }
 
   get canEdit(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE', 'RESPONSABLE_ACTION']);
   }
 
   createAction(): void {
@@ -159,7 +141,8 @@ export class ActionsListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (result.isConfirmed) {
         this.actionService.delete(code).subscribe({
@@ -192,16 +175,6 @@ export class ActionsListComponent implements OnInit {
       case 'EN_RETARD': return 'bg-red-100 text-red-700';
       case 'ANNULEE': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
-    }
-  }
-
-  getStatutIcon(statut: string): string {
-    switch (statut) {
-      case 'EN_COURS': return 'fa-spinner';
-      case 'TERMINEE': return 'fa-check-circle';
-      case 'EN_RETARD': return 'fa-exclamation-circle';
-      case 'ANNULEE': return 'fa-times-circle';
-      default: return 'fa-question-circle';
     }
   }
 

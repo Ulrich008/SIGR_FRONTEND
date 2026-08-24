@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -10,11 +10,12 @@ import { PlanMitigationService } from '../../../../core/services/plan-mitigation
 import { PlanMitigationResponse } from '../../../../core/models/plan-mitigation.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 
 @Component({
   standalone: true,
   selector: 'app-plans-mitigation-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './plans-mitigation-list.component.html'
 })
 export class PlansMitigationListComponent implements OnInit {
@@ -79,8 +80,8 @@ export class PlansMitigationListComponent implements OnInit {
       ? this.allPlans
       : this.allPlans.filter(p =>
           p.code.toLowerCase().includes(terme) ||
-          p.codeRisque?.toLowerCase().includes(terme) ||
-          p.libelleRisque?.toLowerCase().includes(terme) ||
+          p.codesRisques?.some(c => c.toLowerCase().includes(terme)) ||
+          p.libellesRisques?.some(l => l.toLowerCase().includes(terme)) ||
           p.description?.toLowerCase().includes(terme)
         );
     this.currentPage = 1;
@@ -101,34 +102,15 @@ export class PlansMitigationListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredPlans.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   get canWrite(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE', 'RESPONSABLE_ACTION']);
   }
 
   createPlan(): void {
@@ -154,7 +136,8 @@ export class PlansMitigationListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (result.isConfirmed) {
         this.planMitigationService.deleteByCode(code).subscribe({
@@ -190,15 +173,6 @@ export class PlansMitigationListComponent implements OnInit {
     }
   }
 
-  getStatutIcon(statut: string): string {
-    switch (statut) {
-      case 'PLANIFIE': return 'fa-calendar-check';
-      case 'EN_COURS': return 'fa-spinner';
-      case 'TERMINE': return 'fa-check-circle';
-      case 'CLOTURE': return 'fa-lock';
-      default: return 'fa-question-circle';
-    }
-  }
 
   countByStatut(statut: string): number {
     return this.allPlans.filter(p => p.statut === statut).length;

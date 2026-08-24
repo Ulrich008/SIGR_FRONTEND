@@ -18,9 +18,9 @@
   <!-- Logo -->
   <div class="px-4 pt-6 pb-5 border-b border-white/10 flex items-center gap-3 transition-all duration-300"
        [class.justify-center]="!showLabels">
-    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-base flex-shrink-0 shadow-sm"
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ring-1 ring-white/10"
          style="background: linear-gradient(135deg, var(--sigr-600), var(--sigr-900));">
-      S
+      <i class="fas fa-shield-halved text-white text-lg"></i>
     </div>
     <div *ngIf="showLabels" class="min-w-0 whitespace-nowrap">
       <p class="text-lg font-extrabold tracking-tight leading-none truncate text-white">SIGR</p>
@@ -83,8 +83,7 @@
                   <li *ngFor="let subChild of visibleChildren(child)">
                     <a *ngIf="subChild.path"
                        [routerLink]="subChild.path"
-                       routerLinkActive="sigr-active"
-                       [routerLinkActiveOptions]="{ exact: false }"
+                       [class.sigr-active]="isActivePath(subChild.path, visibleChildren(child))"
                        (click)="onMenuItemClick(subChild)"
                        class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                       {{ subChild.label }}
@@ -96,8 +95,7 @@
               <!-- SOUS-MENU SANS ENFANTS -->
               <a *ngIf="!child.children && child.path"
                  [routerLink]="child.path"
-                 routerLinkActive="sigr-active"
-                 [routerLinkActiveOptions]="{ exact: false }"
+                 [class.sigr-active]="isActivePath(child.path, visibleChildren(item))"
                  (click)="onMenuItemClick(child)"
                  class="sigr-item block w-full px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
                 {{ child.label }}
@@ -109,9 +107,8 @@
         <!-- MENU AVEC ROUTE -->
         <a *ngIf="!item.children && item.path"
            [routerLink]="item.path"
-           routerLinkActive="sigr-active"
-           [attr.aria-current]="'page'"
-           [routerLinkActiveOptions]="{ exact: false }"
+           [class.sigr-active]="isActivePath(item.path, visibleMenuItems)"
+           [attr.aria-current]="isActivePath(item.path, visibleMenuItems) ? 'page' : null"
            (click)="onMenuItemClick(item)"
            [attr.title]="!showLabels ? item.label : null"
            class="sigr-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-300 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sigr-700)]">
@@ -131,9 +128,9 @@
           class="m-3 rounded-xl p-3 flex items-center gap-3 transition-all duration-300 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           [class.justify-center]="!showLabels"
           style="background: linear-gradient(135deg, var(--sigr-800), var(--sigr-900));">
-    <div class="relative w-9 h-9 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ring-2 ring-white/20"
-         style="background: var(--sigr-600);">
-      {{ initiales || '…' }}
+    <div class="relative w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ring-2 ring-white/20 shadow-sm"
+         style="background: linear-gradient(135deg, var(--sigr-600), var(--sigr-900));">
+      <i class="fas fa-user text-white text-sm"></i>
     </div>
     <div *ngIf="showLabels" class="min-w-0 text-left flex-1">
       <p class="text-white text-sm font-semibold truncate">{{ nomComplet || 'Chargement...' }}</p>

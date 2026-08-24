@@ -1,0 +1,118 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Transmission"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6">
+    <div class="max-w-[1600px] mx-auto space-y-6">
+
+      <app-page-header subtitle="Contrôle Interne" title="Transmission">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </app-page-header>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ error }}</div>
+
+      <div *ngIf="loading" class="rounded-3xl bg-white p-10 shadow-sm flex items-center justify-center">
+        <span class="text-sm text-slate-500">Chargement...</span>
+      </div>
+
+      <ng-container *ngIf="!loading">
+        <div class="rounded-2xl bg-white p-4 shadow-sm">
+          <input
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilter()"
+            type="text"
+            placeholder="Rechercher par code, unité ou processus..."
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-emerald-400 focus:outline-none" />
+        </div>
+
+        <div *ngIf="filteredRapports.length === 0" class="rounded-3xl bg-white p-10 shadow-sm text-center text-sm text-slate-500">
+          Aucun rapport transmis pour le moment.
+        </div>
+
+        <div class="rounded-3xl bg-white shadow-sm">
+          <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50">
+              <tr class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                <th class="px-4 py-3">Code</th>
+                <th class="px-4 py-3">Unité administrative</th>
+                <th class="px-4 py-3">Processus</th>
+                <th class="px-4 py-3">Généré le</th>
+                <th class="px-4 py-3">Statut</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr *ngFor="let r of rapports" class="hover:bg-slate-50">
+                <td class="px-4 py-3 font-medium text-slate-700">{{ r.code }}</td>
+                <td class="px-4 py-3 text-slate-600">{{ r.libelleUniteAdministrative }}</td>
+                <td class="px-4 py-3 text-slate-600">{{ r.libelleProcessus }}</td>
+                <td class="px-4 py-3 text-slate-600">{{ formatDate(r.pdfGenereLe || '') }}</td>
+                <td class="px-4 py-3">
+                  <span [class]="'inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ' + getStatutBadgeClass(r.statut)">
+                    {{ getStatutLabel(r.statut) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex justify-end gap-2 flex-wrap">
+                    <button (click)="telecharger(r.code)" title="Télécharger" aria-label="Télécharger" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      Télécharger
+                    </button>
+                    <button *ngIf="canWrite && r.statut === StatutRapportCI.EN_ATTENTE_DE_VALIDATION"
+                      (click)="transmettre(r.code)" title="Transmettre" aria-label="Transmettre" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                      </svg>
+                      Transmettre
+                    </button>
+                    <ng-container *ngIf="r.statut === StatutRapportCI.DIFFERE || r.statut === StatutRapportCI.REJETE">
+                      <button (click)="voirMotif(r)" title="Voir le motif" aria-label="Voir le motif" class="inline-flex items-center gap-1.5 rounded-lg bg-orange-100 px-3 py-1.5 text-xs font-semibold text-orange-700 transition hover:bg-orange-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        Voir le motif
+                      </button>
+                      <button *ngIf="canWrite" (click)="supprimer(r.code)" title="Supprimer" aria-label="Supprimer" class="inline-flex items-center gap-1.5 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                          <path d="M10 11v6M14 11v6"/>
+                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                        </svg>
+                        Supprimer
+                      </button>
+                    </ng-container>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+          <app-pagination
+            [currentPage]="currentPage"
+            (currentPageChange)="goToPage($event)"
+            [totalItems]="filteredRapports.length"
+            [itemsPerPage]="itemsPerPage"
+            (itemsPerPageChange)="onItemsPerPageChange($event)"
+            itemLabel="rapports"
+          ></app-pagination>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+
+</app-main-layout>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -253,14 +253,18 @@ export class EvaluationsFormComponent implements OnInit {
   // ========== Réévaluation d'un risque déjà évalué ==========
 
   /**
-   * Un risque transmis et sorti de Formalisation est en cours de circuit de
-   * validation : le Responsable Risque ne doit pas pouvoir le réévaluer tant
-   * qu'il n'en est pas ressorti (validé, rejeté, ou différé jusqu'à revenir
-   * en Formalisation). Même règle que le verrou de modification du risque
-   * lui-même (RisqueServiceImpl.verifierRisqueModifiable côté backend).
+   * Une réévaluation n'est autorisée que si le risque est encore en
+   * Formalisation (pas transmis, ou redescendu jusque-là par un différé — on
+   * corrige avant de retransmettre) ou si le CMMR a rendu son avis final
+   * positif (VALIDEE). Tant que le dossier est en cours de circuit
+   * (Pilote/CCI/CMMR) ou a été rejeté, la réévaluation reste bloquée — même
+   * règle que le verrou backend (EvaluationServiceImpl.verifierReevaluationAutorisee).
    */
   private risqueEnCoursDeValidation(risque: RisqueResponse | null): boolean {
-    return !!risque?.transmis && risque?.etapeValidation !== EtapeValidation.FORMALISATION;
+    if (!risque) return false;
+    const autorise = risque.etapeValidation === EtapeValidation.FORMALISATION
+      || risque.etapeValidation === EtapeValidation.VALIDEE;
+    return !autorise;
   }
 
   private checkExistingEvaluation(codeRisque: string): void {
@@ -272,7 +276,7 @@ export class EvaluationsFormComponent implements OnInit {
     if (this.risqueEnCoursDeValidation(this.currentRisque)) {
       Swal.fire({
         title: 'Réévaluation impossible',
-        text: 'Ce risque a déjà été évalué et est actuellement transmis pour validation. Vous ne pourrez le réévaluer qu\'une fois le circuit de validation terminé (validé, différé ou rejeté).',
+        text: 'Ce risque ne peut être réévalué qu\'après l\'avis final de validation du CMMR (ou tant qu\'il est encore en Formalisation, avant transmission).',
         icon: 'warning',
         confirmButtonText: 'Compris'
       }).then(() => {
@@ -642,8 +646,6 @@ export class EvaluationsFormComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: '✔ Confirmer',
       cancelButtonText: '← Modifier',
-      confirmButtonColor: '#1e40af',
-      cancelButtonColor: '#64748b',
       width: '780px',
       padding: '2rem'
     }).then(result => {

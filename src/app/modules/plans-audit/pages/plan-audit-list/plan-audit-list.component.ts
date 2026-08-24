@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { PlanAuditService } from '../../../../core/services/plan-audit.service';
 import { PlanAuditResponse, AuditPropose, TypeRevue } from '../../../../core/models/audit.model';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -10,11 +10,12 @@ import { ChangeDetectorRef } from '@angular/core';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-plan-audit-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, RouterModule, FormsModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './plan-audit-list.component.html',
   styleUrls: ['./plan-audit-list.component.css']
 })
@@ -98,30 +99,15 @@ export class PlanAuditListComponent implements OnInit {
     return Math.ceil(this.plansAudit.length / this.itemsPerPage);
   }
 
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.plansAudit.length);
-    return { start, end };
-  }
-
   goToPage(page: number): void {
     this.currentPage = page;
+    this.cdr.detectChanges();
   }
 
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.cdr.detectChanges();
   }
 
   createPlanAudit(): void {
@@ -147,7 +133,8 @@ export class PlanAuditListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (!result.isConfirmed) return;
 

@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.component';
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
@@ -10,11 +10,12 @@ import { RisqueService } from '../../../../core/services/risque.service';
 import { RisqueResponse, StatutRisque, TypeRisque, EtapeValidation } from '../../../../core/models/risque.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 
 @Component({
   standalone: true,
   selector: 'app-risques-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './risques-list.component.html'
 })
 export class RisquesListComponent implements OnInit {
@@ -107,30 +108,11 @@ export class RisquesListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredRisques.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   createRisque(): void {
@@ -153,7 +135,8 @@ export class RisquesListComponent implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (result.isConfirmed) {
         this.risqueService.deleteByCode(code).subscribe({
@@ -270,11 +253,14 @@ export class RisquesListComponent implements OnInit {
     }
     switch (risque.etapeValidation) {
       case EtapeValidation.FORMALISATION:
-        return 'Responsable Risque';
-      case EtapeValidation.PILOTE:
-        return 'Pilote';
-      case EtapeValidation.CCI:
+        return 'Correspondant Risque';
+      case EtapeValidation.MANAGER_RISQUE:
+        return 'Manager Risque';
+      case EtapeValidation.CCI_VERS_RESPONSABLE:
+      case EtapeValidation.CCI_VERS_CMMR:
         return 'CCI';
+      case EtapeValidation.RESPONSABLE:
+        return 'Responsable Risque';
       case EtapeValidation.CMMR:
         return 'CMMR';
       case EtapeValidation.VALIDEE:
@@ -293,10 +279,13 @@ export class RisquesListComponent implements OnInit {
     switch (risque.etapeValidation) {
       case EtapeValidation.FORMALISATION:
         return 'bg-slate-100 text-slate-600';
-      case EtapeValidation.PILOTE:
+      case EtapeValidation.MANAGER_RISQUE:
         return 'bg-indigo-100 text-indigo-700';
-      case EtapeValidation.CCI:
+      case EtapeValidation.CCI_VERS_RESPONSABLE:
+      case EtapeValidation.CCI_VERS_CMMR:
         return 'bg-purple-100 text-purple-700';
+      case EtapeValidation.RESPONSABLE:
+        return 'bg-sky-100 text-sky-700';
       case EtapeValidation.CMMR:
         return 'bg-amber-100 text-amber-700';
       case EtapeValidation.VALIDEE:
@@ -391,7 +380,7 @@ export class RisquesListComponent implements OnInit {
   }
 
   canCreate(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE']);
   }
 
   /**
@@ -402,18 +391,18 @@ export class RisquesListComponent implements OnInit {
    */
   estVerrouille(risque: RisqueResponse): boolean {
     if (this.authService.hasAnyRole(['SUPER_ADMIN'])) return false;
-    if (!this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) return false;
+    if (!this.authService.hasAnyRole(['MANAGER_RISQUE', 'CORRESPONDANT_RISQUE'])) return false;
     return !!(risque.transmis && risque.etapeValidation !== EtapeValidation.FORMALISATION);
   }
 
   canEdit(risque: RisqueResponse): boolean {
     if (this.authService.hasAnyRole(['SUPER_ADMIN'])) return true;
-    if (!this.authService.hasAnyRole(['RESPONSABLE_RISQUES'])) return false;
+    if (!this.authService.hasAnyRole(['MANAGER_RISQUE', 'CORRESPONDANT_RISQUE'])) return false;
     return !this.estVerrouille(risque);
   }
 
   canDelete(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE']);
   }
 
   canCloturer(): boolean {

@@ -8,6 +8,8 @@ export const risqueSchema = z.object({
     .min(1, "La date d'identification est obligatoire"),
   codeProcessus: z.string()
     .min(1, "Le processus est obligatoire"),
+  finalite: z.string()
+    .min(1, "La finalité du processus menacée par ce risque est obligatoire"),
   typeRisque: z.string()
     .min(1, "Le type de risque est obligatoire")
 });

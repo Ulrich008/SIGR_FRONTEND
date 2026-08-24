@@ -3,9 +3,27 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 
 const ADMIN_ROLES = ['ADMIN', 'SUPER_ADMIN'];
-const GESTION_RISQUE_ROLES = ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR'];
-const AUDIT_ROLES = ['SUPER_ADMIN', 'AUDITEUR', 'PILOTE', 'CCI', 'CMMR'];
-const PROJET_CARTOGRAPHIE_ROLES = ['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'PILOTE', 'CCI', 'CMMR'];
+// RESPONSABLE_RISQUES (lecture + visa, sans CRUD) et CORRESPONDANT_RISQUE
+// (mêmes droits d'écriture que MANAGER_RISQUE mais cantonné à sa propre UA,
+// voir le filtre Hibernate dédié) voient ces mêmes écrans que MANAGER_RISQUE ;
+// la distinction lecture/écriture se fait au niveau des canWrite/@PreAuthorize,
+// pas ici (ce tableau ne gouverne que la visibilité de la page).
+export const GESTION_RISQUE_ROLES = ['SUPER_ADMIN', 'CMMR', 'CCI', 'PILOTE', 'MANAGER_RISQUE', 'RESPONSABLE_RISQUES', 'CORRESPONDANT_RISQUE', 'RESPONSABLE_ACTION', 'AUDITEUR'];
+// Mêmes modules que GESTION_RISQUE_ROLES, mais aussi accessibles (en lecture
+// seule côté UI) au Contrôleur Interne — sans lui donner Formalisation du
+// risque, volontairement absent de cette liste (voir Processus/Risques
+// ci-dessous qui restent sur GESTION_RISQUE_ROLES). Exportée pour être
+// réutilisée par cartographie-risques-routing.module.ts (restriction fine
+// par sous-route : seule "Cartographie définitive" doit l'inclure).
+export const GESTION_RISQUE_ROLES_PLUS_CI = [...GESTION_RISQUE_ROLES, 'CONTROLEUR_INTERNE'];
+export const AUDIT_ROLES = ['SUPER_ADMIN', 'AUDITEUR', 'PILOTE', 'CCI', 'CMMR', 'CONTROLEUR_INTERNE', 'MANAGER_RISQUE', 'RESPONSABLE_RISQUES', 'CORRESPONDANT_RISQUE'];
+export const PROJET_CARTOGRAPHIE_ROLES = ['SUPER_ADMIN', 'MANAGER_RISQUE', 'PILOTE', 'CCI', 'CMMR', 'RESPONSABLE_RISQUES', 'CORRESPONDANT_RISQUE'];
+export const CONTROLE_INTERNE_ROLES = ['SUPER_ADMIN', 'CONTROLEUR_INTERNE'];
+export const RAPPORT_CI_ROLES = ['SUPER_ADMIN', 'CCI', 'RESPONSABLE_RISQUES', 'CMMR'];
+// "Suivi des recommandations" (menu transverse du document de référence) :
+// seuls le Contrôleur Interne (statut d'avancement) et la CCI (décision)
+// y ont accès — plus restreint que GESTION_RISQUE_ROLES_PLUS_CI.
+export const SUIVI_RECOMMANDATIONS_CI_ROLES = ['SUPER_ADMIN', 'CONTROLEUR_INTERNE', 'CCI'];
 
 export const routes: Routes = [
   {
@@ -55,7 +73,10 @@ export const routes: Routes = [
   {
     path: 'cartographie-risques',
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: GESTION_RISQUE_ROLES },
+    // Le Contrôleur Interne n'a accès qu'à "Cartographie définitive" : la
+    // restriction fine par sous-route est faite dans
+    // cartographie-risques-routing.module.ts (guard par route enfant).
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
     loadChildren: () => import('./modules/cartographie-risques/cartographie-risques.module').then(m => m.CartographieRisquesModule)
   },
   {
@@ -67,19 +88,19 @@ export const routes: Routes = [
   {
     path: 'evaluations',
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: GESTION_RISQUE_ROLES },
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
     loadChildren: () => import('./modules/evaluations/evaluations.module').then(m => m.EvaluationsModule)
   },
   {
     path: 'matrices',
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: GESTION_RISQUE_ROLES },
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
     loadChildren: () => import('./modules/matrices/matrices.module').then(m => m.MatricesModule)
   },
   {
     path: 'indicateurs',
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: GESTION_RISQUE_ROLES },
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
     loadChildren: () => import('./modules/indicateurs/indicateurs.module').then(m => m.IndicateursModule)
   },
   {
@@ -89,15 +110,49 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/unites-mesure/unites-mesure.module').then(m => m.UnitesMesureModule)
   },
   {
+    path: 'suivi-risques',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
+    loadComponent: () => import('./modules/suivi-risques/pages/suivi-risques-list/suivi-risques-list.component').then(c => c.SuiviRisquesListComponent)
+  },
+  {
+    path: 'suivi-risques/recommandations-ci',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: SUIVI_RECOMMANDATIONS_CI_ROLES },
+    loadComponent: () => import('./modules/suivi-risques/pages/suivi-recommandations-ci/suivi-recommandations-ci.component').then(c => c.SuiviRecommandationsCiComponent)
+  },
+  {
+    path: 'suivi-risques/recommandations-ci/:code',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: SUIVI_RECOMMANDATIONS_CI_ROLES },
+    loadComponent: () => import('./modules/suivi-risques/pages/suivi-recommandations-ci-detail/suivi-recommandations-ci-detail.component').then(c => c.SuiviRecommandationsCiDetailComponent)
+  },
+  {
+    path: 'suivi-risques/recommandations-audit',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
+    loadComponent: () => import('./modules/suivi-risques/pages/suivi-recommandations-audit/suivi-recommandations-audit.component').then(c => c.SuiviRecommandationsAuditComponent)
+  },
+  {
+    // Page de détail dédiée au suivi d'un risque (distincte de /risques/:code
+    // qui est la fiche de formalisation) : doit rester APRÈS les routes
+    // littérales ci-dessus (recommandations-ci/-audit), sans quoi ':code'
+    // les intercepterait en premier.
+    path: 'suivi-risques/:code',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
+    loadComponent: () => import('./modules/suivi-risques/pages/suivi-risques-detail/suivi-risques-detail.component').then(c => c.SuiviRisquesDetailComponent)
+  },
+  {
     path: 'plans-mitigation',
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: GESTION_RISQUE_ROLES },
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
     loadChildren: () => import('./modules/plans-mitigation/plans-mitigation.module').then(m => m.PlansMitigationModule)
   },
   {
     path: 'actions',
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: GESTION_RISQUE_ROLES },
+    data: { roles: GESTION_RISQUE_ROLES_PLUS_CI },
     loadChildren: () => import('./modules/actions/actions.module').then(m => m.ActionsModule)
   },
   {
@@ -141,6 +196,60 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: AUDIT_ROLES },
     loadComponent: () => import('./modules/plans-audit/pages/plan-audit-form/plan-audit-form.component').then(c => c.PlanAuditFormComponent)
+  },
+  {
+    path: 'controle-interne/controles-second-niveau',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/controle-second-niveau-list/controle-second-niveau-list.component').then(c => c.ControleSecondNiveauListComponent)
+  },
+  {
+    path: 'controle-interne/controles-second-niveau/nouveau',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/controle-second-niveau-form/controle-second-niveau-form.component').then(c => c.ControleSecondNiveauFormComponent)
+  },
+  {
+    path: 'controle-interne/controles-second-niveau/:code',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/controle-second-niveau-form/controle-second-niveau-form.component').then(c => c.ControleSecondNiveauFormComponent)
+  },
+  {
+    path: 'controle-interne/rapports',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/rapport-list/rapport-list.component').then(c => c.RapportListComponent)
+  },
+  {
+    path: 'controle-interne/rapports/nouveau',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/rapport-form/rapport-form.component').then(c => c.RapportFormComponent)
+  },
+  {
+    path: 'controle-interne/rapports/:code',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/rapport-detail/rapport-detail.component').then(c => c.RapportDetailComponent)
+  },
+  {
+    path: 'controle-interne/rapports/:code/historique-avis',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/rapport-historique-avis/rapport-historique-avis.component').then(c => c.RapportHistoriqueAvisComponent)
+  },
+  {
+    path: 'controle-interne/transmission',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: CONTROLE_INTERNE_ROLES },
+    loadComponent: () => import('./modules/controle-interne/pages/transmission-list/transmission-list.component').then(c => c.TransmissionListComponent)
+  },
+  {
+    path: 'rapport-ci',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: RAPPORT_CI_ROLES },
+    loadComponent: () => import('./modules/rapport-ci/pages/rapport-ci-list/rapport-ci-list.component').then(c => c.RapportCiListComponent)
   },
   {
     path: 'ministere',

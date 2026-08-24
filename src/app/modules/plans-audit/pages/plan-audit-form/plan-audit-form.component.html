@@ -15,6 +15,13 @@
           <rect x="9" y="3" width="6" height="4" rx="1"/>
           <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/>
         </svg>
+        <button
+          actions
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
+        >
+          Retour
+        </button>
       </app-page-header>
 
       <!-- Erreur -->
@@ -199,6 +206,21 @@
                 ></textarea>
                 <p *ngIf="getFieldError('effetAuditIndicatif')" class="mt-1 text-xs text-red-600">
                   {{ getFieldError('effetAuditIndicatif') }}
+                </p>
+              </div>
+
+              <!-- Recommandation -->
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Recommandation</label>
+                <textarea
+                  formControlName="recommandation"
+                  rows="3"
+                  maxlength="1000"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                  placeholder="Décrire la recommandation..."
+                ></textarea>
+                <p *ngIf="getFieldError('recommandation')" class="mt-1 text-xs text-red-600">
+                  {{ getFieldError('recommandation') }}
                 </p>
               </div>
             </div>

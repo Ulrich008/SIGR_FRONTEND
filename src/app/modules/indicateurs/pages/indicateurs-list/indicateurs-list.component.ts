@@ -5,7 +5,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
+import { SigrSwal as Swal, sigrSwalButtons } from '../../../../core/utils/sigr-swal';
 import {
   Chart,
   BarController, BarElement,
@@ -18,6 +18,7 @@ import { MainLayoutComponent } from '../../../../layout/main-layout/main-layout.
 import { MenuItem } from '../../../../layout/sidebar/sidebar.component';
 import { MenuService } from '../../../../core/services/menu.service';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header.component';
+import { PaginationComponent } from '../../../../shared/pagination/pagination.component';
 import { IndicateurPerformanceService } from '../../../../core/services/indicateur-performance.service';
 import { IndicateurPerformanceResponse } from '../../../../core/models/indicateur-performance.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -34,7 +35,7 @@ Chart.register(
 @Component({
   standalone: true,
   selector: 'app-indicateurs-list',
-  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, MainLayoutComponent, PageHeaderComponent, PaginationComponent],
   templateUrl: './indicateurs-list.component.html'
 })
 export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -162,30 +163,11 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
     this.cdr.detectChanges();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-      this.cdr.detectChanges();
-    }
-  }
-
-  get totalPagesArray(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getDisplayedRange(): { start: number; end: number } {
-    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const end = Math.min(this.currentPage * this.itemsPerPage, this.filteredIndicateurs.length);
-    return { start, end };
+  onItemsPerPageChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePagination();
+    this.cdr.detectChanges();
   }
 
   // ─── Création des graphes ────────────────────────────────────────────────
@@ -501,13 +483,13 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   get canCreateOrDelete(): boolean {
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE', 'RESPONSABLE_ACTION']);
   }
 
   get canEdit(): boolean {
     // AUDITEUR peut valider les indicateurs : seule exception à son
     // accès normalement en lecture seule sur ce module.
-    return this.authService.hasAnyRole(['SUPER_ADMIN', 'RESPONSABLE_RISQUES', 'RESPONSABLE_ACTION', 'AUDITEUR']);
+    return this.authService.hasAnyRole(['SUPER_ADMIN', 'MANAGER_RISQUE', 'CORRESPONDANT_RISQUE', 'RESPONSABLE_ACTION', 'AUDITEUR']);
   }
 
   createIndicateur(): void {
@@ -533,7 +515,8 @@ export class IndicateursListComponent implements OnInit, AfterViewInit, OnDestro
       showCancelButton: true,
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
-      reverseButtons: true
+      reverseButtons: true,
+      customClass: sigrSwalButtons('danger')
     }).then(result => {
       if (result.isConfirmed) {
         this.indicateurService.delete(code).subscribe({

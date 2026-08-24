@@ -83,16 +83,14 @@
       </div>
 
       <!-- Filtre dynamique -->
-      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
-        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="applyFilter()"
-          placeholder="Rechercher par code, libellé, processus..."
-          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-        />
-      </div>
+      <div *ngIf="!loading" class="rounded-2xl bg-white p-4 shadow-sm">
+          <input
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilter()"
+            type="text"
+            placeholder="Rechercher par code, libellé, processus..."
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-emerald-400 focus:outline-none" />
+        </div>
 
       <!-- Erreur -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -104,9 +102,12 @@
         <span class="text-sm text-slate-500">Chargement des risques...</span>
       </div>
 
+      <!-- Résultats -->
+      <div *ngIf="!loading" class="rounded-3xl bg-white shadow-sm">
+
       <!-- Vue MOBILE : cartes -->
-      <div *ngIf="!loading" class="flex flex-col gap-4 md:hidden">
-        <div *ngIf="risques.length === 0" class="rounded-3xl bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
+      <div class="flex flex-col gap-4 md:hidden p-4">
+        <div *ngIf="risques.length === 0" class="text-center text-sm text-slate-500 py-6">
           Aucun risque transmis trouvé.
         </div>
         <div
@@ -141,7 +142,7 @@
       </div>
 
       <!-- Vue DESKTOP : tableau -->
-      <div *ngIf="!loading" class="hidden md:block rounded-3xl bg-white shadow-sm border border-slate-100 overflow-hidden">
+      <div class="hidden md:block overflow-x-auto rounded-t-3xl">
         <table class="w-full">
           <thead class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
             <tr>
@@ -192,30 +193,15 @@
       </div>
 
       <!-- Contrôles de pagination -->
-      <div *ngIf="!loading && filteredRisques.length > 0" class="flex items-center justify-between rounded-3xl bg-white p-4 shadow-sm">
-        <div class="text-sm text-slate-500">
-          Affichage de {{ getDisplayedRange().start }} à {{ getDisplayedRange().end }} sur {{ filteredRisques.length }} risques
-        </div>
-        <div class="flex items-center gap-2">
-          <button (click)="previousPage()" [disabled]="currentPage === 1"
-                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
-            Précédent
-          </button>
-          <div class="flex gap-1">
-            <button *ngFor="let page of totalPagesArray" (click)="goToPage(page)"
-                    [class.bg-emerald-600]="page === currentPage"
-                    [class.text-white]="page === currentPage"
-                    [class.bg-slate-100]="page !== currentPage"
-                    [class.text-slate-700]="page !== currentPage"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-200">
-              {{ page }}
-            </button>
-          </div>
-          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
-                  class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
-            Suivant
-          </button>
-        </div>
+      <app-pagination
+        [currentPage]="currentPage"
+        (currentPageChange)="goToPage($event)"
+        [totalItems]="filteredRisques.length"
+        [itemsPerPage]="itemsPerPage"
+        (itemsPerPageChange)="onItemsPerPageChange($event)"
+        itemLabel="risques"
+      ></app-pagination>
+
       </div>
 
     </div>

@@ -1,0 +1,243 @@
+<app-main-layout
+  [menuItems]="menuItems"
+  activeMenu="Contrôle de second niveau"
+  searchPlaceholder="Rechercher..."
+  organizationName="Ministère de l'Économie et des Finances"
+  userInitials="AD">
+
+  <div class="p-4 md:p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <app-page-header subtitle="Contrôle Interne" [title]="isEditMode ? 'Modifier le contrôle de second niveau' : 'Nouveau contrôle de second niveau'">
+        <svg icon xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        <button
+          actions
+          (click)="cancel()"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-white/20"
+        >
+          Retour
+        </button>
+      </app-page-header>
+
+      <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{{ error }}</div>
+
+      <app-form-stepper class="mt-8" [steps]="steps" [currentStep]="currentStep" [maxReachedStep]="maxReachedStep"
+        (stepClick)="goToStep($event)"></app-form-stepper>
+
+      <div class="rounded-3xl bg-white shadow-sm border border-slate-100 overflow-visible relative z-40 p-6">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+          <!-- Étape 0 : Informations générales -->
+          <div class="space-y-4" *ngIf="currentStep === 0">
+            <h3 class="text-lg font-semibold text-slate-900">Informations générales</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Unité administrative <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <input
+                    #uniteInput
+                    formControlName="codeUniteAdministrative"
+                    type="text"
+                    placeholder="Rechercher par code ou libellé..."
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
+                    (input)="onUniteSearch($event, uniteInput)"
+                    (focus)="onUniteFocus(uniteInput)"
+                    autocomplete="off"
+                  />
+                  <div *ngIf="showUniteDropdown"
+                       class="fixed bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                       [style.width.px]="uniteInput.offsetWidth"
+                       [style.top.px]="uniteDropdownTop"
+                       [style.left.px]="uniteDropdownLeft"
+                       [style.background-color]="'#ffffff'"
+                       style="z-index: 10000;">
+                    <div *ngFor="let unite of filteredUnites" (click)="selectUnite(unite)"
+                      class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0">
+                      <div class="font-medium text-slate-900">{{ unite.code }}</div>
+                      <div class="text-xs text-slate-500">{{ unite.libelle }}</div>
+                    </div>
+                    <div *ngIf="filteredUnites.length === 0" class="px-4 py-3 text-sm text-slate-500">Aucun résultat trouvé</div>
+                  </div>
+                </div>
+                <p *ngIf="form.get('codeUniteAdministrative')?.invalid && form.get('codeUniteAdministrative')?.touched" class="mt-1 text-xs text-red-600">
+                  L'unité administrative est obligatoire
+                </p>
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Processus <span class="text-red-500">*</span></label>
+                <app-searchable-select formControlName="codeProcessus"
+                  [options]="processusOptions" placeholder="Rechercher un processus..."></app-searchable-select>
+                <p *ngIf="!form.get('codeUniteAdministrative')?.value" class="mt-1 text-xs text-slate-400 italic">
+                  Sélectionnez d'abord une unité administrative
+                </p>
+                <p *ngIf="form.get('codeProcessus')?.invalid && form.get('codeProcessus')?.touched" class="mt-1 text-xs text-red-600">
+                  Le processus est obligatoire
+                </p>
+              </div>
+
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Date du contrôle <span class="text-red-500">*</span></label>
+                <app-date-picker formControlName="dateControle"></app-date-picker>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 1 : Contrôle de second niveau -->
+          <div class="space-y-6" *ngIf="currentStep === 1">
+            <h3 class="text-lg font-semibold text-slate-900">Contrôle de second niveau</h3>
+
+            <div class="rounded-2xl border border-slate-200 p-4 space-y-3">
+              <h4 class="text-sm font-bold text-emerald-700">Tests</h4>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Libellé</label>
+                <input formControlName="testsLibelle" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none" />
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Constats</label>
+                <textarea formControlName="testsConstats" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Analyse</label>
+                <textarea formControlName="testsAnalyse" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Recommandation</label>
+                <textarea formControlName="testsRecommandation" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 p-4 space-y-3">
+              <h4 class="text-sm font-bold text-emerald-700">Revues</h4>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Libellé</label>
+                <input formControlName="revuesLibelle" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none" />
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Constats</label>
+                <textarea formControlName="revuesConstats" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Analyse</label>
+                <textarea formControlName="revuesAnalyse" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Recommandation</label>
+                <textarea formControlName="revuesRecommandation" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 p-4 space-y-3">
+              <h4 class="text-sm font-bold text-emerald-700">Vérification</h4>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Libellé des pièces</label>
+                <input formControlName="verificationLibelleDesPieces" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none" />
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Constats</label>
+                <textarea formControlName="verificationConstats" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Analyse</label>
+                <textarea formControlName="verificationAnalyse" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Recommandation</label>
+                <textarea formControlName="verificationRecommandation" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 2 : Évolution de conformité -->
+          <div class="space-y-4" *ngIf="currentStep === 2">
+            <h3 class="text-lg font-semibold text-slate-900">Évolution de conformité</h3>
+
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Intitulé de l'opération</label>
+                <input formControlName="evolutionIntituleOperation" type="text" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Procédures internes / Renforcements</label>
+                <textarea formControlName="evolutionProceduresInternesRenforcements" rows="3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Résultats de conformité</label>
+                <textarea formControlName="evolutionResultatsConformite" rows="3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Analyse</label>
+                <textarea formControlName="evolutionAnalyse" rows="3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Recommandation</label>
+                <textarea formControlName="evolutionRecommandation" rows="3" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 3 : Anomalies et faiblesses de contrôles -->
+          <div class="space-y-6" *ngIf="currentStep === 3">
+            <h3 class="text-lg font-semibold text-slate-900">Anomalies et faiblesses de contrôles</h3>
+
+            <div class="rounded-2xl border border-slate-200 p-4 space-y-3">
+              <h4 class="text-sm font-bold text-amber-700">Anomalie</h4>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Constat</label>
+                <textarea formControlName="anomalieConstat" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Analyse</label>
+                <textarea formControlName="anomalieAnalyse" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Recommandation</label>
+                <textarea formControlName="anomalieRecommandation" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 p-4 space-y-3">
+              <h4 class="text-sm font-bold text-red-700">Faiblesse</h4>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Constat</label>
+                <textarea formControlName="faiblesseConstat" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Analyse</label>
+                <textarea formControlName="faiblesseAnalyse" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">Recommandation</label>
+                <textarea formControlName="faiblesseRecommandation" rows="2" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-green-400 focus:outline-none resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex justify-between gap-3 pt-4 border-t border-slate-100">
+            <button type="button" (click)="cancel()" class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+              Annuler
+            </button>
+            <div class="flex gap-3">
+              <button *ngIf="currentStep > 0" type="button" (click)="previousStep()" class="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                Précédent
+              </button>
+              <button *ngIf="currentStep < steps.length - 1" type="button" (click)="nextStep()" class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600">
+                Suivant
+              </button>
+              <button *ngIf="currentStep === steps.length - 1" type="submit" [disabled]="loading" class="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-50">
+                {{ isEditMode ? 'Modifier' : 'Créer' }}
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</app-main-layout>

@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AvisHistoriqueResponse, AvisRisqueRequest, RisqueRequest, RisqueResponse } from '../models/risque.model';
+import { SuiviRecommandationRequest } from '../models/suivi-recommandation.model';
 import { AuthService } from './auth.service';
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -83,6 +84,13 @@ export class RisqueService {
 
   deleteByCode(code: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${code}`, this.headers).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  /** Suivi des actions de mitigation du risque (statut d'avancement + décision) */
+  enregistrerSuivi(code: string, request: SuiviRecommandationRequest): Observable<RisqueResponse> {
+    return this.http.patch<RisqueResponse>(`${this.apiUrl}/${code}/suivi`, request, this.headers).pipe(
       catchError(error => this.handleError(error))
     );
   }

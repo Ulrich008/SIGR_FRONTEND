@@ -21,15 +21,14 @@
       </app-page-header>
 
       <!-- Filtre dynamique -->
-      <div *ngIf="!loading" class="rounded-3xl bg-white p-4 shadow-sm">
-        <label class="mb-2 block text-sm font-semibold text-slate-700">Rechercher</label>
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          placeholder="Rechercher par code, libellé, processus..."
-          class="w-full md:w-[32rem] lg:w-[36rem] rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-green-400 focus:outline-none"
-        />
-      </div>
+      <div *ngIf="!loading" class="rounded-2xl bg-white p-4 shadow-sm">
+          <input
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+            type="text"
+            placeholder="Rechercher par code, libellé, processus..."
+            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-emerald-400 focus:outline-none" />
+        </div>
 
       <!-- Erreur globale -->
       <div *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -75,7 +74,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
-                <tr *ngFor="let risque of filteredRisques" class="hover:bg-slate-50 transition">
+                <tr *ngFor="let risque of pagedRisques" class="hover:bg-slate-50 transition">
                   <td *ngIf="canTransmettre" class="px-4 py-4 whitespace-nowrap">
                     <input type="checkbox" [checked]="isRisqueSelected(risque.code)"
                       (change)="toggleRisqueSelection(risque.code)"
@@ -118,6 +117,15 @@
               </tbody>
             </table>
           </div>
+
+          <app-pagination
+            [currentPage]="currentPage"
+            (currentPageChange)="goToPage($event)"
+            [totalItems]="filteredRisques.length"
+            [itemsPerPage]="itemsPerPage"
+            (itemsPerPageChange)="onItemsPerPageChange($event)"
+            itemLabel="risques"
+          ></app-pagination>
         </div>
       </div>
 
