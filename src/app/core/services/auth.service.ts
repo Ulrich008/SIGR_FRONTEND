@@ -40,10 +40,10 @@ export class AuthService {
   }
 
   // ================= LOGIN =================
-  login(request: LoginRequest): Observable<LoginResponse> {
+  login(request: LoginRequest, rememberMe: boolean = false): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.API_URL}/login`, request).pipe(
       tap(response => {
-        this.setSession(response);
+        this.setSession(response, rememberMe);
         this.currentUserSubject.next(response);
         // Le menu est un singleton partagé : on repart d'un menu replié
         // pour ce nouvel agent, plutôt que de garder l'état déplié
@@ -73,8 +73,7 @@ export class AuthService {
   // ================= LOGOUT =================
   logout(): void {
     if (this.isBrowser) {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.USER_KEY);
+      this.clearStorages();
     }
     this.currentUserSubject.next(null);
     this.menuService.resetExpandedState();
@@ -98,14 +97,14 @@ export class AuthService {
   // ================= TOKEN =================
   getToken(): string | null {
     if (!this.isBrowser) return null;
-    return localStorage.getItem(this.TOKEN_KEY);
+    return sessionStorage.getItem(this.TOKEN_KEY) ?? localStorage.getItem(this.TOKEN_KEY);
   }
 
   // ================= USER =================
   getCurrentUser(): LoginResponse | null {
     if (!this.isBrowser) return null;
 
-    const userStr = localStorage.getItem(this.USER_KEY);
+    const userStr = sessionStorage.getItem(this.USER_KEY) ?? localStorage.getItem(this.USER_KEY);
     if (!userStr) return null;
 
     try {
@@ -180,11 +179,26 @@ export class AuthService {
   }
 
   // ================= SESSION =================
-  private setSession(response: LoginResponse): void {
+  /**
+   * « Se souvenir de moi » coché : session dans localStorage, qui survit
+   * à la fermeture de l'onglet et du navigateur. Décoché (par défaut) :
+   * sessionStorage, vidé automatiquement à la fermeture de l'onglet —
+   * évite qu'une session reste ouverte indéfiniment sur un poste partagé.
+   */
+  private setSession(response: LoginResponse, rememberMe: boolean): void {
     if (!this.isBrowser) return;
 
-    localStorage.setItem(this.TOKEN_KEY, response.token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(response));
+    this.clearStorages();
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem(this.TOKEN_KEY, response.token);
+    storage.setItem(this.USER_KEY, JSON.stringify(response));
+  }
+
+  private clearStorages(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.USER_KEY);
   }
 
   // ================= ERROR =================

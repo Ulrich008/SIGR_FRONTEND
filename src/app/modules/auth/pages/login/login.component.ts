@@ -25,7 +25,8 @@ export class LoginComponent {
   ) {
     this.loginForm = this.fb.group({
       matricule: ['', [Validators.required]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required]],
+      rememberMe: [false]
     });
   }
 
@@ -35,9 +36,10 @@ export class LoginComponent {
       this.error = null;
       this.cdr.markForCheck();
 
-      const request: LoginRequest = this.loginForm.value;
+      const { rememberMe, ...credentials } = this.loginForm.value;
+      const request: LoginRequest = credentials;
 
-      this.authService.login(request).subscribe({
+      this.authService.login(request, rememberMe).subscribe({
         next: (response) => {
           this.loading = false;
           // Redirection vers le dashboard après connexion réussie

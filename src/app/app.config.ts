@@ -11,7 +11,10 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([
         (req, next) => {
-          const token = localStorage.getItem('auth_token'); // ← plus de garde SSR nécessaire
+          // "Se souvenir de moi" décoché : le token vit dans sessionStorage
+          // (vidé à la fermeture de l'onglet) plutôt que localStorage —
+          // voir AuthService.setSession().
+          const token = sessionStorage.getItem('auth_token') ?? localStorage.getItem('auth_token');
           if (token) {
             req = req.clone({
               setHeaders: { Authorization: `Bearer ${token}` }

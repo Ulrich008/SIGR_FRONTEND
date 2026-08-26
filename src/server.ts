@@ -25,8 +25,22 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 /**
- * Serve static files from /browser
+ * Serve static files from /browser. Le cache d'un an ne s'applique qu'aux
+ * fichiers de build (JS/CSS) : leur nom contient un hash de contenu, donc
+ * une nouvelle version change d'URL et le cache de l'ancienne ne pose
+ * jamais problème. Les fichiers sous assets/ (guides, images...) gardent
+ * le même nom d'un déploiement à l'autre — un cache d'un an dessus fait
+ * que les navigateurs continuent de servir l'ancienne version indéfiniment
+ * après un redeploy, d'où un cache court avec revalidation à la place.
  */
+app.use(
+  '/assets',
+  express.static(join(browserDistFolder, 'assets'), {
+    maxAge: '5m',
+    index: false,
+    redirect: false,
+  }),
+);
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
