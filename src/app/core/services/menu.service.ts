@@ -94,7 +94,7 @@ export class MenuService {
     },
     {
       icon: 'fas fa-chart-line',
-      label: 'Suivi des Risques',
+      label: 'Suivi',
       roles: [...new Set([...GESTION_RISQUE_ROLES_PLUS_CI, ...SUIVI_RECOMMANDATIONS_CI_ROLES])],
       children: [
         { icon: 'fas fa-tasks', label: 'Suivi des actions de mitigations', path: '/suivi-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI },
