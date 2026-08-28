@@ -118,7 +118,7 @@ export class MenuService {
       roles: CONTROLE_INTERNE_ROLES,
       children: [
         { icon: 'fas fa-magnifying-glass', label: 'Contrôle de second niveau', path: '/controle-interne/controles-second-niveau', roles: CONTROLE_INTERNE_ROLES },
-        { icon: 'fas fa-file-lines', label: 'Rapport', path: '/controle-interne/rapports', roles: CONTROLE_INTERNE_ROLES },
+        { icon: 'fas fa-file-lines', label: 'Elaborer Rapport', path: '/controle-interne/rapports', roles: CONTROLE_INTERNE_ROLES },
         { icon: 'fas fa-paper-plane', label: 'Transmission', path: '/controle-interne/transmission', roles: CONTROLE_INTERNE_ROLES }
       ]
     },
