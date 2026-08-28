@@ -93,18 +93,6 @@ export class MenuService {
       ]
     },
     {
-      icon: 'fas fa-chart-line',
-      label: 'Suivi',
-      roles: [...new Set([...GESTION_RISQUE_ROLES_PLUS_CI, ...SUIVI_RECOMMANDATIONS_CI_ROLES])],
-      children: [
-        { icon: 'fas fa-tasks', label: 'Suivi des actions de mitigations', path: '/suivi-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI },
-        // Menu "Suivi des recommandations" du document de référence : accès
-        // restreint au Contrôleur Interne (statut) et à la CCI (décision).
-        { icon: 'fas fa-user-shield', label: 'Suivi des Recommandations des CI', path: '/suivi-risques/recommandations-ci', roles: SUIVI_RECOMMANDATIONS_CI_ROLES },
-        { icon: 'fas fa-file-alt', label: 'Suivi des recommandations d\'audit', path: '/suivi-risques/recommandations-audit', roles: GESTION_RISQUE_ROLES_PLUS_CI }
-      ]
-    },
-    {
       icon: 'fas fa-clipboard-check',
       label: 'Audit',
       roles: AUDIT_ROLES,
@@ -135,6 +123,18 @@ export class MenuService {
         // (voir cartographie-risques-routing.module.ts pour la restriction
         // équivalente au niveau des routes).
         { icon: 'fas fa-chart-area', label: 'Cartographie définitif des risques', path: '/cartographie-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI }
+      ]
+    },
+    {
+      icon: 'fas fa-chart-line',
+      label: 'Suivi',
+      roles: [...new Set([...GESTION_RISQUE_ROLES_PLUS_CI, ...SUIVI_RECOMMANDATIONS_CI_ROLES])],
+      children: [
+        { icon: 'fas fa-tasks', label: 'Suivi des actions de mitigations', path: '/suivi-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI },
+        // Menu "Suivi des recommandations" du document de référence : accès
+        // restreint au Contrôleur Interne (statut) et à la CCI (décision).
+        { icon: 'fas fa-user-shield', label: 'Suivi des Recommandations des CI', path: '/suivi-risques/recommandations-ci', roles: SUIVI_RECOMMANDATIONS_CI_ROLES },
+        { icon: 'fas fa-file-alt', label: 'Suivi des recommandations d\'audit', path: '/suivi-risques/recommandations-audit', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
   ];
