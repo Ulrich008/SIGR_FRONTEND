@@ -40,6 +40,7 @@ export class DashboardComponent implements AfterViewInit {
   totalPlansMitigation = 0;
   totalActions = 0;
   totalAgents = 0;
+  totalUnitesAdministratives = 0;
 
   // Ministère information
   ministereNom: string = '';
@@ -154,6 +155,7 @@ export class DashboardComponent implements AfterViewInit {
         this.animateCount(data.plansMitigation.length, v => this.totalPlansMitigation = v);
         this.animateCount(data.actions.length, v => this.totalActions = v);
         this.animateCount(data.agents.length, v => this.totalAgents = v);
+        this.animateCount(data.unitesAdministratives.length, v => this.totalUnitesAdministratives = v);
 
         // Build chart data based on processus
         this.barData = data.processus.map((p: any, i: number) => ({
@@ -187,6 +189,11 @@ export class DashboardComponent implements AfterViewInit {
 
   setActiveMenu(label: string): void {
     this.activeMenu = label;
+  }
+
+  /** Chaque carte KPI est cliquable : elle renvoie vers la liste correspondante. */
+  goTo(path: string): void {
+    this.router.navigate([path]);
   }
 
   /**

@@ -63,9 +63,9 @@
 
         <!-- Grille des risques -->
         <div *ngIf="filteredViewModels.length > 0" class="rounded-3xl bg-white p-6 shadow-sm">
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-6">
           <div *ngFor="let vm of pagedViewModels" (click)="goToRisque(vm.risque.code)"
-            class="group cursor-pointer rounded-3xl bg-white p-5 shadow-sm border border-slate-100 transition hover:shadow-md hover:-translate-y-0.5">
+            class="group cursor-pointer rounded-3xl bg-white p-4 shadow-sm border-2 border-slate-200 transition hover:shadow-md hover:-translate-y-0.5">
 
             <!-- En-tête carte -->
             <div class="flex items-start justify-between gap-3 mb-1">

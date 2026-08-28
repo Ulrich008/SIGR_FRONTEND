@@ -124,7 +124,10 @@ export class MatricesListComponent implements OnInit {
   onCellClick(impact: number, prob: number): void {
     const evals = this.getEvaluationsForCell(impact, prob);
     if (evals.length > 0) {
-      this.viewEvaluation(evals[0].code);
+      // Plusieurs évaluations peuvent partager la même case (ré-évaluations
+      // successives d'un même risque) : on ouvre la plus récente, pas la
+      // première rencontrée.
+      this.viewEvaluation(evals[evals.length - 1].code);
     }
   }
 
