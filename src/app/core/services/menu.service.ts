@@ -61,7 +61,7 @@ export class MenuService {
     },
     {
       icon: 'fas fa-exclamation-triangle',
-      label: 'Formalisation du risque Inhérent',
+      label: 'Formulation du risque Inhérent',
       roles: GESTION_RISQUE_ROLES,
       children: [
         { icon: 'fas fa-chart-line', label: 'Processus/Mission', path: '/processus', roles: GESTION_RISQUE_ROLES },
@@ -74,7 +74,7 @@ export class MenuService {
       roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
         { icon: 'fas fa-clipboard-check', label: 'Évaluer Risque', path: '/evaluations', roles: GESTION_RISQUE_ROLES_PLUS_CI },
-        { icon: 'fas fa-table', label: 'Matrice', path: '/matrices', roles: GESTION_RISQUE_ROLES_PLUS_CI }
+        { icon: 'fas fa-table', label: 'Cartographie des risques', path: '/matrices', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
     {
@@ -113,7 +113,7 @@ export class MenuService {
     { icon: 'fas fa-file-shield', label: 'Rapport CI', path: '/rapport-ci', roles: RAPPORT_CI_ROLES },
     {
       icon: 'fas fa-map',
-      label: 'Cartographie des risques',
+      label: 'Registre des risques',
       roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
         { icon: 'fas fa-clipboard-list', label: 'Projet de cartographie de risques', path: '/plans-cartographie', roles: PROJET_CARTOGRAPHIE_ROLES },

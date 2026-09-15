@@ -70,19 +70,15 @@ export class RapportCiListComponent implements OnInit {
     this.error = null;
     this.rapportService.getAll().subscribe({
       next: (data) => {
-        // La CCI voit tous les rapports transmis (pour agir sur ceux en
-        // attente et consulter l'historique) ; Responsable des risques et
-        // CMMR ne sont destinataires que des rapports validés par la CCI
-        // ("à titre d'information"/"à titre de compte rendu").
+        // Tous les acteurs peuvent voir les rapports transmis (lecture seule)
+        // La CCI peut valider/différer/rejeter les rapports en attente
         const transmis = data.filter(r =>
           r.statut === StatutRapportCI.TRANSMIS ||
           r.statut === StatutRapportCI.VALIDE ||
           r.statut === StatutRapportCI.DIFFERE ||
           r.statut === StatutRapportCI.REJETE
         );
-        this.allRapports = this.canValiderAvis
-          ? transmis
-          : transmis.filter(r => r.statut === StatutRapportCI.VALIDE);
+        this.allRapports = transmis;
         this.applyFilter();
         this.loading = false;
         this.cdr.detectChanges();

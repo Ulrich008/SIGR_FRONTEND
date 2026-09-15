@@ -14,7 +14,10 @@ export const actionBaseSchema = z.object({
   bonnePratique: z.string()
     .min(1, "La bonne pratique inexistante est obligatoire"),
   matriculeResponsable: z.string()
-    .min(1, "Le responsable est obligatoire")
+    .min(1, "Le responsable est obligatoire"),
+  coutEstimatif: z.number()
+    .min(0, "Le coût estimatif doit être positif")
+    .optional()
 });
 
 export const actionSchema = actionBaseSchema.superRefine((data, ctx) => {

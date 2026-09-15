@@ -76,7 +76,8 @@ export class ActionsFormComponent implements OnInit {
       codePlan: [''],
       codeRisque: [''],
       bonnePratique: [''],
-      matriculeResponsable: ['']
+      matriculeResponsable: [''],
+      coutEstimatif: ['']
     });
 
     this.form.valueChanges.subscribe(() =>
@@ -188,7 +189,8 @@ export class ActionsFormComponent implements OnInit {
       codePlan: action.codePlan,
       codeRisque: action.codeRisque,
       bonnePratique: action.bonnePratique,
-      matriculeResponsable: action.matriculeResponsable
+      matriculeResponsable: action.matriculeResponsable,
+      coutEstimatif: action.coutEstimatif
     });
 
     // Charger la liste des risques du plan, puis présélectionner celui de l'action
@@ -363,7 +365,8 @@ export class ActionsFormComponent implements OnInit {
       codePlan: raw.codePlan,
       codeRisque: raw.codeRisque,
       bonnePratique: raw.bonnePratique,
-      matriculeResponsable: raw.matriculeResponsable
+      matriculeResponsable: raw.matriculeResponsable,
+      coutEstimatif: raw.coutEstimatif ? parseFloat(raw.coutEstimatif) : undefined
     };
 
     if (this.isEditMode && this.code) {

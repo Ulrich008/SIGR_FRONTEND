@@ -14,6 +14,7 @@ export interface ActionRequest {
   codeRisque: string;
   bonnePratique: string;
   matriculeResponsable: string;
+  coutEstimatif?: number;
 }
 
 export interface ActionResponse {
@@ -27,4 +28,5 @@ export interface ActionResponse {
   bonnePratique: string;
   matriculeResponsable: string;
   nomResponsable: string;
+  coutEstimatif?: number;
 }
