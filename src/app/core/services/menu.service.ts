@@ -74,7 +74,7 @@ export class MenuService {
       roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
         { icon: 'fas fa-clipboard-check', label: 'Évaluer Risque', path: '/evaluations', roles: GESTION_RISQUE_ROLES_PLUS_CI },
-        { icon: 'fas fa-table', label: 'Registres des risques', path: '/matrices', roles: GESTION_RISQUE_ROLES_PLUS_CI }
+        { icon: 'fas fa-table', label: 'Cartographie des risques', path: '/matrices', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
     {
