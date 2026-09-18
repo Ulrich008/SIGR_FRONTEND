@@ -74,7 +74,7 @@ export class MenuService {
       roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
         { icon: 'fas fa-clipboard-check', label: 'Évaluer Risque', path: '/evaluations', roles: GESTION_RISQUE_ROLES_PLUS_CI },
-        { icon: 'fas fa-table', label: 'Cartographie des risques', path: '/matrices', roles: GESTION_RISQUE_ROLES_PLUS_CI }
+        { icon: 'fas fa-table', label: 'Registres des risques', path: '/matrices', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
     {
@@ -116,13 +116,13 @@ export class MenuService {
       label: 'Registre des risques',
       roles: GESTION_RISQUE_ROLES_PLUS_CI,
       children: [
-        { icon: 'fas fa-clipboard-list', label: 'Projet de cartographie de risques', path: '/plans-cartographie', roles: PROJET_CARTOGRAPHIE_ROLES },
-        { icon: 'fas fa-clock-rotate-left', label: 'Cartographie différée et rejetée', path: '/cartographie-risques/differees-rejetees', roles: GESTION_RISQUE_ROLES },
-        { icon: 'fas fa-check-circle', label: 'Cartographie validée', path: '/cartographie-risques/validees', roles: GESTION_RISQUE_ROLES },
-        // Seul sous-écran de Cartographie accessible au Contrôleur Interne
+        { icon: 'fas fa-clipboard-list', label: 'Projet de registres de risques', path: '/plans-cartographie', roles: PROJET_CARTOGRAPHIE_ROLES },
+        { icon: 'fas fa-clock-rotate-left', label: 'Registres différés et rejetés', path: '/cartographie-risques/differees-rejetees', roles: GESTION_RISQUE_ROLES },
+        { icon: 'fas fa-check-circle', label: 'Registres validés', path: '/cartographie-risques/validees', roles: GESTION_RISQUE_ROLES },
+        // Seul sous-écran de Registres accessible au Contrôleur Interne
         // (voir cartographie-risques-routing.module.ts pour la restriction
         // équivalente au niveau des routes).
-        { icon: 'fas fa-chart-area', label: 'Cartographie définitif des risques', path: '/cartographie-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI }
+        { icon: 'fas fa-chart-area', label: 'Registres définitifs des risques', path: '/cartographie-risques', roles: GESTION_RISQUE_ROLES_PLUS_CI }
       ]
     },
     {
